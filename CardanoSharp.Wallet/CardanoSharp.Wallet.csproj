@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Words\ChineseSimplified.txt" />
+    <EmbeddedResource Include="Words\ChineseTraditional.txt" />
+    <EmbeddedResource Include="Words\Czech.txt" />
+    <EmbeddedResource Include="Words\English.txt" />
+    <EmbeddedResource Include="Words\French.txt" />
+    <EmbeddedResource Include="Words\Italian.txt" />
+    <EmbeddedResource Include="Words\Japanese.txt" />
+    <EmbeddedResource Include="Words\Korean.txt" />
+    <EmbeddedResource Include="Words\Portuguese.txt" />
+    <EmbeddedResource Include="Words\Spanish.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Chaos.NaCl\Chaos.NaCl\Chaos.NaCl-Portable.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="5.0.2" />
+  </ItemGroup>
+
+</Project>
