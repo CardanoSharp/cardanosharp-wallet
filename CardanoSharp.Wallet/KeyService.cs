@@ -340,7 +340,6 @@ namespace CardanoSharp.Wallet
             var zr = new byte[32];
             var i = new byte[64];
             var seri = le32(index);
-            Console.WriteLine($"pk: {pk.ToStringHex()}");
 
             BigEndianBuffer zBuffer = new BigEndianBuffer();
             BigEndianBuffer iBuffer = new BigEndianBuffer();
@@ -357,8 +356,6 @@ namespace CardanoSharp.Wallet
                 iBuffer.Write(new byte[] { 0x03 });
                 iBuffer.Write(pk);
                 iBuffer.Write(seri);
-
-                Console.WriteLine("Soft");
             }
 
             using (HMACSHA512 hmacSha512 = new HMACSHA512(chainCode))
@@ -387,23 +384,12 @@ namespace CardanoSharp.Wallet
             Buffer.BlockCopy(ekey, 0, kl, 0, 32);
             var kr = new byte[32];
             Buffer.BlockCopy(ekey, 32, kr, 0, 32);
-            //var kl = ekey[0..32];
-            //var kr = ekey[32..64];
 
             var z = new byte[64];
             var zl = new byte[32];
             var zr = new byte[32];
             var i = new byte[64];
             var seri = le32(index);
-
-            Console.WriteLine($"ekey: {ekey.ToStringHex()}");
-            Console.WriteLine($"kl: {kl.ToStringHex()}");
-            Console.WriteLine($"kr: {kr.ToStringHex()}");
-            Console.WriteLine($"chainCode: {chainCode.ToStringHex()}");
-            Console.WriteLine($"index: {index}");
-            Console.WriteLine($"seri: {seri.ToStringHex()}");
-
-            //private key
 
             BigEndianBuffer zBuffer = new BigEndianBuffer();
             BigEndianBuffer iBuffer = new BigEndianBuffer();
@@ -416,8 +402,6 @@ namespace CardanoSharp.Wallet
                 iBuffer.Write(new byte[] { 0x01 });
                 iBuffer.Write(ekey);
                 iBuffer.Write(seri);
-
-                Console.WriteLine("Hard");
             }
             else
             {
@@ -429,27 +413,20 @@ namespace CardanoSharp.Wallet
                 iBuffer.Write(new byte[] { 0x03 });
                 iBuffer.Write(pk);
                 iBuffer.Write(seri);
-
-                Console.WriteLine("Soft");
             }
 
 
             using (HMACSHA512 hmacSha512 = new HMACSHA512(chainCode))
             {
                 z = hmacSha512.ComputeHash(zBuffer.ToArray());
-                Console.WriteLine($"z actual: {z.ToStringHex()}");
                 zl = z.Slice(0, 32);
                 zr = z.Slice(32);
             }
-            Console.WriteLine($"zl: {zl.ToStringHex()}");
-            Console.WriteLine($"zr: {zr.ToStringHex()}");
 
             // left = kl + 8 * trunc28(zl)
             var left = add_28_mul8(kl, zl);
             // right = zr + kr
             var right = add_256bits(kr, zr);
-            Console.WriteLine($"left actual: {left.ToStringHex()}");
-            Console.WriteLine($"right actual: {right.ToStringHex()}");
 
             var key = new byte[left.Length + right.Length];
             Buffer.BlockCopy(left, 0, key, 0, left.Length);
@@ -461,9 +438,7 @@ namespace CardanoSharp.Wallet
             using (HMACSHA512 hmacSha512 = new HMACSHA512(chainCode))
             {
                 i = hmacSha512.ComputeHash(iBuffer.ToArray());
-                Console.WriteLine($"i: {i.ToStringHex()}");
                 cc = i.Slice(32);
-                Console.WriteLine($"cc: {cc.ToStringHex()}");
             }
 
             return (key, cc);
