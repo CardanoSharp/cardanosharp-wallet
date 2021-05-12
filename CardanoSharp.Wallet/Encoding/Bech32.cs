@@ -6,7 +6,15 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.Encoding
 {
-    public class Bech32
+    public interface IBech32
+    {
+        public string Encode(byte[] data, string hrp);
+        public byte[] Decode(string bech32EncodedString, out byte witVer, out string hrp);
+        public bool IsValid(string bech32EncodedString);
+        public bool HasValidChars(string bech32EncodedString);
+    }
+
+    public class Bech32: IBech32
     {
         /// <summary>
         /// Maximum length of the whole Bech32 string (hrp + separator + data)

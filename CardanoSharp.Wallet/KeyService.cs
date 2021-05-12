@@ -30,8 +30,10 @@ namespace CardanoSharp.Wallet
         private uint[] wordIndexes;
         private string[] allWords;
 
-        public string Generate(int entropySize, WordLists wl = WordLists.English)
+        public string Generate(int wordSize, WordLists wl = WordLists.English)
         {
+            var entropySize = allowedEntropyLengths[allowedWordLengths.ToList().FindIndex(x => x == wordSize)];
+
             var rng = new RNGCryptoServiceProvider();
             if (rng is null)
                 throw new ArgumentNullException(nameof(rng), "Random number generator cannot be null.");
