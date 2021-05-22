@@ -74,5 +74,15 @@ namespace CardanoSharp.Wallet
         {
             //set the ttl on TransactionBody
         }
+
+        public void SetMetadata(byte[] metadata)
+        {
+            //set the metadata on TransactionBody
+        }
+
+        public void SetUpdate()
+        {
+            //do we do this? we can omit this from the transaction.... right?
+        }
     }
 }
