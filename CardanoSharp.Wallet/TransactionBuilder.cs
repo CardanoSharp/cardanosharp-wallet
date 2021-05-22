@@ -30,7 +30,7 @@ namespace CardanoSharp.Wallet
             //add a new TransactionOutput to the TransactionBody
             _transactionBody.TransactionOutputs.Add(new TransactionOutput()
             {
-                d
+                
             });
         }
 
