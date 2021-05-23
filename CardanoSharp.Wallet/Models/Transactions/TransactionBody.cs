@@ -27,6 +27,6 @@ public partial class TransactionBody
 
         public virtual ICollection<TransactionInput> TransactionInputs { get; set; }
         public virtual ICollection<TransactionOutput> TransactionOutputs { get; set; }
-        public decimal Coin { get; set; }
+        public uint Coin { get; set; }
     }
 }

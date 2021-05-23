@@ -5,5 +5,6 @@
     public partial class TransactionOutput
     {
         public byte[] Id { get; set; }
+        public uint Amount { get; set; }
     }
 }
