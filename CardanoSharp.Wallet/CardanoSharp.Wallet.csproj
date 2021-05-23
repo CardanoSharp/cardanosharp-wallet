@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\CBOR\CBOR2\CBOR2.csproj" />
     <ProjectReference Include="..\..\Chaos.NaCl\Chaos.NaCl\Chaos.NaCl-Portable.csproj" />
   </ItemGroup>
   
