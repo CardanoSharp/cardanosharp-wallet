@@ -6,5 +6,6 @@ namespace CardanoSharp.Wallet.Models.Transactions
 {
     public class Transaction
     {
+        public TransactionBody TransactionBody { get; set; }
     }
 }
