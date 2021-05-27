@@ -13,6 +13,8 @@ namespace CardanoSharp.Wallet.Models.Transactions
     //; , ? 4: [* foo_script]
     //; , ? 5: [* plutus_script]
     //}
+
+    //This can be updated for future witness changes based upon CDDL changes
     public partial class TransactionWitnessSet
     {
         public TransactionWitnessSet()
@@ -22,6 +24,7 @@ namespace CardanoSharp.Wallet.Models.Transactions
         }
         public ICollection<VKeyWitness> VKeyWitnesses { get; set; }
         public ICollection<NativeScript> NativeScripts { get; set; }
+        public ICollection<BootStrapWitness> BootStrapWitnesses { get; set; }
 
 
     }
