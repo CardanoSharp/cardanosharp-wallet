@@ -7,7 +7,7 @@
 //                    ]
     public partial class TransactionInput
     {
-        public byte[] Id { get; set; }
-        public uint TransactionInputIndex { get; set; }
+        public byte[] TransactionId { get; set; }
+        public uint TransactionIndex { get; set; }
     }
 }

@@ -29,7 +29,7 @@ public partial class TransactionBody
 
         public virtual ICollection<TransactionInput> TransactionInputs { get; set; }
         public virtual ICollection<TransactionOutput> TransactionOutputs { get; set; }
-        public uint Coin { get; set; }
+        public uint Fee { get; set; }
         public uint? Ttl { get; set; }
         public Certificate Certificate { get; set; }
         public Dictionary<byte[], uint> Withdrawls { get; set; }

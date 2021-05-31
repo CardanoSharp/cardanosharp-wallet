@@ -1,4 +1,5 @@
 ﻿using CardanoSharp.Wallet.Models.Transactions;
+using PeterO.Cbor2;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,41 +8,90 @@ namespace CardanoSharp.Wallet
 {
     public class TransactionBuilder
     {
-        private readonly TransactionBody _transactionBody;
+        private CBORObject _cborTransaction { get; set; }
+        private CBORObject _cborTransactionBody { get; set; }
+        private CBORObject _cborTransactionInputs { get; set; }
+        private CBORObject _cborTransactionOutputs { get; set; }
+        private CBORObject _cborTransactionWitnessSet { get; set; }
 
-        public TransactionBuilder()
+        private void AddInput(TransactionInput transactionInput)
         {
-            //new up TransactionBody
-            _transactionBody = new TransactionBody();
+            //create the CBOR Object Array if it hasnt been created yet
+            if (_cborTransactionInputs == null) _cborTransactionInputs = CBORObject.NewArray();
+
+            //fill out cbor structure for transaction input
+            var cborTransactionInput = CBORObject.NewArray()
+                .Add(transactionInput.TransactionId)
+                .Add(transactionInput.TransactionIndex);
+
+            //add the new input to the array
+            _cborTransactionInputs.Add(cborTransactionInput);
         }
 
-        public void AddInput(byte[] transactionId, uint index)
+        private void AddOutput(TransactionOutput transactionOutput)
         {
-            //add a new TransactionInput to the TransactionBody
-            _transactionBody.TransactionInputs.Add(new TransactionInput()
+            //create the CBOR Object Array if it hasnt been created yet
+            if (_cborTransactionOutputs == null) _cborTransactionOutputs = CBORObject.NewArray();
+
+            //start the cbor transaction output object with the address we are sending
+            var cborTransactionOutput = CBORObject.NewArray()
+                .Add(transactionOutput.Address);
+
+            //determine if the output has any native assets included
+            if(transactionOutput.Value.MultiAsset != null)
             {
-                Id = transactionId,
-                TransactionInputIndex = index
-            });
-        }
+                //add any 'coin' aka ADA to the output
+                var cborAssetOutput = CBORObject.NewArray()
+                    .Add(transactionOutput.Value.Coin);
 
-        public void AddOutput(string transactionHash, int index)
-        {
-            //add a new TransactionOutput to the TransactionBody
-            _transactionBody.TransactionOutputs.Add(new TransactionOutput()
+                //iterate over the multiassets
+                //reminder of this structure
+                //MultiAsset = Rust Type of BTreeMap<PolicyID, Assets>
+                //PolicyID = byte[](length 28)
+                //Assets = BTreeMap<AssetName, uint>
+                //AssetName = byte[](length 28)
+                foreach (var policy in transactionOutput.Value.MultiAsset)
+                {
+                    //in this scope
+                    //policy.Key = PolicyID
+                    //policy.Values = Assets
+
+                    var assetMap = CBORObject.NewMap();
+                    foreach(var asset in policy.Value.Token)
+                    {
+                        //in this scope
+                        //asset.Key = AssetName
+                        //asset.Value = uint
+                        assetMap.Add(asset.Key, asset.Value);
+                    }
+
+                    //add our PolicyID (policy.Key) and Assets (assetMap)
+                    var multiassetMap = CBORObject.NewMap()
+                        .Add(policy.Key, assetMap);
+
+                    //add our multiasset to our assetOutput
+                    cborAssetOutput.Add(multiassetMap);
+                }
+
+                //finally add our assetOutput to our transaction output
+                cborTransactionOutput.Add(cborAssetOutput);
+            }else
             {
-                
-            });
+                //heres a simple send ada transaction
+                cborTransactionOutput.Add(transactionOutput.Value.Coin);
+            }
+
+            _cborTransactionOutputs.Add(cborTransactionOutput);
         }
 
-        public void AddWithdrawals(byte[] key, uint value)
+        private void AddWithdrawals(byte[] key, uint value)
         {
             //key = reward_account
             //value = coin/amount
             //add a new Withdrawal to the TransactionBody
         }
 
-        public void AddCertificates()
+        private void AddCertificates()
         {
             /*
             certificate =
@@ -65,24 +115,32 @@ namespace CardanoSharp.Wallet
             //add a new Certificate
         }
 
-        public void SetFee(int fee)
+        public void BuildBody(TransactionBody transactionBody)
         {
-            //set the fee on TransactionBody
-        }
+            _cborTransactionBody = CBORObject.NewMap();
 
-        public void SetTtl(int ttl)
-        {
-            //set the ttl on TransactionBody
-        }
+            //add all the transaction inputs
+            foreach (var txInput in transactionBody.TransactionInputs)
+            {
+                AddInput(txInput);
+            }
 
-        public void SetMetadata(byte[] metadata)
-        {
-            //set the metadata on TransactionBody
-        }
+            if (_cborTransactionInputs != null) _cborTransactionBody.Add(0, _cborTransactionInputs);
 
-        public void SetUpdate()
-        {
-            //do we do this? we can omit this from the transaction.... right?
+
+            //add all the transaction outputs
+            foreach (var txOutput in transactionBody.TransactionOutputs)
+            {
+                AddOutput(txOutput);
+            }
+
+            if (_cborTransactionOutputs != null) _cborTransactionBody.Add(1, _cborTransactionOutputs);
+
+            //add fee
+            _cborTransactionBody.Add(2, transactionBody.Fee);
+
+            //add ttl
+            if (transactionBody.Ttl.HasValue) _cborTransactionBody.Add(3, transactionBody.Ttl.Value);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace CardanoSharp.Wallet.Models.Transactions
+﻿using CSharpTest.Net.Collections;
+
+namespace CardanoSharp.Wallet.Models.Transactions
 {
 
     //transaction_output = [address, amount : value]
@@ -8,18 +10,18 @@
             coin: Coin,
             multiasset: Option<MultiAsset>,
         }
-        Coin = ulong
+        Coin = uint
         MultiAsset = Rust Type of BTreeMap<PolicyID, Assets>
         https://doc.rust-lang.org/std/collections/struct.BTreeMap.html
         BTreeMap might essentially be a Dictionary
 
         PolicyID = byte[] (length 28)
-        Assets = BTreeMap<AssetName, ulong>
+        Assets = BTreeMap<AssetName, uint>
         AssetName = byte[] (length 28)
      */
     public partial class TransactionOutput
     {
-        public byte[] Id { get; set; }
-        public uint Amount { get; set; }
+        public byte[] Address { get; set; }
+        public TransactionOutputValue Value { get; set; }
     }
 }
