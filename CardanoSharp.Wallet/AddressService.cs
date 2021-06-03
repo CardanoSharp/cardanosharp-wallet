@@ -11,6 +11,7 @@ namespace CardanoSharp.Wallet
     public interface IAddressService
     {
         string GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType);
+        byte[] GetAddressBytes(string addressHash);
     }
     public class AddressService: IAddressService
     {
@@ -47,6 +48,14 @@ namespace CardanoSharp.Wallet
 
             var bech32 = new Bech32();
             return bech32.Encode(addressArray, prefix);
+        }
+
+        public byte[] GetAddressBytes(string addressHash)
+        {
+            var bech32 = new Bech32();
+            byte witVer;
+            string prefix;
+            return bech32.Decode(addressHash, out witVer, out prefix);
         }
 
         private string getPrefixHeader(AddressType addressType) =>

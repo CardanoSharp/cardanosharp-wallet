@@ -1,4 +1,5 @@
-﻿using CardanoSharp.Wallet.Models.Transactions;
+﻿using CardanoSharp.Wallet.Common;
+using CardanoSharp.Wallet.Models.Transactions;
 using PeterO.Cbor2;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace CardanoSharp.Wallet
         private CBORObject _cborTransactionInputs { get; set; }
         private CBORObject _cborTransactionOutputs { get; set; }
         private CBORObject _cborTransactionWitnessSet { get; set; }
+        private CBORObject _cborVKeyWitnesses { get; set; }
 
         private void AddInput(TransactionInput transactionInput)
         {
@@ -115,7 +117,7 @@ namespace CardanoSharp.Wallet
             //add a new Certificate
         }
 
-        public void BuildBody(TransactionBody transactionBody)
+        private void BuildBody(TransactionBody transactionBody)
         {
             _cborTransactionBody = CBORObject.NewMap();
 
@@ -141,6 +143,60 @@ namespace CardanoSharp.Wallet
 
             //add ttl
             if (transactionBody.Ttl.HasValue) _cborTransactionBody.Add(3, transactionBody.Ttl.Value);
+        }
+
+        private void AddVKeyWitnesses(VKeyWitness vKeyWitness)
+        {
+            //create the CBOR Object Array if it hasnt been created yet
+            if (_cborVKeyWitnesses == null) _cborVKeyWitnesses = CBORObject.NewArray();
+
+            //fill out cbor structure for vkey witnesses
+            var cborVKeyWitness = CBORObject.NewArray()
+                .Add(vKeyWitness.VKey)
+                .Add(vKeyWitness.Signature);
+
+            //add the new input to the array
+            _cborVKeyWitnesses.Add(cborVKeyWitness);
+        }
+
+        private void BuildWitnessSet(TransactionWitnessSet transactionWitnessSet)
+        {
+            _cborTransactionWitnessSet = CBORObject.NewMap();
+
+            foreach(var vkeyWitness in transactionWitnessSet.VKeyWitnesses)
+            {
+                AddVKeyWitnesses(vkeyWitness);
+            }
+
+            if (_cborVKeyWitnesses != null) _cborVKeyWitnesses.Add(0, _cborVKeyWitnesses);
+        }
+
+        public byte[] Build(Transaction transaction)
+        {
+            //create Transaction CBOR Object
+            _cborTransaction = CBORObject.NewArray();
+
+            //if we have a transaction body, lets build Body CBOR and add to Transaction Array
+            if (transaction.TransactionBody != null)
+            {
+                BuildBody(transaction.TransactionBody);
+                _cborTransaction.Add(_cborTransactionBody);
+            }
+
+            //if we have a transaction witness set, lets build Witness Set CBOR and add to Transaction Array
+            if (transaction.TransactionWitnessSet != null)
+            {
+                BuildWitnessSet(transaction.TransactionWitnessSet);
+                _cborTransaction.Add(_cborTransactionWitnessSet);
+            }
+
+            //return serialized cbor
+            return _cborTransaction.EncodeToBytes();
+        }
+
+        public long CalculateFee(byte[] transaction)
+        {
+            return transaction.Length * FeeStructure.Coefficient + FeeStructure.Constant;
         }
     }
 }
