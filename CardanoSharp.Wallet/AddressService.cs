@@ -2,6 +2,7 @@
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Encoding;
 using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;

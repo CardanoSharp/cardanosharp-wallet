@@ -227,11 +227,13 @@ namespace CardanoSharp.Wallet.Encoding
         /// <returns>Byte array of the given string.</returns>
         public byte[] Decode(string bech32EncodedString, out byte witVer, out string hrp)
         {
-            if (!HasValidChars(bech32EncodedString))
-                throw new FormatException("Input is not a valid bech32 encoded string.");
+            //if (!HasValidChars(bech32EncodedString))
+            //    throw new FormatException("Input is not a valid bech32 encoded string.");
 
 
             byte[] b32Arr = Bech32Decode(bech32EncodedString, out hrp);
+            Console.WriteLine("Dencode b32Arr");
+            Console.WriteLine(b32Arr.ToStringHex());
             if (b32Arr.Length < CheckSumSize)
             {
                 throw new FormatException("Invalid data length.");
@@ -241,7 +243,7 @@ namespace CardanoSharp.Wallet.Encoding
                 throw new FormatException("Invalid checksum.");
             }
 
-            byte[] b256Arr = ConvertBits(b32Arr.SubArray(1, b32Arr.Length - CheckSumSize - 1), 5, 8, false);
+            byte[] b256Arr = ConvertBits(b32Arr.SubArray(0, b32Arr.Length - CheckSumSize - 1), 5, 8);
             if (b256Arr == null)
             {
                 throw new FormatException("Invalid data format.");
@@ -272,7 +274,8 @@ namespace CardanoSharp.Wallet.Encoding
             byte[] b32Arr = ConvertBits(data, 8, 5, true);
             byte[] checksum = CalculateCheckSum(hrp, b32Arr);
             b32Arr = b32Arr.ConcatFast(checksum);
-
+            Console.WriteLine("Encode b32Arr");
+            Console.WriteLine(b32Arr.ToStringHex());
             StringBuilder result = new StringBuilder(b32Arr.Length + 1 + hrp.Length);
             result.Append($"{hrp}{Separator}");
             foreach (var b in b32Arr)
@@ -280,7 +283,8 @@ namespace CardanoSharp.Wallet.Encoding
                 result.Append(B32Chars[b]);
             }
 
-            return result.ToString();
+            var resultStr = result.ToString();
+            return resultStr;
         }
     }
 }
