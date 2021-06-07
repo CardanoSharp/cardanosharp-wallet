@@ -171,7 +171,7 @@ namespace CardanoSharp.Wallet
             if (_cborVKeyWitnesses != null) _cborVKeyWitnesses.Add(0, _cborVKeyWitnesses);
         }
 
-        public byte[] Build(Transaction transaction)
+        public byte[] SerializeTransaction(Transaction transaction)
         {
             //create Transaction CBOR Object
             _cborTransaction = CBORObject.NewArray();
@@ -192,6 +192,14 @@ namespace CardanoSharp.Wallet
 
             //return serialized cbor
             return _cborTransaction.EncodeToBytes();
+        }
+
+        public byte[] SerializeBody(TransactionBody transactionBody)
+        {
+            BuildBody(transactionBody);
+
+            //return serialized cbor
+            return _cborTransactionBody.EncodeToBytes();
         }
 
         public long CalculateFee(byte[] transaction)

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using CardanoSharp.Wallet.Extensions;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -21,6 +22,48 @@ namespace CardanoSharp.Wallet.Test
             _keyService = new KeyService();
             _addressService = new AddressService();
             _transactionBuilder = new TransactionBuilder();
+        }
+
+        [Fact]
+        public void SerializeBodyTest()
+        {
+            var transactionBody = new TransactionBody()
+            {
+                TransactionInputs = new List<TransactionInput>()
+                {
+                    new TransactionInput()
+                    {
+                        TransactionIndex = 0,
+                        TransactionId = getGenesisTransaction()
+                    }
+                },
+                TransactionOutputs = new List<TransactionOutput>()
+                {
+                    new TransactionOutput()
+                    {
+                        Address = "0079467C69A9AC66280174D09D62575BA955748B21DEC3B483A9469A65CC339A35F9E0FE039CF510C761D4DD29040C48E9657FDAC7E9C01D94".HexToByteArray(),
+                        Value = new TransactionOutputValue()
+                        {
+                            Coin = 10
+                        }
+                    },
+                    new TransactionOutput()
+                    {
+                        Address = "00C05E80BDCF267E7FE7BF4A867AFE54A65A3605B32AAE830ED07F8E1CCC339A35F9E0FE039CF510C761D4DD29040C48E9657FDAC7E9C01D94".HexToByteArray(),
+                        Value = new TransactionOutputValue()
+                        {
+                            Coin = 856488
+                        }
+                    }
+                },
+                Fee = 143502,
+                Ttl = 1000
+            };
+
+            var serialized = _transactionBuilder.SerializeBody(transactionBody);
+
+            Assert.Equal("a4008182582000000000000000000000000000000000000000000000000000000000000000000001828258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d940a82583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d941a000d11a8021a0002308e031903e8",
+                serialized.ToStringHex());
         }
 
 

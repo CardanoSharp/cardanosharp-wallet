@@ -4,6 +4,7 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.Models.Transactions
 {
+    //MultiSig: https://docs.cardano.org/projects/cardano-node/en/latest/reference/simple-scripts.html#type-all
 
     //  transaction_witness_set =
     //{ ? 0: [* vkeywitness ]
