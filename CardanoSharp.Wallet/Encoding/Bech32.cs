@@ -158,7 +158,7 @@ namespace CardanoSharp.Wallet.Encoding
 
         private byte[] ConvertBits(byte[] data, int fromBits, int toBits, bool pad = true)
         {
-            // TODO: 
+            // TODO: Optimize Looping
             // We can use a method similar to BIP39 here to avoid the nested loop, usage of List, increase the speed,
             // and shorten this function to 3 lines.
             // Or convert to ulong[], loop through it (3 times) take 5 bits at a time or 8 bits at a time...
