@@ -9,5 +9,6 @@
 
 	public partial class AuxiliaryData
     {
+        public string Metadata { get; set; }
     }
 }
