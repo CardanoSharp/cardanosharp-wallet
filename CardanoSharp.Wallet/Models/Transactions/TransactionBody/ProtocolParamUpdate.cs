@@ -23,7 +23,11 @@
 //    min_utxo_value: Option<Coin>,
 //}
 
-    //TODO Implement this type
+    /// <summary>
+    /// This type is not needed as of right now. There is not intention to update network protocols
+    /// so as of this time this will stay empty until we need it, but stays to ensure we match accurately 
+    /// the Cardano transaction mapping
+    /// </summary>
     public partial class ProtocolParamUpdate
     {
 
