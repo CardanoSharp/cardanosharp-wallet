@@ -1,4 +1,4 @@
-﻿using Blake2Fast;
+﻿
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Encoding;
 using CardanoSharp.Wallet.Enums;
@@ -19,8 +19,8 @@ namespace CardanoSharp.Wallet
         public string GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType)
         {
             var networkInfo = getNetworkInfo(networkType);
-            var paymentEncoded = blake2b244(payment);
-            var stakeEncoded = blake2b244(stake);
+            var paymentEncoded = HashHelper.Blake2b244(payment);
+            var stakeEncoded = HashHelper.Blake2b244(stake);
 
             //get prefix
             var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
@@ -93,13 +93,5 @@ namespace CardanoSharp.Wallet
                 _ => throw new Exception("Unknown address type")
             };
 
-        private byte[] blake2b244(byte[] data)
-        {
-            return Blake2b.ComputeHash(28, data);
-        }
-        private byte[] blake2b256(byte[] data)
-        {
-            return Blake2b.ComputeHash(32, data);
-        }
     }
 }

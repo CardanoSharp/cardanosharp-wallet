@@ -4,6 +4,7 @@
     public partial class VKeyWitness
     {
         public byte[] VKey { get; set; }
+        public byte[] SKey { get; set; }
         public byte[] Signature { get; set; }
     }
 }

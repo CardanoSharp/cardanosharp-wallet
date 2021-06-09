@@ -1,6 +1,8 @@
 ﻿using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Models.Transactions;
+using Chaos.NaCl;
 using PeterO.Cbor2;
+using CardanoSharp.Wallet.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,6 +17,7 @@ namespace CardanoSharp.Wallet
         private CBORObject _cborTransactionOutputs { get; set; }
         private CBORObject _cborTransactionWitnessSet { get; set; }
         private CBORObject _cborVKeyWitnesses { get; set; }
+        private CBORObject _cborTransactionMetadata { get; set; }
 
         private void AddInput(TransactionInput transactionInput)
         {
@@ -150,6 +153,12 @@ namespace CardanoSharp.Wallet
             //create the CBOR Object Array if it hasnt been created yet
             if (_cborVKeyWitnesses == null) _cborVKeyWitnesses = CBORObject.NewArray();
 
+            //sign body
+            var txBodyHash = HashHelper.Blake2b256(_cborTransactionBody.EncodeToBytes());
+            if(vKeyWitness.SKey.Length == 32)
+                vKeyWitness.SKey = Ed25519.ExpandedPrivateKeyFromSeed(vKeyWitness.SKey);
+            vKeyWitness.Signature = Ed25519.Sign(txBodyHash, vKeyWitness.SKey);
+
             //fill out cbor structure for vkey witnesses
             var cborVKeyWitness = CBORObject.NewArray()
                 .Add(vKeyWitness.VKey)
@@ -168,7 +177,7 @@ namespace CardanoSharp.Wallet
                 AddVKeyWitnesses(vkeyWitness);
             }
 
-            if (_cborVKeyWitnesses != null) _cborVKeyWitnesses.Add(0, _cborVKeyWitnesses);
+            if (_cborVKeyWitnesses != null) _cborTransactionWitnessSet.Add(0, _cborVKeyWitnesses);
         }
 
         public byte[] SerializeTransaction(Transaction transaction)
@@ -189,6 +198,10 @@ namespace CardanoSharp.Wallet
                 BuildWitnessSet(transaction.TransactionWitnessSet);
                 _cborTransaction.Add(_cborTransactionWitnessSet);
             }
+
+            //add metadata
+            _cborTransactionMetadata = null;
+            _cborTransaction.Add(_cborTransactionMetadata);
 
             //return serialized cbor
             return _cborTransaction.EncodeToBytes();
