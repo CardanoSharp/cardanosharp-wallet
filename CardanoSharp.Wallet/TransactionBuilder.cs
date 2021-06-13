@@ -6,6 +6,7 @@ using CardanoSharp.Wallet.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace CardanoSharp.Wallet
 {
@@ -146,6 +147,9 @@ namespace CardanoSharp.Wallet
 
             //add ttl
             if (transactionBody.Ttl.HasValue) _cborTransactionBody.Add(3, transactionBody.Ttl.Value);
+
+            //add metadata
+            if (_cborTransactionMetadata != null) _cborTransactionBody.Add(7, HashHelper.Blake2b256(_cborTransactionMetadata.EncodeToBytes()));
         }
 
         private void AddVKeyWitnesses(VKeyWitness vKeyWitness)
@@ -155,14 +159,22 @@ namespace CardanoSharp.Wallet
 
             //sign body
             var txBodyHash = HashHelper.Blake2b256(_cborTransactionBody.EncodeToBytes());
-            if(vKeyWitness.SKey.Length == 32)
-                vKeyWitness.SKey = Ed25519.ExpandedPrivateKeyFromSeed(vKeyWitness.SKey);
-            vKeyWitness.Signature = Ed25519.Sign(txBodyHash, vKeyWitness.SKey);
+            if (vKeyWitness.SKey.Length == 32)
+            {
+                vKeyWitness.SKey = Ed25519.ExpandedPrivateKeyFromSeed(vKeyWitness.SKey.Slice(0, 32));
+                vKeyWitness.Signature = Ed25519.Sign(txBodyHash, vKeyWitness.SKey);
+            }else
+            {
+                vKeyWitness.Signature = Ed25519.SignCrypto(txBodyHash, vKeyWitness.SKey);
+            }
+           
 
             //fill out cbor structure for vkey witnesses
             var cborVKeyWitness = CBORObject.NewArray()
                 .Add(vKeyWitness.VKey)
                 .Add(vKeyWitness.Signature);
+
+            var x = Ed25519.Verify(vKeyWitness.Signature, txBodyHash, vKeyWitness.VKey);
 
             //add the new input to the array
             _cborVKeyWitnesses.Add(cborVKeyWitness);
@@ -180,10 +192,26 @@ namespace CardanoSharp.Wallet
             if (_cborVKeyWitnesses != null) _cborTransactionWitnessSet.Add(0, _cborVKeyWitnesses);
         }
 
+        private void BuildMetadata(AuxiliaryData auxiliaryData)
+        {
+        }
+
         public byte[] SerializeTransaction(Transaction transaction)
         {
             //create Transaction CBOR Object
             _cborTransaction = CBORObject.NewArray();
+
+            //construct metadata
+            if (transaction.AuxiliaryData != null)
+            {
+                _cborTransactionMetadata = CBORObject.NewArray();
+                _cborTransactionMetadata.Add(transaction.AuxiliaryData.Metadata);
+                _cborTransactionMetadata.Add(transaction.AuxiliaryData.List);
+            }
+            else
+            {
+                _cborTransactionMetadata = null;
+            }
 
             //if we have a transaction body, lets build Body CBOR and add to Transaction Array
             if (transaction.TransactionBody != null)
@@ -197,10 +225,12 @@ namespace CardanoSharp.Wallet
             {
                 BuildWitnessSet(transaction.TransactionWitnessSet);
                 _cborTransaction.Add(_cborTransactionWitnessSet);
+            }else if(_cborTransactionMetadata != null)
+            {
+                _cborTransaction.Add(CBORObject.NewArray());
             }
 
             //add metadata
-            _cborTransactionMetadata = null;
             _cborTransaction.Add(_cborTransactionMetadata);
 
             //return serialized cbor
