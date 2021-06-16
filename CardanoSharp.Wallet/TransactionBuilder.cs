@@ -174,8 +174,6 @@ namespace CardanoSharp.Wallet
                 .Add(vKeyWitness.VKey)
                 .Add(vKeyWitness.Signature);
 
-            var x = Ed25519.Verify(vKeyWitness.Signature, txBodyHash, vKeyWitness.VKey);
-
             //add the new input to the array
             _cborVKeyWitnesses.Add(cborVKeyWitness);
         }
