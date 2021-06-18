@@ -1,5 +1,4 @@
-﻿using CSharpTest.Net.Collections;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,6 +11,6 @@ namespace CardanoSharp.Wallet.Models.Transactions
         /// BPlusTree<byte[], NativeAsset>
         /// byte[] = PolicyID
         /// </summary>
-        public BPlusTree<byte[], NativeAsset> MultiAsset { get; set; }
+        public Dictionary<byte[], NativeAsset> MultiAsset { get; set; }
     }
 }

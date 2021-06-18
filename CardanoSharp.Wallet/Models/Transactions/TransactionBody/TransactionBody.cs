@@ -1,5 +1,4 @@
-﻿using CSharpTest.Net.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections;
 
 namespace CardanoSharp.Wallet.Models.Transactions
@@ -36,6 +35,6 @@ public partial class TransactionBody
         public Update Update { get; set; }
         public string MetadataHash { get; set; }
         public uint? TransactionStartInterval { get; set; }
-        public BPlusTree<byte[], Dictionary<List<sbyte>, int>> Mint { get; set; }
+        public Dictionary<byte[], Dictionary<List<sbyte>, int>> Mint { get; set; }
     }
 }

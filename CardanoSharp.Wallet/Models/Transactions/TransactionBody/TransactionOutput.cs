@@ -1,6 +1,4 @@
-﻿using CSharpTest.Net.Collections;
-
-namespace CardanoSharp.Wallet.Models.Transactions
+﻿namespace CardanoSharp.Wallet.Models.Transactions
 {
 
     //transaction_output = [address, amount : value]
