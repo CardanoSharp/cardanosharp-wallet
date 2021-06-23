@@ -158,7 +158,7 @@ namespace CardanoSharp.Wallet.Encoding
 
         private byte[] ConvertBits(byte[] data, int fromBits, int toBits, bool pad = true)
         {
-            // TODO: 
+            // TODO: Optimize Looping
             // We can use a method similar to BIP39 here to avoid the nested loop, usage of List, increase the speed,
             // and shorten this function to 3 lines.
             // Or convert to ulong[], loop through it (3 times) take 5 bits at a time or 8 bits at a time...
@@ -227,10 +227,6 @@ namespace CardanoSharp.Wallet.Encoding
         /// <returns>Byte array of the given string.</returns>
         public byte[] Decode(string bech32EncodedString, out byte witVer, out string hrp)
         {
-            if (!HasValidChars(bech32EncodedString))
-                throw new FormatException("Input is not a valid bech32 encoded string.");
-
-
             byte[] b32Arr = Bech32Decode(bech32EncodedString, out hrp);
             if (b32Arr.Length < CheckSumSize)
             {
@@ -241,7 +237,7 @@ namespace CardanoSharp.Wallet.Encoding
                 throw new FormatException("Invalid checksum.");
             }
 
-            byte[] b256Arr = ConvertBits(b32Arr.SubArray(1, b32Arr.Length - CheckSumSize - 1), 5, 8, false);
+            byte[] b256Arr = ConvertBits(b32Arr.SubArray(0, b32Arr.Length - CheckSumSize - 1), 5, 8);
             if (b256Arr == null)
             {
                 throw new FormatException("Invalid data format.");
@@ -272,7 +268,6 @@ namespace CardanoSharp.Wallet.Encoding
             byte[] b32Arr = ConvertBits(data, 8, 5, true);
             byte[] checksum = CalculateCheckSum(hrp, b32Arr);
             b32Arr = b32Arr.ConcatFast(checksum);
-
             StringBuilder result = new StringBuilder(b32Arr.Length + 1 + hrp.Length);
             result.Append($"{hrp}{Separator}");
             foreach (var b in b32Arr)

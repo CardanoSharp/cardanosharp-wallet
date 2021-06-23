@@ -1,7 +1,8 @@
-﻿using Blake2Fast;
+﻿
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Encoding;
 using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,14 +12,15 @@ namespace CardanoSharp.Wallet
     public interface IAddressService
     {
         string GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType);
+        byte[] GetAddressBytes(string addressHash);
     }
     public class AddressService: IAddressService
     {
         public string GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType)
         {
             var networkInfo = getNetworkInfo(networkType);
-            var paymentEncoded = blake2b244(payment);
-            var stakeEncoded = blake2b244(stake);
+            var paymentEncoded = HashHelper.Blake2b244(payment);
+            var stakeEncoded = HashHelper.Blake2b244(stake);
 
             //get prefix
             var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
@@ -47,6 +49,14 @@ namespace CardanoSharp.Wallet
 
             var bech32 = new Bech32();
             return bech32.Encode(addressArray, prefix);
+        }
+
+        public byte[] GetAddressBytes(string addressHash)
+        {
+            var bech32 = new Bech32();
+            byte witVer;
+            string prefix;
+            return bech32.Decode(addressHash, out witVer, out prefix);
         }
 
         private string getPrefixHeader(AddressType addressType) =>
@@ -83,13 +93,5 @@ namespace CardanoSharp.Wallet
                 _ => throw new Exception("Unknown address type")
             };
 
-        private byte[] blake2b244(byte[] data)
-        {
-            return Blake2b.ComputeHash(28, data);
-        }
-        private byte[] blake2b256(byte[] data)
-        {
-            return Blake2b.ComputeHash(32, data);
-        }
     }
 }
