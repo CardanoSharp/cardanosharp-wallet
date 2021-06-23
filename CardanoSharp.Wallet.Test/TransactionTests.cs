@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.Common;
+using System.IO;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -28,24 +30,16 @@ namespace CardanoSharp.Wallet.Test
         public void BuildTxWithChange()
         {
             //arrange
-            var mnemonic = "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy";
-            var entropy = _keyService.Restore(mnemonic);
-            var rootKey = _keyService.GetRootKey(entropy);
+            var rootKey = getBase15WordWallet();
 
             //get payment keys
-            var paymentPath = "m/1852'/1815'/0'/0/0";
-            var paymentPrv = _keyService.DerivePath(paymentPath, rootKey.Item1, rootKey.Item2);
-            var paymentPub = _keyService.GetPublicKey(paymentPrv.Item1, false);
+            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
 
             //get change keys
-            var changePath = "m/1852'/1815'/0'/1/0";
-            var changePrv = _keyService.DerivePath(changePath, rootKey.Item1, rootKey.Item2);
-            var changePub = _keyService.GetPublicKey(changePrv.Item1, false);
+            (var changePrv, var changePub) = getKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
 
             //get stake keys
-            var stakePath = "m/1852'/1815'/0'/2/0";
-            var stakePrv = _keyService.DerivePath(stakePath, rootKey.Item1, rootKey.Item2);
-            var stakePub = _keyService.GetPublicKey(stakePrv.Item1, false);
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
             var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
             var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
@@ -91,30 +85,21 @@ namespace CardanoSharp.Wallet.Test
                 serialized.ToStringHex());
         }
 
-
         //Replicate Test from Emurgo's Rust Serialization library
         [Fact]
         public void MnemonicToTransaction()
         {
             //arrange
-            var mnemonic = "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy";
-            var entropy = _keyService.Restore(mnemonic);
-            var rootKey = _keyService.GetRootKey(entropy);
+            var rootKey = getBase15WordWallet();
 
             //get payment keys
-            var paymentPath = "m/1852'/1815'/0'/0/0";
-            var paymentPrv = _keyService.DerivePath(paymentPath, rootKey.Item1, rootKey.Item2);
-            var paymentPub = _keyService.GetPublicKey(paymentPrv.Item1, false);
+            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
 
             //get change keys
-            var changePath = "m/1852'/1815'/0'/1/0";
-            var changePrv = _keyService.DerivePath(changePath, rootKey.Item1, rootKey.Item2);
-            var changePub = _keyService.GetPublicKey(changePrv.Item1, false);
+            (var changePrv, var changePub) = getKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
 
             //get stake keys
-            var stakePath = "m/1852'/1815'/0'/2/0";
-            var stakePrv = _keyService.DerivePath(stakePath, rootKey.Item1, rootKey.Item2);
-            var stakePub = _keyService.GetPublicKey(stakePrv.Item1, false);
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
             var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
             var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
@@ -151,7 +136,7 @@ namespace CardanoSharp.Wallet.Test
                     new VKeyWitness()
                     {
                         VKey = paymentPub,
-                        SKey = paymentPrv.Item1
+                        SKey = paymentPrv
                     }
                 }
             };
@@ -170,9 +155,153 @@ namespace CardanoSharp.Wallet.Test
                 serializedTx.ToStringHex());
         }
 
-        #region IOHK Transaction Test Vectors for Cardano Shelley
-        //https://gist.github.com/KtorZ/5a2089df0915f21aca368d12545ab230
+        [Fact]
+        public void CertificateTest()
+        {
+            var rootKey = getBase15WordWallet();
 
+            //get payment keys
+            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+
+            //get change keys
+            (var changePrv, var changePub) = getKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
+
+            //get stake keys
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+
+            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var stakeHash = HashHelper.Blake2b244(stakePub);
+
+            var transactionBody = new TransactionBody()
+            {
+                TransactionInputs = new List<TransactionInput>()
+                {
+                    new TransactionInput()
+                    {
+                        TransactionIndex = 0,
+                        TransactionId = getGenesisTransaction()
+                    }
+                },
+                TransactionOutputs = new List<TransactionOutput>()
+                {
+                    new TransactionOutput()
+                    {
+                        Address = _addressService.GetAddressBytes(changeAddr),
+                        Value = new TransactionOutputValue()
+                        {
+                            Coin = 3786498
+                        }
+                    }
+                },
+                Ttl = 1000,
+                Fee = 213502,
+                Certificate = new Certificate()
+                {
+                    StakeRegistration = stakeHash,
+                    StakeDelegation = new StakeDelegation()
+                    {
+                        PoolHash = stakeHash,
+                        StakeCredential = stakeHash
+                    }
+                }
+            };
+
+            //act
+            var serialized = _transactionBuilder.SerializeBody(transactionBody);
+
+            //assert
+            Assert.Equal("a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d941a0039c702021a000341fe031903e8048282008200581ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d9483028200581ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94581ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94",
+                serialized.ToStringHex());
+        }
+
+        [Fact]
+        public void MultiAssetTest()
+        {
+            var rootKey = getBase15WordWallet();
+
+            //get payment keys
+            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+
+            //get change keys
+            (var changePrv, var changePub) = getKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
+
+            //get stake keys
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+
+            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+
+            var transactionBody = new TransactionBody()
+            {
+                TransactionInputs = new List<TransactionInput>()
+                {
+                    new TransactionInput()
+                    {
+                        TransactionIndex = 0,
+                        TransactionId = getGenesisTransaction()
+                    },
+                    new TransactionInput()
+                    {
+                        TransactionIndex = 0,
+                        TransactionId = getGenesisTransaction()
+                    }
+                },
+                TransactionOutputs = new List<TransactionOutput>()
+                {
+                    new TransactionOutput()
+                    {
+                        Address = _addressService.GetAddressBytes(baseAddr),
+                        Value = new TransactionOutputValue()
+                        {
+                            Coin = 1,
+                            MultiAsset = new Dictionary<byte[], NativeAsset>()
+                            {
+                                {
+                                    getGenesisPolicyId(),
+                                    new NativeAsset()
+                                    {
+                                        Token = new Dictionary<byte[], uint>()
+                                        {
+                                            { "00010203".HexToByteArray(), 60 }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    new TransactionOutput()
+                    {
+                        Address = _addressService.GetAddressBytes(changeAddr),
+                        Value = new TransactionOutputValue()
+                        {
+                            Coin = 18,
+                            MultiAsset = new Dictionary<byte[], NativeAsset>()
+                            {
+                                {
+                                    getGenesisPolicyId(),
+                                    new NativeAsset()
+                                    {
+                                        Token = new Dictionary<byte[], uint>()
+                                        {
+                                            { "00010203".HexToByteArray(), 240 }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                Fee = 1
+            };
+
+            //act
+            var serialized = _transactionBuilder.SerializeBody(transactionBody);
+
+            //assert
+            Assert.Equal("a3008282582000000000000000000000000000000000000000000000000000000000000000000082582000000000000000000000000000000000000000000000000000000000000000000001828258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948201a1581c00000000000000000000000000000000000000000000000000000000a14400010203183c82583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948212a1581c00000000000000000000000000000000000000000000000000000000a1440001020318f00201",
+                serialized.ToStringHex());
+        }
+        
         [Fact]
         public void SimpleTransactionTest()
         {
@@ -293,7 +422,6 @@ namespace CardanoSharp.Wallet.Test
             Assert.Equal("83a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900477367d9134e384a25edd3e23c72735ee6de6490d39c537a247e1b65d9e5a6498b927f664a2c82343aa6a50cdde47de0a2b8c54ecd9c99c21a000f42400200030a0758208dc8a798a1da0e2a6df17e66b10a49b5047133dd4daae2686ef1f73369d3fa16a100818258200f8ad2c7def332bca2f897ef2a1608ee655341227efe7d2284eeb3f94d08d5fa584074a7a181addbda26d7974119ac6e3fe35286fb4a6f7a9db573a5e5836808613097256fa2f0284e255cadc566cef96bde750a3ca5cb79a0726349d3424148e00082a11904d2a1646e616d656e73696d706c65206d65737361676580",
                 serialized.ToStringHex());
         }
-        #endregion
 
         private byte[] getGenesisTransaction()
         {
@@ -303,6 +431,30 @@ namespace CardanoSharp.Wallet.Test
                 hash[i] = 0x00;
             }
             return hash;
+        }
+
+        private byte[] getGenesisPolicyId()
+        {
+            var hash = new byte[28];
+            for (var i = 0; i < hash.Length; i++)
+            {
+                hash[i] = 0x00;
+            }
+            return hash;
+        }
+
+        private (byte[], byte[]) getBase15WordWallet()
+        {
+            var mnemonic = "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy";
+            var entropy = _keyService.Restore(mnemonic);
+            return _keyService.GetRootKey(entropy);
+        }
+
+        private (byte[], byte[]) getKeyPairFromPath(string path, (byte[], byte[]) rootKey)
+        {
+            var privateKey = _keyService.DerivePath(path, rootKey.Item1, rootKey.Item2);
+            var publicKey = _keyService.GetPublicKey(privateKey.Item1, false);
+            return (privateKey.Item1, publicKey);
         }
     }
 }

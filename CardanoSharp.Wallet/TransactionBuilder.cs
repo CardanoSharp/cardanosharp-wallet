@@ -19,6 +19,7 @@ namespace CardanoSharp.Wallet
         private CBORObject _cborTransactionWitnessSet { get; set; }
         private CBORObject _cborVKeyWitnesses { get; set; }
         private CBORObject _cborTransactionMetadata { get; set; }
+        private CBORObject _cborCertificates { get; set; }
 
         private void AddInput(TransactionInput transactionInput)
         {
@@ -97,7 +98,7 @@ namespace CardanoSharp.Wallet
             //add a new Withdrawal to the TransactionBody
         }
 
-        private void AddCertificates()
+        private void AddCertificates(Certificate certificate)
         {
             /*
             certificate =
@@ -119,6 +120,45 @@ namespace CardanoSharp.Wallet
             move_instantaneous_rewards_cert = (6, move_instantaneous_reward)*/
             //Certificates are byte[] but we may need to denote type...
             //add a new Certificate
+
+            _cborCertificates = CBORObject.NewArray();
+
+            if (certificate.StakeRegistration != null)
+            {
+                _cborCertificates.Add(
+                    CBORObject.NewArray()
+                        .Add(0)
+                        .Add(CBORObject.NewArray()
+                            .Add(0)
+                            .Add(certificate.StakeRegistration)
+                        )
+                    );
+            }
+
+            if (certificate.StakeDeregistration != null)
+            {
+                _cborCertificates.Add(
+                    CBORObject.NewArray()
+                        .Add(1)
+                        .Add(CBORObject.NewArray()
+                            .Add(0)
+                            .Add(certificate.StakeDeregistration)
+                        )
+                    );
+            }
+
+            if (certificate.StakeDelegation != null)
+            {
+                _cborCertificates.Add(
+                    CBORObject.NewArray()
+                        .Add(2)
+                        .Add(CBORObject.NewArray()
+                            .Add(0)
+                            .Add(certificate.StakeDelegation.StakeCredential)
+                        )
+                        .Add(certificate.StakeDelegation.PoolHash)
+                    );
+            }
         }
 
         private void BuildBody(TransactionBody transactionBody)
@@ -141,6 +181,13 @@ namespace CardanoSharp.Wallet
             }
 
             if (_cborTransactionOutputs != null) _cborTransactionBody.Add(1, _cborTransactionOutputs);
+
+            //add certificates
+            if(transactionBody.Certificate != null)
+            {
+                AddCertificates(transactionBody.Certificate);
+                _cborTransactionBody.Add(4, _cborCertificates);
+            }
 
             //add fee
             _cborTransactionBody.Add(2, transactionBody.Fee);
