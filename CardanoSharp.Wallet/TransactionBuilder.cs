@@ -163,6 +163,8 @@ namespace CardanoSharp.Wallet
 
         private void BuildBody(TransactionBody transactionBody)
         {
+            _cborTransactionInputs = null;
+            _cborTransactionOutputs = null;
             _cborTransactionBody = CBORObject.NewMap();
 
             //add all the transaction inputs
@@ -227,6 +229,7 @@ namespace CardanoSharp.Wallet
 
         private void BuildWitnessSet(TransactionWitnessSet transactionWitnessSet)
         {
+            _cborVKeyWitnesses = null;
             _cborTransactionWitnessSet = CBORObject.NewMap();
 
             foreach(var vkeyWitness in transactionWitnessSet.VKeyWitnesses)
