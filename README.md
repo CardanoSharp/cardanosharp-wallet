@@ -41,39 +41,38 @@ class Program
 
 ## Create Private and Public Keys
 ```csharp
-        ...
-        // Here we can get the entropy from our mnemonic
-        var entropy = keyService.Restore(mnemonic);
+// Here we can get the entropy from our mnemonic
+var entropy = keyService.Restore(mnemonic);
 
-        // The masterKey is a Tuple made of up of the 
-        //  - Private Key(Item1) 
-        //  - Chain Chain(Item2)
-        var masterKey = keyService.GetRootKey(entropy);
+// The masterKey is a Tuple made of up of the 
+//  - Private Key(Item1) 
+//  - Chain Chain(Item2)
+var masterKey = keyService.GetRootKey(entropy);
 
-        // This path will give us our Payment Key on index 0
-        var paymentPath = $"m/1852'/1815'/0'/0/0";
-        // The paymentPrv is another Tuple with the Private Key and Chain Code
-        var paymentPrv = keyService.DerivePath(paymentPath, masterKey.Item1, masterKey.Item2);
-        // Get the Public Key from the Payment Private Key
-        var paymentPub = keyService.GetPublicKey(paymentPrv.Item1, false);
+// This path will give us our Payment Key on index 0
+var paymentPath = $"m/1852'/1815'/0'/0/0";
+// The paymentPrv is another Tuple with the Private Key and Chain Code
+var paymentPrv = keyService.DerivePath(paymentPath, masterKey.Item1, masterKey.Item2);
+// Get the Public Key from the Payment Private Key
+var paymentPub = keyService.GetPublicKey(paymentPrv.Item1, false);
 
-        // This path will give us our Stake Key on index 0
-        var stakePath = $"m/1852'/1815'/0'/2/0";
-        // The stakePrv is another Tuple with the Private Key and Chain Code
-        var stakePrv = keyService.DerivePath(stakePath, masterKey.Item1, masterKey.Item2);
-        // Get the Public Key from the Stake Private Key
-        var stakePub = keyService.GetPublicKey(stakePrv.Item1, false);
+// This path will give us our Stake Key on index 0
+var stakePath = $"m/1852'/1815'/0'/2/0";
+// The stakePrv is another Tuple with the Private Key and Chain Code
+var stakePrv = keyService.DerivePath(stakePath, masterKey.Item1, masterKey.Item2);
+// Get the Public Key from the Stake Private Key
+var stakePub = keyService.GetPublicKey(stakePrv.Item1, false);
 ```
 
 ## Create Addresses
 
 ```csharp
-        // Creating Addresses require the Public Payment and Stake Keys
-        var baseAddr = addressService.GetAddress(
-            paymentPub, 
-            stakePub, 
-            NetworkType.Testnet, 
-            AddressType.Base);
+// Creating Addresses require the Public Payment and Stake Keys
+var baseAddr = addressService.GetAddress(
+    paymentPub, 
+    stakePub, 
+    NetworkType.Testnet, 
+    AddressType.Base);
 ```
 
 ### NetworkType
@@ -106,94 +105,94 @@ namespace CardanoSharp.Wallet.Enums
 ## Building and Sign Transactions
 This is just an example of how to start. You will need to Calculate Fees, compare with Protocol Parameters and re-serialize. 
 ```csharp
-    // The Transaction Builder allows us to contruct and serialize our Transaction
-    var transactionBuilder = new TransactionBuilder();
+// The Transaction Builder allows us to contruct and serialize our Transaction
+var transactionBuilder = new TransactionBuilder();
 
-    // Create the Transaction Body
-    //  The Transaction Body:
-    //      Supported
-    //       - Transaction Inputs
-    //       - Transaction Outputs
-    //       - Fee
-    //       - TTL
-    //       - Certificates
-    //       - Metadata Hash
-    //      Coming Soon
-    //       - Transaction Start Interval
-    //       - Withdrawls
-    //       - Mint
-    var transactionBody = new TransactionBody()
+// Create the Transaction Body
+//  The Transaction Body:
+//      Supported
+//       - Transaction Inputs
+//       - Transaction Outputs
+//       - Fee
+//       - TTL
+//       - Certificates
+//       - Metadata Hash
+//      Coming Soon
+//       - Transaction Start Interval
+//       - Withdrawls
+//       - Mint
+var transactionBody = new TransactionBody()
+{
+    TransactionInputs = new List<TransactionInput>()
     {
-        TransactionInputs = new List<TransactionInput>()
+        new TransactionInput()
         {
-            new TransactionInput()
-            {
-                TransactionIndex = 0,
-                TransactionId = someTxHash
-            }
-        },
-        TransactionOutputs = new List<TransactionOutput>()
-        {
-            new TransactionOutput()
-            {
-                Address = addressService.GetAddressBytes(baseAddr),
-                Value = new TransactionOutputValue()
-                {
-                    Coin = 1
-                }
-            }
-        },
-        Ttl = 10,
-        Fee = 0
-    };
-
-    // Add our witness(es)
-    //  Currently we only support VKey Witnesses
-    var witnesses = new TransactionWitnessSet()
+            TransactionIndex = 0,
+            TransactionId = someTxHash
+        }
+    },
+    TransactionOutputs = new List<TransactionOutput>()
     {
-        VKeyWitnesses = new List<VKeyWitness>()
+        new TransactionOutput()
         {
-            new VKeyWitness()
+            Address = addressService.GetAddressBytes(baseAddr),
+            Value = new TransactionOutputValue()
             {
-                VKey = paymentPub,
-                SKey = paymentPrv
+                Coin = 1
             }
         }
-    };
+    },
+    Ttl = 10,
+    Fee = 0
+};
 
-    // Create Transaction
-    var transaction = new Transaction()
+// Add our witness(es)
+//  Currently we only support VKey Witnesses
+var witnesses = new TransactionWitnessSet()
+{
+    VKeyWitnesses = new List<VKeyWitness>()
     {
-        TransactionBody = transactionBody,
-        TransactionWitnessSet = witnesses
-    };
+        new VKeyWitness()
+        {
+            VKey = paymentPub,
+            SKey = paymentPrv
+        }
+    }
+};
 
-    // Serialize Transaction with Body and Witnesses
-    //  This results in a Signed Transaction
-    var signedTx = transactionBuilder.SerializeTransaction(transaction);
+// Create Transaction
+var transaction = new Transaction()
+{
+    TransactionBody = transactionBody,
+    TransactionWitnessSet = witnesses
+};
+
+// Serialize Transaction with Body and Witnesses
+//  This results in a Signed Transaction
+var signedTx = transactionBuilder.SerializeTransaction(transaction);
 ```
 
 ### Calculate Fees
 ```csharp
-    var fee = transactionBuilder.CalculateFee(signedTx);
+var fee = transactionBuilder.CalculateFee(signedTx);
 ```
 
 ### Adding Metadata
 ```csharp
-    var auxData = new AuxiliaryData()
+var auxData = new AuxiliaryData()
+{
+    Metadata = new Dictionary<int, object>()
     {
-        Metadata = new Dictionary<int, object>()
-        {
-            { 1234, new { name = "simple message" } }
-        }
-    };
+        { 1234, new { name = "simple message" } }
+    }
+};
 
-    var transaction = new Transaction()
-    {
-        TransactionBody = transactionBody,
-        TransactionWitnessSet = witnesses,
-        AuxiliaryData = auxData
-    };
+var transaction = new Transaction()
+{
+    TransactionBody = transactionBody,
+    TransactionWitnessSet = witnesses,
+    AuxiliaryData = auxData
+};
 ```
 
 ### More Examples
