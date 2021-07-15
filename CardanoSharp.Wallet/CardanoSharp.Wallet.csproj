@@ -27,21 +27,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="SauceControl.Blake2Fast" Version="2.0.0" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
+    <PackageReference Include="CardanoSharp.Chaos" Version="0.1.0" />
+    <PackageReference Include="CardanoSharp.CBOR" Version="0.1.0" />
   </ItemGroup>
-
-  <Choose>
-    <When Condition=" '$(Configuration)'=='Debug' ">
-      <ItemGroup>
-        <ProjectReference Include="..\..\CBOR\CBOR2\CBOR2.csproj" />
-        <ProjectReference Include="..\..\Chaos.NaCl\Chaos.NaCl\Chaos.NaCl-Portable.csproj" />
-      </ItemGroup>
-    </When>
-    <When Condition=" '$(Configuration)'=='Release' ">
-      <ItemGroup>
-        <PackageReference Include="CardanoSharp.Chaos" Version="0.1.0" />
-        <PackageReference Include="CardanoSharp.CBOR" Version="0.1.0" />
-      </ItemGroup>
-    </When>
-  </Choose>
 
 </Project>
