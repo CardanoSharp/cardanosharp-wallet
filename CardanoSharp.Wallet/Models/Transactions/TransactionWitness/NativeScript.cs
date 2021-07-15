@@ -14,5 +14,13 @@
     //]
     public partial class NativeScript
     {
+        public ScriptPubKey ScriptPubKey { get; set; }
+        public ScriptAll ScriptAll { get; set; }
+        public ScriptAny ScriptAny { get; set; }
+        public ScriptNofK ScriptNofK { get; set; }
+        // invalid_before = (4, uint)
+        public uint InvalidBefore { get; set; }
+        // invalid_hereafter = (5, uint)
+        public uint InvalidHereafter { get; set; }
     }
 }
