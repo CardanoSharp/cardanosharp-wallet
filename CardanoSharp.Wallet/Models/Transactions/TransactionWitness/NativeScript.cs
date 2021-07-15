@@ -1,4 +1,6 @@
-﻿namespace CardanoSharp.Wallet.Models.Transactions
+﻿using CardanoSharp.Wallet.Models.Transactions.Scripts;
+
+namespace CardanoSharp.Wallet.Models.Transactions
 {
     //  native_script =
     //[script_pubkey
