@@ -21,10 +21,25 @@ namespace CardanoSharp.Wallet.Extensions.Models
         {
             var nativeScriptCbor = CBORObject.NewArray();
 
+            if(nativeScript.ScriptPubKey != null)
+                nativeScriptCbor.Add(nativeScript.ScriptPubKey.GetCBOR());
+
             if (nativeScript.ScriptAll != null)
-            {
                 nativeScriptCbor.Add(nativeScript.ScriptAll.GetCBOR());
-            }
+
+            if (nativeScript.ScriptAny != null)
+                nativeScriptCbor.Add(nativeScript.ScriptAny.GetCBOR());
+
+            if (nativeScript.ScriptNofK != null)
+                nativeScriptCbor.Add(nativeScript.ScriptNofK.GetCBOR());
+
+            if (nativeScript.InvalidAfter != null)
+                nativeScriptCbor.Add(nativeScript.InvalidAfter.GetCBOR());
+
+            if (nativeScript.InvalidBefore != null)
+                nativeScriptCbor.Add(nativeScript.InvalidBefore.GetCBOR());
+
+            return nativeScriptCbor;
         }
     }
 }

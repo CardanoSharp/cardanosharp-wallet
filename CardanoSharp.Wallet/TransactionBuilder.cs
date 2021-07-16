@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
+using System.Linq;
+using CardanoSharp.Wallet.Extensions.Models;
 
 namespace CardanoSharp.Wallet
 {
@@ -18,6 +20,7 @@ namespace CardanoSharp.Wallet
         private CBORObject _cborTransactionOutputs { get; set; }
         private CBORObject _cborTransactionWitnessSet { get; set; }
         private CBORObject _cborVKeyWitnesses { get; set; }
+        private CBORObject _cborNativeScriptWitnesses { get; set; }
         private CBORObject _cborTransactionMetadata { get; set; }
         private CBORObject _cborCertificates { get; set; }
 
@@ -203,9 +206,6 @@ namespace CardanoSharp.Wallet
 
         private void AddVKeyWitnesses(VKeyWitness vKeyWitness)
         {
-            //create the CBOR Object Array if it hasnt been created yet
-            if (_cborVKeyWitnesses == null) _cborVKeyWitnesses = CBORObject.NewArray();
-
             //sign body
             var txBodyHash = HashHelper.Blake2b256(_cborTransactionBody.EncodeToBytes());
             if (vKeyWitness.SKey.Length == 32)
@@ -229,15 +229,31 @@ namespace CardanoSharp.Wallet
 
         private void BuildWitnessSet(TransactionWitnessSet transactionWitnessSet)
         {
-            _cborVKeyWitnesses = null;
+            _cborVKeyWitnesses = null; 
+            _cborNativeScriptWitnesses = null;
             _cborTransactionWitnessSet = CBORObject.NewMap();
 
-            foreach(var vkeyWitness in transactionWitnessSet.VKeyWitnesses)
+            if (transactionWitnessSet.VKeyWitnesses.Any())
             {
-                AddVKeyWitnesses(vkeyWitness);
+                _cborVKeyWitnesses = CBORObject.NewArray();
+                foreach (var vkeyWitness in transactionWitnessSet.VKeyWitnesses)
+                {
+                    AddVKeyWitnesses(vkeyWitness);
+                }
+
+                _cborTransactionWitnessSet.Add(0, _cborVKeyWitnesses);
             }
 
-            if (_cborVKeyWitnesses != null) _cborTransactionWitnessSet.Add(0, _cborVKeyWitnesses);
+            if (transactionWitnessSet.NativeScripts.Any())
+            {
+                _cborNativeScriptWitnesses = CBORObject.NewArray();
+                foreach (var nativeScript in transactionWitnessSet.NativeScripts)
+                {
+                    _cborNativeScriptWitnesses.Add(nativeScript.GetCBOR());
+                }
+
+                _cborTransactionWitnessSet.Add(1, _cborNativeScriptWitnesses);
+            }
         }
 
         private void BuildMetadata(AuxiliaryData auxiliaryData)
