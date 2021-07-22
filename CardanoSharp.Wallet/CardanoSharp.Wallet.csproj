@@ -15,6 +15,7 @@
     <EmbeddedResource Include="Words\Czech.txt" />
     <EmbeddedResource Include="Words\English.txt" />
     <EmbeddedResource Include="Words\French.txt" />
+    <EmbeddedResource Include="Words\German.txt" />
     <EmbeddedResource Include="Words\Italian.txt" />
     <EmbeddedResource Include="Words\Japanese.txt" />
     <EmbeddedResource Include="Words\Korean.txt" />

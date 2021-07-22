@@ -15,6 +15,7 @@ namespace CardanoSharp.Wallet.Enums
         Korean,
         Spanish,
         Czech,
-        Portuguese
+        Portuguese,
+        German
     }
 }
