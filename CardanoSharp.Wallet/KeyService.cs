@@ -17,7 +17,7 @@ namespace CardanoSharp.Wallet
     {
         string Generate(int size, WordLists wl = WordLists.English);
         byte[] Restore(string mnemonic, WordLists wl = WordLists.English);
-        (byte[], byte[]) GetRootKey(byte[] entropy);
+        (byte[], byte[]) GetRootKey(byte[] entropy, string password = "");
         byte[] GetPublicKey(byte[] privateKey, bool withZeroByte = true);
         (byte[], byte[]) DerivePath(string path, byte[] key, byte[] chainCode);
     }
@@ -276,10 +276,10 @@ namespace CardanoSharp.Wallet
 
         #region BIP32
         static UInt32 MinHardIndex = 0x80000000;
-        public (byte[], byte[]) GetRootKey(byte[] entropy)
+        public (byte[], byte[]) GetRootKey(byte[] entropy, string password = "")
         {
             //GroupElementP3 A;
-            var rootKey = KeyDerivation.Pbkdf2("", entropy, KeyDerivationPrf.HMACSHA512, 4096, 96);
+            var rootKey = KeyDerivation.Pbkdf2(password, entropy, KeyDerivationPrf.HMACSHA512, 4096, 96);
             rootKey[0] &= 248;
             rootKey[31] &= 31;
             rootKey[31] |= 64;
