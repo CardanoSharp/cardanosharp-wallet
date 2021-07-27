@@ -39,13 +39,10 @@ namespace CardanoSharp.Wallet
             if (!allowedEntropyLengths.Contains(entropySize))
                 throw new ArgumentOutOfRangeException(nameof(entropySize), $"Derived entropy {entropySize} is not within the allowed values ({string.Join(", ", allowedEntropyLengths)})");
 
-            var rng = new RNGCryptoServiceProvider();
-            if (rng is null)
-                throw new ArgumentNullException(nameof(rng), "Random number generator cannot be null.");
-
             allWords = GetAllWords(wl);
 
             var entropy = new byte[entropySize];
+            var rng = new RNGCryptoServiceProvider();
             rng.GetBytes(entropy);
             SetWordsFromEntropy(entropy);
             return GetMnemonic();
