@@ -237,7 +237,8 @@ namespace CardanoSharp.Wallet.Encoding
                 throw new FormatException("Invalid checksum.");
             }
 
-            byte[] b256Arr = ConvertBits(b32Arr.SubArray(0, b32Arr.Length - CheckSumSize - 1), 5, 8);
+            byte[] data = b32Arr.SubArray(0, b32Arr.Length - CheckSumSize);
+            byte[] b256Arr = ConvertBits(data, 5, 8, false);
             if (b256Arr == null)
             {
                 throw new FormatException("Invalid data format.");
