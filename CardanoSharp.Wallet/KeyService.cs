@@ -32,13 +32,16 @@ namespace CardanoSharp.Wallet
 
         public string Generate(int wordSize, WordLists wl = WordLists.English)
         {
-            var entropySize = allowedEntropyLengths[allowedWordLengths.ToList().FindIndex(x => x == wordSize)];
+            if (!allowedWordLengths.Contains(wordSize))
+                throw new ArgumentOutOfRangeException(nameof(wordSize), $"{nameof(wordSize)} must be one of the following values ({string.Join(", ", allowedWordLengths)})");
+
+            var entropySize = allowedEntropyLengths[Array.FindIndex(allowedWordLengths, x => x == wordSize)];
+            if (!allowedEntropyLengths.Contains(entropySize))
+                throw new ArgumentOutOfRangeException(nameof(entropySize), $"Derived entropy {entropySize} is not within the allowed values ({string.Join(", ", allowedEntropyLengths)})");
 
             var rng = new RNGCryptoServiceProvider();
             if (rng is null)
                 throw new ArgumentNullException(nameof(rng), "Random number generator cannot be null.");
-            if (!allowedEntropyLengths.Contains(entropySize))
-                throw new ArgumentOutOfRangeException(nameof(entropySize), "Entropy must be 16 or 20 or 24 or 28 or 32 bytes.");
 
             allWords = GetAllWords(wl);
 
@@ -62,7 +65,7 @@ namespace CardanoSharp.Wallet
             }
             if (!allowedWordLengths.Contains(words.Length))
             {
-                throw new FormatException("Invalid seed length. It should be 12, 15, 18, 21 or 24");
+                throw new FormatException($"Invalid seed length. It must be one of the following values ({string.Join(", ", allowedWordLengths)})");
             }
 
             wordIndexes = new uint[words.Length];
@@ -163,7 +166,7 @@ namespace CardanoSharp.Wallet
             return sb.ToString();
         }
 
-        private static string[] GetAllWords     (WordLists wl)
+        private static string[] GetAllWords(WordLists wl)
         {
             if (!Enum.IsDefined(typeof(WordLists), wl))
                 throw new ArgumentException("Given word list is not defined.");
@@ -175,14 +178,15 @@ namespace CardanoSharp.Wallet
             {
                 using StreamReader reader = new StreamReader(stream);
                 int i = 0;
-                string[] result = new string[2048];
+                const int allWordsLength = 2048;
+                string[] result = new string[allWordsLength];
                 while (!reader.EndOfStream)
                 {
                     result[i++] = reader.ReadLine();
                 }
                 if (i != 2048)
                 {
-                    throw new ArgumentException("There is something wrong with the embeded word list.");
+                    throw new ArgumentException($"Embedded word list has {i} words instead of {allWordsLength}.");
                 }
 
                 return result;
@@ -197,7 +201,6 @@ namespace CardanoSharp.Wallet
         {
             using SHA256 hash = SHA256.Create();
             byte[] hashOfEntropy = hash.ComputeHash(entropy);
-
 
             int ENT = entropy.Length * 8;
             int CS = ENT / 32;
@@ -336,7 +339,6 @@ namespace CardanoSharp.Wallet
 
         private (byte[], byte[]) GetChildPublicKeyDerivation(byte[] pk, byte[] chainCode, uint index)
         {
-
             var z = new byte[64];
             var zl = new byte[32];
             var zr = new byte[32];
