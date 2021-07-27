@@ -25,8 +25,8 @@ namespace CardanoSharp.Wallet
     public class KeyService : IKeyService
     {
         #region BIP39
-        private readonly int[] allowedEntropyLengths = { 16, 20, 24, 28, 32 };
-        private static readonly int[] allowedWordLengths = { 12, 15, 18, 21, 24 };
+        private readonly int[] allowedEntropyLengths = { 12, 16, 20, 24, 28, 32 };
+        private static readonly int[] allowedWordLengths = { 9, 12, 15, 18, 21, 24 };
         private uint[] wordIndexes;
         private string[] allWords;
 
@@ -163,7 +163,7 @@ namespace CardanoSharp.Wallet
             return sb.ToString();
         }
 
-        private static string[] GetAllWords(WordLists wl)
+        private static string[] GetAllWords     (WordLists wl)
         {
             if (!Enum.IsDefined(typeof(WordLists), wl))
                 throw new ArgumentException("Given word list is not defined.");
