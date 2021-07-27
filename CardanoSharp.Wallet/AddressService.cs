@@ -11,11 +11,18 @@ namespace CardanoSharp.Wallet
 {
     public interface IAddressService
     {
+        string GetAddress(byte[] addressArray, string prefix);
         string GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType);
         byte[] GetAddressBytes(string addressHash);
     }
     public class AddressService: IAddressService
     {
+        public string GetAddress(byte[] addressArray, string prefix)
+        {
+            var bech32 = new Bech32();
+            return bech32.Encode(addressArray, prefix);
+        }
+
         public string GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType)
         {
             var networkInfo = getNetworkInfo(networkType);

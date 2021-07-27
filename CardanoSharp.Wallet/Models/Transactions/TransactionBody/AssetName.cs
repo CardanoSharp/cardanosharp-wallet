@@ -4,8 +4,9 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.Models.Transactions
 {
-    public partial class NativeAsset
+    public class AssetName
     {
-        public Dictionary<AssetName, uint> Token { get; set; }
+        public byte[] BytesValue { get; set; }
+        public string StringValue { get; set; }
     }
 }

@@ -19,6 +19,7 @@ namespace CardanoSharp.Wallet
         private CBORObject _cborTransactionInputs { get; set; }
         private CBORObject _cborTransactionOutputs { get; set; }
         private CBORObject _cborTransactionWitnessSet { get; set; }
+        private CBORObject _cborTransactionMint { get; set; }
         private CBORObject _cborVKeyWitnesses { get; set; }
         private CBORObject _cborNativeScriptWitnesses { get; set; }
         private CBORObject _cborTransactionMetadata { get; set; }
@@ -72,7 +73,10 @@ namespace CardanoSharp.Wallet
                         //in this scope
                         //asset.Key = AssetName
                         //asset.Value = uint
-                        assetMap.Add(asset.Key, asset.Value);
+                        if(string.IsNullOrEmpty(asset.Key.StringValue))
+                            assetMap.Add(asset.Key.BytesValue, asset.Value);
+                        else
+                            assetMap.Add(asset.Key.StringValue, asset.Value);
                     }
 
                     //add our PolicyID (policy.Key) and Assets (assetMap)
@@ -168,6 +172,7 @@ namespace CardanoSharp.Wallet
         {
             _cborTransactionInputs = null;
             _cborTransactionOutputs = null;
+            _cborTransactionMint = null;
             _cborTransactionBody = CBORObject.NewMap();
 
             //add all the transaction inputs
@@ -192,6 +197,25 @@ namespace CardanoSharp.Wallet
             {
                 AddCertificates(transactionBody.Certificate);
                 _cborTransactionBody.Add(4, _cborCertificates);
+            }
+
+            //add mint
+            if(transactionBody.Mint != null)
+            {
+                _cborTransactionMint = CBORObject.NewMap();
+                foreach(var nativeAsset in transactionBody.Mint)
+                {
+                    var assetCbor = CBORObject.NewMap();
+                    foreach(var asset in nativeAsset.Value.Token)
+                    {
+                        if (string.IsNullOrEmpty(asset.Key.StringValue))
+                            assetCbor.Add(asset.Key.BytesValue, asset.Value);
+                        else
+                            assetCbor.Add(asset.Key.StringValue, asset.Value);
+                    }
+                    _cborTransactionMint.Add(nativeAsset.Key, assetCbor);
+                }
+                _cborTransactionBody.Add(9, _cborTransactionMint);
             }
 
             //add fee
@@ -231,7 +255,11 @@ namespace CardanoSharp.Wallet
         {
             _cborVKeyWitnesses = null; 
             _cborNativeScriptWitnesses = null;
-            _cborTransactionWitnessSet = CBORObject.NewMap();
+            if(!transactionWitnessSet.VKeyWitnesses.Any()
+                && transactionWitnessSet.NativeScripts.Any())
+                _cborTransactionWitnessSet = CBORObject.NewArray();
+            else
+                _cborTransactionWitnessSet = CBORObject.NewMap();
 
             if (transactionWitnessSet.VKeyWitnesses.Any())
             {
@@ -246,13 +274,30 @@ namespace CardanoSharp.Wallet
 
             if (transactionWitnessSet.NativeScripts.Any())
             {
-                _cborNativeScriptWitnesses = CBORObject.NewArray();
-                foreach (var nativeScript in transactionWitnessSet.NativeScripts)
+                if (_cborTransactionWitnessSet.Type == CBORType.Map)
                 {
-                    _cborNativeScriptWitnesses.Add(nativeScript.GetCBOR());
-                }
+                    _cborNativeScriptWitnesses = CBORObject.NewArray();
+                    foreach (var nativeScript in transactionWitnessSet.NativeScripts)
+                    {
+                        _cborNativeScriptWitnesses.Add(nativeScript.GetCBOR());
+                    }
 
-                _cborTransactionWitnessSet.Add(1, _cborNativeScriptWitnesses);
+                    _cborTransactionWitnessSet.Add(1, _cborNativeScriptWitnesses);
+                }
+                else
+                {
+                    if(transactionWitnessSet.NativeScripts.Count() == 1)
+                    {
+                        _cborTransactionWitnessSet = transactionWitnessSet.NativeScripts.First().GetCBOR();
+                    }
+                    else
+                    {
+                        foreach (var nativeScript in transactionWitnessSet.NativeScripts)
+                        {
+                            _cborTransactionWitnessSet.Add(nativeScript.GetCBOR());
+                        }
+                    }
+                }
             }
         }
 

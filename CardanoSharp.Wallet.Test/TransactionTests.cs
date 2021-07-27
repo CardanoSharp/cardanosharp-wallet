@@ -9,6 +9,8 @@ using Xunit;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Common;
 using System.IO;
+using CardanoSharp.Wallet.Models.Transactions.Scripts;
+using CardanoSharp.Wallet.Extensions.Models;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -260,9 +262,9 @@ namespace CardanoSharp.Wallet.Test
                                     getGenesisPolicyId(),
                                     new NativeAsset()
                                     {
-                                        Token = new Dictionary<byte[], uint>()
+                                        Token = new Dictionary<AssetName, uint>()
                                         {
-                                            { "00010203".HexToByteArray(), 60 }
+                                            { new AssetName() { BytesValue = "00010203".HexToByteArray() }, 60 }
                                         }
                                     }
                                 }
@@ -281,9 +283,9 @@ namespace CardanoSharp.Wallet.Test
                                     getGenesisPolicyId(),
                                     new NativeAsset()
                                     {
-                                        Token = new Dictionary<byte[], uint>()
+                                        Token = new Dictionary<AssetName, uint>()
                                         {
-                                            { "00010203".HexToByteArray(), 240 }
+                                            { new AssetName() { BytesValue = "00010203".HexToByteArray() }, 60 }
                                         }
                                     }
                                 }
@@ -421,6 +423,140 @@ namespace CardanoSharp.Wallet.Test
             //assert
             Assert.Equal("83a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900477367d9134e384a25edd3e23c72735ee6de6490d39c537a247e1b65d9e5a6498b927f664a2c82343aa6a50cdde47de0a2b8c54ecd9c99c21a000f42400200030a0758208dc8a798a1da0e2a6df17e66b10a49b5047133dd4daae2686ef1f73369d3fa16a100818258200f8ad2c7def332bca2f897ef2a1608ee655341227efe7d2284eeb3f94d08d5fa584074a7a181addbda26d7974119ac6e3fe35286fb4a6f7a9db573a5e5836808613097256fa2f0284e255cadc566cef96bde750a3ca5cb79a0726349d3424148e00082a11904d2a1646e616d656e73696d706c65206d65737361676580",
                 serialized.ToStringHex());
+        }
+
+        [Fact]
+        public void MintingTest()
+        {
+            var mnemonic = "object dwarf meadow dry figure return february once become eye cricket circle repair security palm year secret wine blind phone brown rain tissue spread";
+            var entropy = _keyService.Restore(mnemonic);
+            var rootKey = _keyService.GetRootKey(entropy);
+
+            //get payment keys
+            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+
+            //get stake keys
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+
+            //get delegation address
+            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+
+            //policy info
+            var policySkey = "A1FEF97BABEFC02BB927CB56C19308503E297607B1DBDFC72941EBDD388ADE6F".HexToByteArray();
+            var policyVkey = "848AC717B552FCD1F2DCB4933E4A8198187E7E424693B51E1B8B16250F3CADFE".HexToByteArray();
+            var policyKeyHash = HashHelper.Blake2b244(policyVkey);
+            var policyScript = new ScriptAll()
+            {
+                NativeScripts = new List<NativeScript>()
+                {
+                    new NativeScript()
+                    {
+                        ScriptPubKey = new ScriptPubKey()
+                        {
+                            KeyHash = policyKeyHash
+                        }
+                    } 
+                }
+            };
+            var policyId = policyScript.GetPolicyId();
+
+            uint txInIndex = 0;
+            string txInAddr = "b7f62d53d30d785f5a72d6b75c31214e721886224fdedbb70c2b4932bb156d5a";
+
+            AssetName assetName = new AssetName()
+            {
+                StringValue = "sharptest"
+            };
+            uint assetAmount = 1;
+
+            var transactionBody = new TransactionBody()
+            {
+                TransactionInputs = new List<TransactionInput>()
+                {
+                    new TransactionInput()
+                    {
+                        TransactionIndex = txInIndex,
+                        TransactionId = txInAddr.HexToByteArray()
+                    }
+                },
+                TransactionOutputs = new List<TransactionOutput>()
+                {
+                    new TransactionOutput()
+                    {
+                        Address = _addressService.GetAddressBytes(baseAddr),
+                        Value = new TransactionOutputValue()
+                        {
+                            Coin = 1000000000,
+                            MultiAsset = new Dictionary<byte[], NativeAsset>()
+                            {
+                                {
+                                    policyId,
+                                    new NativeAsset()
+                                    {
+                                        Token = new Dictionary<AssetName, uint>()
+                                        {
+                                            { assetName, assetAmount }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                Fee = 0,
+                Mint = new Dictionary<byte[], NativeAsset>()
+                {
+                    {
+                        policyId,
+                        new NativeAsset()
+                        {
+                            Token = new Dictionary<AssetName, uint>()
+                            {
+                                { assetName, assetAmount }
+                            }
+                        }
+                    }
+                }
+            };
+
+            var witnesses = new TransactionWitnessSet()
+            {
+                //VKeyWitnesses = new List<VKeyWitness>()
+                //{
+                //    new VKeyWitness()
+                //    {
+                //        VKey = paymentPub,
+                //        SKey = paymentPrv
+                //    }
+                //}, 
+                NativeScripts = new List<NativeScript>() 
+                { 
+                    new NativeScript()
+                    {
+                        ScriptAll = policyScript
+                    }
+                }
+            };
+
+            var auxData = new AuxiliaryData()
+            {
+                Metadata = new Dictionary<int, object>()
+                {
+                    { 1337, new { message = "sharptest" } }
+                }
+            };
+
+            var transaction = new Transaction()
+            {
+                TransactionBody = transactionBody,
+                TransactionWitnessSet = witnesses,
+                AuxiliaryData = auxData
+            };
+
+            var draftTx = _transactionBuilder.SerializeTransaction(transaction);
+            var fee = _transactionBuilder.CalculateFee(draftTx);
+            var draftTxStr = draftTx.ToStringHex();
+
         }
 
         private byte[] getGenesisTransaction()
