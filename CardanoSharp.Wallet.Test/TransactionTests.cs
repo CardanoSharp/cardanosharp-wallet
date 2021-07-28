@@ -285,7 +285,7 @@ namespace CardanoSharp.Wallet.Test
                                     {
                                         Token = new Dictionary<AssetName, uint>()
                                         {
-                                            { new AssetName() { BytesValue = "00010203".HexToByteArray() }, 60 }
+                                            { new AssetName() { BytesValue = "00010203".HexToByteArray() }, 240 }
                                         }
                                     }
                                 }
@@ -442,7 +442,7 @@ namespace CardanoSharp.Wallet.Test
             var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
 
             //policy info
-            var policySkey = "A1FEF97BABEFC02BB927CB56C19308503E297607B1DBDFC72941EBDD388ADE6F".HexToByteArray();
+            var policySkey = "a1fef97babefc02bb927cb56c19308503e297607b1dbdfc72941ebdd388ade6f".HexToByteArray();
             var policyVkey = "848AC717B552FCD1F2DCB4933E4A8198187E7E424693B51E1B8B16250F3CADFE".HexToByteArray();
             var policyKeyHash = HashHelper.Blake2b244(policyVkey);
             var policyScript = new ScriptAll()
@@ -486,7 +486,7 @@ namespace CardanoSharp.Wallet.Test
                         Address = _addressService.GetAddressBytes(baseAddr),
                         Value = new TransactionOutputValue()
                         {
-                            Coin = 1000000000,
+                            Coin = 999814875,
                             MultiAsset = new Dictionary<byte[], NativeAsset>()
                             {
                                 {
@@ -503,7 +503,7 @@ namespace CardanoSharp.Wallet.Test
                         }
                     }
                 },
-                Fee = 0,
+                Fee = 185125,
                 Mint = new Dictionary<byte[], NativeAsset>()
                 {
                     {
@@ -521,14 +521,19 @@ namespace CardanoSharp.Wallet.Test
 
             var witnesses = new TransactionWitnessSet()
             {
-                //VKeyWitnesses = new List<VKeyWitness>()
-                //{
-                //    new VKeyWitness()
-                //    {
-                //        VKey = paymentPub,
-                //        SKey = paymentPrv
-                //    }
-                //}, 
+                VKeyWitnesses = new List<VKeyWitness>()
+                {
+                    new VKeyWitness()
+                    {
+                        VKey = paymentPub,
+                        SKey = paymentPrv
+                    },
+                    new VKeyWitness()
+                    {
+                        VKey = policyVkey,
+                        SKey = policySkey
+                    }
+                },
                 NativeScripts = new List<NativeScript>() 
                 { 
                     new NativeScript()
@@ -553,10 +558,11 @@ namespace CardanoSharp.Wallet.Test
                 AuxiliaryData = auxData
             };
 
-            var draftTx = _transactionBuilder.SerializeTransaction(transaction);
-            var fee = _transactionBuilder.CalculateFee(draftTx);
-            var draftTxStr = draftTx.ToStringHex();
-
+            var signedTx = _transactionBuilder.SerializeTransaction(transaction);
+            var fee = _transactionBuilder.CalculateFee(signedTx, 44, 155381);
+            //transactionBody.Fee = (uint)((fee < 155381) ? 155381 : fee);
+            signedTx = _transactionBuilder.SerializeTransaction(transaction);
+            var signedTxStr = signedTx.ToStringHex();
         }
 
         private byte[] getGenesisTransaction()

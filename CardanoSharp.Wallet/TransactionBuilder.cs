@@ -76,7 +76,7 @@ namespace CardanoSharp.Wallet
                         if(string.IsNullOrEmpty(asset.Key.StringValue))
                             assetMap.Add(asset.Key.BytesValue, asset.Value);
                         else
-                            assetMap.Add(asset.Key.StringValue, asset.Value);
+                            assetMap.Add(asset.Key.StringValue.ToBytes(), asset.Value);
                     }
 
                     //add our PolicyID (policy.Key) and Assets (assetMap)
@@ -211,7 +211,7 @@ namespace CardanoSharp.Wallet
                         if (string.IsNullOrEmpty(asset.Key.StringValue))
                             assetCbor.Add(asset.Key.BytesValue, asset.Value);
                         else
-                            assetCbor.Add(asset.Key.StringValue, asset.Value);
+                            assetCbor.Add(asset.Key.StringValue.ToBytes(), asset.Value);
                     }
                     _cborTransactionMint.Add(nativeAsset.Key, assetCbor);
                 }
@@ -279,7 +279,8 @@ namespace CardanoSharp.Wallet
                     _cborNativeScriptWitnesses = CBORObject.NewArray();
                     foreach (var nativeScript in transactionWitnessSet.NativeScripts)
                     {
-                        _cborNativeScriptWitnesses.Add(nativeScript.GetCBOR());
+                        var nsCbor = nativeScript.GetCBOR();
+                        _cborNativeScriptWitnesses.Add(nsCbor[0]);
                     }
 
                     _cborTransactionWitnessSet.Add(1, _cborNativeScriptWitnesses);
@@ -354,9 +355,12 @@ namespace CardanoSharp.Wallet
             return _cborTransactionBody.EncodeToBytes();
         }
 
-        public long CalculateFee(byte[] transaction)
+        public long CalculateFee(byte[] transaction, long? a = null, long? b = null)
         {
-            return transaction.Length * FeeStructure.Coefficient + FeeStructure.Constant;
+            if (!a.HasValue) a = FeeStructure.Coefficient;
+            if (!b.HasValue) b = FeeStructure.Constant;
+
+            return transaction.ToStringHex().Length * a.Value + b.Value;
         }
     }
 }
