@@ -234,13 +234,14 @@ namespace CardanoSharp.Wallet
             var txBodyHash = HashHelper.Blake2b256(_cborTransactionBody.EncodeToBytes());
             if (vKeyWitness.SKey.Length == 32)
             {
-                vKeyWitness.SKey = Ed25519.ExpandedPrivateKeyFromSeed(vKeyWitness.SKey.Slice(0, 32));
-                vKeyWitness.Signature = Ed25519.Sign(txBodyHash, vKeyWitness.SKey);
+                vKeyWitness.Signature = Ed25519.Sign(txBodyHash, Ed25519.ExpandedPrivateKeyFromSeed(vKeyWitness.SKey));
             }else
             {
                 vKeyWitness.Signature = Ed25519.SignCrypto(txBodyHash, vKeyWitness.SKey);
             }
-           
+
+            if (!Ed25519.Verify(vKeyWitness.Signature, txBodyHash, vKeyWitness.VKey))
+                throw new Exception("Signing failed");
 
             //fill out cbor structure for vkey witnesses
             var cborVKeyWitness = CBORObject.NewArray()
@@ -253,8 +254,10 @@ namespace CardanoSharp.Wallet
 
         private void BuildWitnessSet(TransactionWitnessSet transactionWitnessSet)
         {
+            _cborTransactionWitnessSet = null;
             _cborVKeyWitnesses = null; 
             _cborNativeScriptWitnesses = null;
+
             if(!transactionWitnessSet.VKeyWitnesses.Any()
                 && transactionWitnessSet.NativeScripts.Any())
                 _cborTransactionWitnessSet = CBORObject.NewArray();
@@ -266,6 +269,7 @@ namespace CardanoSharp.Wallet
                 _cborVKeyWitnesses = CBORObject.NewArray();
                 foreach (var vkeyWitness in transactionWitnessSet.VKeyWitnesses)
                 {
+                    vkeyWitness.Signature = null;
                     AddVKeyWitnesses(vkeyWitness);
                 }
 
