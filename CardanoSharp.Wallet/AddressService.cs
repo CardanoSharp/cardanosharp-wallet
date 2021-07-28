@@ -15,7 +15,7 @@ namespace CardanoSharp.Wallet
         string GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType);
         byte[] GetAddressBytes(string addressHash);
     }
-    public class AddressService: IAddressService
+    public class AddressService : IAddressService
     {
         public string GetAddress(byte[] addressArray, string prefix)
         {
