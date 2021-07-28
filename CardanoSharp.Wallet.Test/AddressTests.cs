@@ -59,7 +59,7 @@ namespace CardanoSharp.Wallet.Test
         {
             var addrByte = _addressService.GetAddressBytes(addr);
             var address = new Address(addr);
-            var hex = address.ToHexString();
+            var hex = address.ToStringHex();
 
             Assert.Equal(addrByte, address.GetBytes());
             Assert.Equal(prefix, address.Prefix);
@@ -96,9 +96,9 @@ namespace CardanoSharp.Wallet.Test
             var baseAddr3 = _addressService.GetAddress(paymentPub3, stakePub, NetworkType.Testnet, AddressType.Base);
 
             //act
-            var hex1 = baseAddr1.ToAddress().ToHexString(); // 0 0 79467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65 cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94
-            var hex2 = baseAddr2.ToAddress().ToHexString(); // 0 0 1fd57d18565e3a17cd194f190d349c2b7309eaf70f3f3bf884b0eada cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94
-            var hex3 = baseAddr3.ToAddress().ToHexString(); // 0 0 f36b29ceede650f850ee705a3a89ec041e24397d1a0d803d6af7e3f2 cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94
+            var hex1 = baseAddr1.ToAddress().ToStringHex(); // 0 0 79467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65 cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94
+            var hex2 = baseAddr2.ToAddress().ToStringHex(); // 0 0 1fd57d18565e3a17cd194f190d349c2b7309eaf70f3f3bf884b0eada cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94
+            var hex3 = baseAddr3.ToAddress().ToStringHex(); // 0 0 f36b29ceede650f850ee705a3a89ec041e24397d1a0d803d6af7e3f2 cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94
                                                             // ╎ ╎ ╎                                                        ╎
                                                             // ╎ ╎ ╰╌ Payment Address                                       ╰╌ Reward Address 
                                                             // ╎ ╰╌╌╌ NetworkType 0 = Testnet

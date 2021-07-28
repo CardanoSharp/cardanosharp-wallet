@@ -1,5 +1,6 @@
 ﻿using CardanoSharp.Wallet.Encoding;
 using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -82,8 +83,7 @@ namespace CardanoSharp.Wallet.Models.Addresses
                 _ => throw new InvalidOperationException("unknown network type"),
             };
         }
-
-
+        
         public string Prefix { get; set; }
         public byte WitnessVersion { get; set; }
 
@@ -113,9 +113,9 @@ namespace CardanoSharp.Wallet.Models.Addresses
             return _address;
         }
 
-        public string ToHexString()
+        public string ToStringHex()
         {
-            return BitConverter.ToString(_bytes).Replace("-","").ToLower();
+            return _bytes.ToStringHex();
         }
 
         public bool Equals(Address x, Address y)
