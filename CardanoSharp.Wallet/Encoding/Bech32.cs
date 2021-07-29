@@ -6,14 +6,6 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.Encoding
 {
-    public interface IBech32
-    {
-        public string Encode(byte[] data, string hrp);
-        public byte[] Decode(string bech32EncodedString, out byte witVer, out string hrp);
-        public bool IsValid(string bech32EncodedString);
-        public bool HasValidChars(string bech32EncodedString);
-    }
-
     public static partial class Bech32
     {
         /// <summary>
@@ -131,8 +123,6 @@ namespace CardanoSharp.Wallet.Encoding
             }
             return result;
         }
-
-
 
         private static bool VerifyChecksum(string hrp, byte[] data)
         {
