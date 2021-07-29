@@ -58,7 +58,7 @@ namespace CardanoSharp.Wallet.Test
                 {
                     new TransactionOutput()
                     {
-                        Address = _addressService.GetAddressBytes(baseAddr),
+                        Address = baseAddr.GetBytes(),
                         Value = new TransactionOutputValue()
                         {
                             Coin = 10
@@ -66,7 +66,7 @@ namespace CardanoSharp.Wallet.Test
                     },
                     new TransactionOutput()
                     {
-                        Address = _addressService.GetAddressBytes(changeAddr),
+                        Address = changeAddr.GetBytes(),
                         Value = new TransactionOutputValue()
                         {
                             Coin = 856488
@@ -118,7 +118,7 @@ namespace CardanoSharp.Wallet.Test
                 {
                     new TransactionOutput()
                     {
-                        Address = _addressService.GetAddressBytes(baseAddr),
+                        Address = baseAddr.GetBytes(),
                         Value = new TransactionOutputValue()
                         {
                             Coin = 1
@@ -186,7 +186,7 @@ namespace CardanoSharp.Wallet.Test
                 {
                     new TransactionOutput()
                     {
-                        Address = _addressService.GetAddressBytes(changeAddr),
+                        Address = changeAddr.GetBytes(),
                         Value = new TransactionOutputValue()
                         {
                             Coin = 3786498
@@ -250,7 +250,7 @@ namespace CardanoSharp.Wallet.Test
                 {
                     new TransactionOutput()
                     {
-                        Address = _addressService.GetAddressBytes(baseAddr),
+                        Address = baseAddr.GetBytes(),
                         Value = new TransactionOutputValue()
                         {
                             Coin = 1,
@@ -271,7 +271,7 @@ namespace CardanoSharp.Wallet.Test
                     },
                     new TransactionOutput()
                     {
-                        Address = _addressService.GetAddressBytes(changeAddr),
+                        Address = changeAddr.GetBytes(),
                         Value = new TransactionOutputValue()
                         {
                             Coin = 18,
