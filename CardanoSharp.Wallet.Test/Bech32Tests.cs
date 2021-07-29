@@ -1,76 +1,106 @@
-﻿using System;
+﻿using CardanoSharp.Wallet.Encoding;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using CardanoSharp.Wallet.Extensions;
 
 namespace CardanoSharp.Wallet.Test
 {
+    /// <summary>
+    /// Bech32 Test vectors from BIP-0173
+    /// https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#test-vectors
+    /// </summary>
     public class Bech32Tests
     {
         /// <summary>
-        /// Check if 1111 0111 1011 1101
+        /// 
+        /// https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#test-vectors
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="result"></param>
+        /// <param name="addr"></param>
+        /// <param name="expectedHex"></param>
+        /// <param name="expectedVer"></param>
+        /// <param name="expectedHrp"></param>
         [Theory]
-        [InlineData(new byte[] { 0xf7, 0xbd }, new byte[] { 0x1e, 0x1e, 0x1e, 0x10 })] 
-        [InlineData(new byte[] { 0xf7, 0xbd, 0xe0 }, new byte[] { 0x1e, 0x1e, 0x1e, 0x1e, 0x0 })]
-        [InlineData(new byte[] { 0xf7, 0xbd, 0xef, 0x7b, 0xde }, new byte[] { 0x1e, 0x1e, 0x1e, 0x1e, 0x1e, 0x1e, 0x1e, 0x1e })]
-        public void TestConvert(byte[] data, byte[] result)
+        [InlineData("A12UEL5L", "", 0x00, "")] //@TODO verify
+        [InlineData("a12uel5l", "", 0x00, "")] //@TODO verify
+        [InlineData("an83characterlonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1tt5tgs", "", 0x00, "")]
+        [InlineData("abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw", "00443214c74254b635cf84653a56d7c675be77df", 0x00, "abcdef")]
+        [InlineData("11qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc8247j", "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", 0x00, "1")]
+        [InlineData("split1checkupstagehandshakeupstreamerranterredcaperred2y9e3w", "c5f38b70305f5fb6cf03058f3dde463ecd7918f2dc743918f2d", 0x00, "split")]
+        [InlineData("?1ezyfcl", "", 0x00, "")]
+        [InlineData("BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4", "0014751e76e8199196d454941c45d1b3a323f1433bd6", 0x00, "BC")]
+        [InlineData("tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7", "00201863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262", 0x00, "tb")]
+        [InlineData("bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx", "5128751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6", 0x00, "tb")]
+        [InlineData("BC1SW50QA3JX3S", "6002751e", 0x00, "tb")]
+        [InlineData("bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj", "5210751e76e8199196d454941c45d1b3a323", 0x00, "tb")]
+        [InlineData("tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy", "0020000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433", 0x00, "tb")]
+        public void TestValidInputs(string addr, string expectedHex, byte expectedVer, string expectedHrp)
         {
-            //arrange
-            int fromBits = 8;
-            int toBits = 5;
-            var view = data.Select(b => Convert.ToString(b, 2));
-            //act
-            var convert = ConvertBitsFast(data, fromBits, toBits, true);
+            // Act
+            var decoded = Bech32.Decode(addr, out var actualVer, out var actualHrp);
+            var actualHex = decoded.ToStringHex();
 
-            //assert
-            Assert.Equal(result, convert);
+            // Assert
+            Assert.Equal(expectedVer, actualVer);
+            Assert.Equal(expectedHrp, actualHrp);
+            Assert.Equal(expectedHex, actualHex);
         }
-    
-    static byte[] ConvertBitsFast(ReadOnlySpan<byte> data, int fromBits, int toBits, bool pad = true)
-    {
-        // TODO: Optimize Looping
-        // We can use a method similar to BIP39 here to avoid the nested loop, usage of List, increase the speed,
-        // and shorten this function to 3 lines.
-        // Or convert to ulong[], loop through it (3 times) take 5 bits at a time or 8 bits at a time...
-        int acc = 0;
-        int bits = 0;
-        int maxv = (1 << toBits) - 1;
-        int maxacc = (1 << (fromBits + toBits - 1)) - 1;
 
-        List<byte> result = new List<byte>();
-        foreach (var b in data)
+        /// <summary>
+        /// 
+        /// https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#test-vectors
+        /// </summary>
+        /// <param name="addr"></param>
+        /// <param name="expectedError"></param>
+        [Theory]
+        [InlineData("1nwldj5", "HRP character out of range")]
+        [InlineData("1axkwrx", "HRP character out of range")]
+        [InlineData("1eym55h", "HRP character out of range")]
+        [InlineData("an84characterslonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1569pvx", "overall max length exceeded")]
+        [InlineData("pzry9x0s0muk", "no separator")]
+        [InlineData("1pzry9x0s0muk", "empty hrp")]
+        [InlineData("x1b4n0q5v", "Invalid data format.")]
+        [InlineData("li1dgmt3", "too short checksum")]
+        [InlineData("de1lg7wt", "Invalid character in checksum.")]
+        [InlineData("A1G7SGD8", "Invalid checksum.")]
+        [InlineData("A1G7SGD8", "empty HRP")]
+        [InlineData("1qzzfhee", "empty HRP")]
+        public void TestInvalidInputs(string addr, string expectedError)
         {
-            // Speed doesn't matter for this class but we can skip this check for 8 to 5 conversion.
-            if ((b >> fromBits) > 0)
+            // arrange
+            if(addr == "delig7wt")
             {
-                return null;
+                addr += 0xff;
             }
-            acc = ((acc << fromBits) | b) & maxacc;
-            bits += fromBits;
-            while (bits >= toBits)
+            if (addr == "1nwldj5")
             {
-                bits -= toBits;
-                result.Add((byte)((acc >> bits) & maxv));
+                addr = 0x20 + addr;
             }
-        }
-        if (pad)
-        {
-            if (bits > 0)
+            if (addr == "1axkwrx")
             {
-                result.Add((byte)((acc << (toBits - bits)) & maxv));
+                addr = 0x7f + addr;
             }
-        }
-        else if (bits >= fromBits || (byte)((acc << (toBits - bits)) & maxv) != 0)
-        {
-            return null;
-        }
-        return result.ToArray();
+            if (addr == "1eym55h")
+            {
+                addr = 0x80 + addr;
+            }
 
-    }
+            bool raised = false;
+            try
+            {
+                var decoded = Bech32.Decode(addr, out var actualVer, out var actualHrp);
+                var hex = decoded.ToStringHex();
+            }
+            catch (Exception ex)
+            {
+                raised = true;
+                Console.Error.WriteLine(ex);
+            }
+
+            Assert.True(raised);
+        }
     }
 }
