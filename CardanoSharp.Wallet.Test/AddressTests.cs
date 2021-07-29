@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using System.Buffers.Text;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -43,9 +44,8 @@ namespace CardanoSharp.Wallet.Test
         [InlineData("stake", "stake1uyevw2xnsc0pvn9t9r9c7qryfqfeerchgrlm3ea2nefr9hqxdekzz")]
         public void EncodeDecodeTest(string prefix, string addr)
         {
-            var bech32 = new Bech32();
-            var addrByte = bech32.Decode(addr, out _, out _);
-            var addr2 = bech32.Encode(addrByte, prefix);
+            var addrByte = Bech32.Decode(addr, out _, out _);
+            var addr2 = Bech32.Encode(addrByte, prefix);
 
             Assert.Equal(addr, addr2);
         }
@@ -58,8 +58,7 @@ namespace CardanoSharp.Wallet.Test
         [InlineData("addr_test", "addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp")]
         public void FromStringTest(string prefix, string addr)
         {
-            var bech32 = new Bech32();
-            var addrByte = bech32.Decode(addr, out _, out _);
+            var addrByte = Bech32.Decode(addr, out _, out _);
             var address = new Address(addr);
             var hex = address.ToStringHex();
 
@@ -71,10 +70,22 @@ namespace CardanoSharp.Wallet.Test
         }
 
         /// <summary>
-        /// Illustrating the fact that addresses generated with paymentPub & stakePub indeed have multiple parts
-        /// verifying components of adresses 
+        /// Verifies components of adresses
+        /// Illustrating the fact that addresses generated with paymentPub & stakePub have multiple parts,
+        /// that addresses consist of "header part", "payment address part" and "reward address part"
+        /// that "payment address part" for different paths (CIP1852) differ
+        /// that "reward address part" for different paths are equal
+        /// 
         /// inspired by Andrew Westberg (NerdOut) Addresses Video 
         /// https://www.youtube.com/watch?v=NjPf_b9UQNs&t=396)
+        /// 
+        /// 0 0 79467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65 cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94
+        /// 0 0 1fd57d18565e3a17cd194f190d349c2b7309eaf70f3f3bf884b0eada cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94
+        /// 0 0 f36b29ceede650f850ee705a3a89ec041e24397d1a0d803d6af7e3f2 cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94
+        /// ╎ ╎ ╎                                                        ╎
+        /// ╎ ╎ ╰╌ Payment Address                                       ╰╌ Reward Address
+        /// ╎ ╰╌╌╌ NetworkType 0 = Testnet
+        /// ╰╌╌╌╌╌ AddressType 0 = Base
         /// </summary>
         [Theory]
         [InlineData(__mnemonic, "cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94")]
@@ -84,7 +95,7 @@ namespace CardanoSharp.Wallet.Test
             //arrange
             var entropy = _keyService.Restore(mnemonic);
             var rootKey = _keyService.GetRootKey(entropy);
-                        
+            
             ////get payment keys
             (var paymentPrv1, var paymentPub1) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
             (var paymentPrv2, var paymentPub2) = getKeyPairFromPath("m/1852'/1815'/0'/0/1", rootKey);
@@ -98,18 +109,14 @@ namespace CardanoSharp.Wallet.Test
             var baseAddr3 = _addressService.GetAddress(paymentPub3, stakePub, NetworkType.Testnet, AddressType.Base);
 
             //act
-            var hex1 = baseAddr1.ToStringHex(); // 0 0 79467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65 cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94
-            var hex2 = baseAddr2.ToStringHex(); // 0 0 1fd57d18565e3a17cd194f190d349c2b7309eaf70f3f3bf884b0eada cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94
-            var hex3 = baseAddr3.ToStringHex(); // 0 0 f36b29ceede650f850ee705a3a89ec041e24397d1a0d803d6af7e3f2 cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94
-                                                            // ╎ ╎ ╎                                                        ╎
-                                                            // ╎ ╎ ╰╌ Payment Address                                       ╰╌ Reward Address 
-                                                            // ╎ ╰╌╌╌ NetworkType 0 = Testnet
-                                                            // ╰╌╌╌╌╌ AddressType 0 = Base
+            var hex1 = baseAddr1.ToStringHex(); 
+            var hex2 = baseAddr2.ToStringHex();
+            var hex3 = baseAddr3.ToStringHex(); 
+                                                
             // assert
             Assert.EndsWith(stakingAddr, hex1);
             Assert.EndsWith(stakingAddr, hex2);
             Assert.EndsWith(stakingAddr, hex3);
-
         }
 
         /// <summary>

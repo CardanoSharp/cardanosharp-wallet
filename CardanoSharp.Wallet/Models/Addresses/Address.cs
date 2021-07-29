@@ -13,16 +13,14 @@ namespace CardanoSharp.Wallet.Models.Addresses
         private string _address;
         public AddressType AddressType { get; }
         public NetworkType NetworkType { get; }
-        
         public Address()
         {
         }
 
         public Address(string prefix, byte[] address)
         {
-            var bech32 = new Bech32();
             _bytes = address;
-            _address = bech32.Encode(address, prefix);
+            _address = Bech32.Encode(address, prefix);
         }
 
         public Address(string address)
@@ -30,7 +28,6 @@ namespace CardanoSharp.Wallet.Models.Addresses
             if (string.IsNullOrWhiteSpace(address)) 
                 throw new ArgumentNullException(nameof(address));
 
-            var bech32 = new Bech32();
             
             //if (!bech32.HasValidChars(address))
             //{
@@ -38,7 +35,7 @@ namespace CardanoSharp.Wallet.Models.Addresses
             //}
 
             _address = address;
-            _bytes = bech32.Decode(_address, out byte witVer, out string prefix);
+            _bytes = Bech32.Decode(_address, out byte witVer, out string prefix);
 
             Prefix = prefix;
             WitnessVersion = witVer;
