@@ -3,6 +3,7 @@ using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Encoding;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.Models.Addresses;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,19 +12,11 @@ namespace CardanoSharp.Wallet
 {
     public interface IAddressService
     {
-        string GetAddress(byte[] addressArray, string prefix);
-        string GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType);
-        byte[] GetAddressBytes(string addressHash);
+        Address GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType);
     }
     public class AddressService : IAddressService
     {
-        public string GetAddress(byte[] addressArray, string prefix)
-        {
-            var bech32 = new Bech32();
-            return bech32.Encode(addressArray, prefix);
-        }
-
-        public string GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType)
+        public Address GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType)
         {
             var networkInfo = getNetworkInfo(networkType);
             var paymentEncoded = HashHelper.Blake2b244(payment);
@@ -54,16 +47,7 @@ namespace CardanoSharp.Wallet
                     throw new Exception("Unknown address type");
             }
 
-            var bech32 = new Bech32();
-            return bech32.Encode(addressArray, prefix);
-        }
-
-        public byte[] GetAddressBytes(string addressHash)
-        {
-            var bech32 = new Bech32();
-            byte witVer;
-            string prefix;
-            return bech32.Decode(addressHash, out witVer, out prefix);
+            return new Address(prefix, addressArray);
         }
 
         private string getPrefixHeader(AddressType addressType) =>
