@@ -10,16 +10,15 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Text.RegularExpressions;
 using CardanoSharp.Wallet.Common;
 using Chaos.NaCl;
+using CardanoSharp.Wallet.Models;
+using CardanoSharp.Wallet.Models.Keys;
 
 namespace CardanoSharp.Wallet
 {
     public interface IKeyService
     {
-        string Generate(int size, WordLists wl = WordLists.English);
-        byte[] Restore(string mnemonic, WordLists wl = WordLists.English);
-        (byte[], byte[]) GetRootKey(byte[] entropy, string password = "");
-        byte[] GetPublicKey(byte[] privateKey, bool withZeroByte = true);
-        (byte[], byte[]) DerivePath(string path, byte[] key, byte[] chainCode);
+        Mnemonic Generate(int size, WordLists wl = WordLists.English);
+        Mnemonic Restore(string mnemonic, WordLists wl = WordLists.English);
     }
 
     public class KeyService : IKeyService
@@ -27,10 +26,10 @@ namespace CardanoSharp.Wallet
         #region BIP39
         private readonly int[] allowedEntropyLengths = { 12, 16, 20, 24, 28, 32 };
         private static readonly int[] allowedWordLengths = { 9, 12, 15, 18, 21, 24 };
-        private uint[] wordIndexes;
+        private const int allWordsLength = 2048;
         private string[] allWords;
 
-        public string Generate(int wordSize, WordLists wl = WordLists.English)
+        public Mnemonic Generate(int wordSize, WordLists wl = WordLists.English)
         {
             if (!allowedWordLengths.Contains(wordSize))
                 throw new ArgumentOutOfRangeException(nameof(wordSize), $"{nameof(wordSize)} must be one of the following values ({string.Join(", ", allowedWordLengths)})");
@@ -44,35 +43,34 @@ namespace CardanoSharp.Wallet
             var entropy = new byte[entropySize];
             var rng = new RNGCryptoServiceProvider();
             rng.GetBytes(entropy);
-            SetWordsFromEntropy(entropy);
-            return GetMnemonic();
+            return CreateMnemonicFromEntropy(entropy);
         }
 
-        public byte[] Restore(string mnemonic, WordLists wl = WordLists.English)
+        public Mnemonic Restore(string words, WordLists wl = WordLists.English)
         {
-            if (string.IsNullOrWhiteSpace(mnemonic))
-                throw new ArgumentNullException(nameof(mnemonic), "Seed can not be null or empty!");
+            if (string.IsNullOrWhiteSpace(words))
+                throw new ArgumentNullException(nameof(words), "Seed can not be null or empty!");
             allWords = GetAllWords(wl);
 
-            string[] words = mnemonic.Normalize(NormalizationForm.FormKD)
+            string[] wordArr = words.Normalize(NormalizationForm.FormKD)
                                      .Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            if (!words.All(x => allWords.Contains(x)))
+            if (!wordArr.All(x => allWords.Contains(x)))
             {
-                throw new ArgumentException(nameof(mnemonic), "Seed has invalid words.");
+                throw new ArgumentException(nameof(wordArr), "Seed has invalid words.");
             }
-            if (!allowedWordLengths.Contains(words.Length))
+            if (!allowedWordLengths.Contains(wordArr.Length))
             {
                 throw new FormatException($"Invalid seed length. It must be one of the following values ({string.Join(", ", allowedWordLengths)})");
             }
 
-            wordIndexes = new uint[words.Length];
-            for (int i = 0; i < words.Length; i++)
+            var wordIndexes = new uint[wordArr.Length];
+            for (int i = 0; i < wordArr.Length; i++)
             {
-                wordIndexes[i] = (uint)Array.IndexOf(allWords, words[i]);
+                wordIndexes[i] = (uint)Array.IndexOf(allWords, wordArr[i]);
             }
 
             // Compute and check checksum
-            int MS = words.Length;
+            int MS = wordArr.Length;
             int ENTCS = MS * 11;
             int CS = ENTCS % 32;
             int ENT = ENTCS - CS;
@@ -147,20 +145,7 @@ namespace CardanoSharp.Wallet
                 throw new FormatException("Wrong checksum.");
             }
 
-            return entropy;
-        }
-
-        private string GetMnemonic()
-        {
-            StringBuilder sb = new StringBuilder(wordIndexes.Length * 8);
-            for (int i = 0; i < wordIndexes.Length; i++)
-            {
-                sb.Append($"{allWords[wordIndexes[i]]} ");
-            }
-
-            // no space at the end.
-            sb.Length--;
-            return sb.ToString();
+            return new Mnemonic(words, entropy);
         }
 
         private static string[] GetAllWords(WordLists wl)
@@ -175,7 +160,6 @@ namespace CardanoSharp.Wallet
             {
                 using StreamReader reader = new StreamReader(stream);
                 int i = 0;
-                const int allWordsLength = 2048;
                 string[] result = new string[allWordsLength];
                 while (!reader.EndOfStream)
                 {
@@ -194,7 +178,7 @@ namespace CardanoSharp.Wallet
             }
         }
 
-        private void SetWordsFromEntropy(byte[] entropy)
+        private Mnemonic CreateMnemonicFromEntropy(byte[] entropy)
         {
             using SHA256 hash = SHA256.Create();
             byte[] hashOfEntropy = hash.ComputeHash(entropy);
@@ -227,7 +211,7 @@ namespace CardanoSharp.Wallet
             int toTake = 11;
             // UInt32 is 32 bit!
             int maxBits = 32;
-            wordIndexes = new uint[MS];
+            var wordIndexes = new uint[MS];
             for (int i = 0; i < MS; i++)
             {
                 if (bitIndex + toTake <= maxBits)
@@ -271,252 +255,17 @@ namespace CardanoSharp.Wallet
                     itemIndex++;
                 }
             }
+
+            StringBuilder sb = new StringBuilder(wordIndexes.Length * 8);
+            for (int i = 0; i < wordIndexes.Length; i++)
+            {
+                sb.Append($"{allWords[wordIndexes[i]]} ");
+            }
+
+            // no space at the end.
+            sb.Length--;
+            return new Mnemonic(sb.ToString(), entropy);
         }
         #endregion
-
-        #region BIP32
-        static UInt32 MinHardIndex = 0x80000000;
-        public (byte[], byte[]) GetRootKey(byte[] entropy, string password = "")
-        {
-            //GroupElementP3 A;
-            var rootKey = KeyDerivation.Pbkdf2(password, entropy, KeyDerivationPrf.HMACSHA512, 4096, 96);
-            rootKey[0] &= 248;
-            rootKey[31] &= 31;
-            rootKey[31] |= 64;
-
-            return (rootKey.Slice(0, 64), rootKey.Slice(64));
-        }
-
-        public byte[] GetPublicKey(byte[] privateKey, bool withZeroByte = true)
-        {
-            var sk = new byte[privateKey.Length];
-            Buffer.BlockCopy(privateKey, 0, sk, 0, privateKey.Length);
-            var publicKey = Ed25519.GetPublicKey(sk);
-
-            var zero = new byte[] { 0 };
-
-            var buffer = new BigEndianBuffer();
-            if (withZeroByte)
-                buffer.Write(zero);
-
-            buffer.Write(publicKey);
-
-            return buffer.ToArray();
-        }
-
-        public (byte[], byte[]) DerivePath(string path, byte[] key, byte[] chainCode)
-        {
-            if (!IsValidPath(path))
-                throw new FormatException("Invalid derivation path");
-
-            var segments = path
-                .Split('/');
-
-            if (segments[0] == "m") segments = segments.Slice(1);
-
-            foreach (var segment in segments)
-            {
-                var isHardened = segment.Contains("'");
-                var index = Convert.ToUInt32(segment.Replace("'", ""));
-
-                if (isHardened) index += MinHardIndex;
-
-                byte[] z, cc;
-                if (key.Length == 64)
-                    (z, cc) = GetChildPrivateKeyDerivation(key, chainCode, index);
-                else
-                    (z, cc) = GetChildPublicKeyDerivation(key, chainCode, index);
-
-                chainCode = cc;
-                key = z;
-            }
-
-            return (key, chainCode);
-        }
-
-        private (byte[], byte[]) GetChildPublicKeyDerivation(byte[] pk, byte[] chainCode, uint index)
-        {
-            var z = new byte[64];
-            var zl = new byte[32];
-            var zr = new byte[32];
-            var i = new byte[64];
-            var seri = le32(index);
-
-            BigEndianBuffer zBuffer = new BigEndianBuffer();
-            BigEndianBuffer iBuffer = new BigEndianBuffer();
-            if (fromIndex(index) == DerivationType.HARD)
-            {
-                throw new Exception("Hard derivation is now allowed");
-            }
-            else
-            {
-                zBuffer.Write(new byte[] { 0x02 });
-                zBuffer.Write(pk);
-                zBuffer.Write(seri);
-
-                iBuffer.Write(new byte[] { 0x03 });
-                iBuffer.Write(pk);
-                iBuffer.Write(seri);
-            }
-
-            using (HMACSHA512 hmacSha512 = new HMACSHA512(chainCode))
-            {
-                z = hmacSha512.ComputeHash(zBuffer.ToArray());
-                zl = z.Slice(0, 32);
-                zr = z.Slice(32);
-            }
-
-            // left = kl + 8 * trunc28(zl)
-            var key = Ed25519.PointPlus(pk, point_of_trunc28_mul8(zl));
-
-            byte[] cc;
-            using (HMACSHA512 hmacSha512 = new HMACSHA512(chainCode))
-            {
-                i = hmacSha512.ComputeHash(iBuffer.ToArray());
-                cc = i.Slice(32);
-            }
-
-            return (key, cc);
-        }
-
-        private (byte[], byte[]) GetChildPrivateKeyDerivation(byte[] ekey, byte[] chainCode, uint index)
-        {
-            var kl = new byte[32];
-            Buffer.BlockCopy(ekey, 0, kl, 0, 32);
-            var kr = new byte[32];
-            Buffer.BlockCopy(ekey, 32, kr, 0, 32);
-
-            var z = new byte[64];
-            var zl = new byte[32];
-            var zr = new byte[32];
-            var i = new byte[64];
-            var seri = le32(index);
-
-            BigEndianBuffer zBuffer = new BigEndianBuffer();
-            BigEndianBuffer iBuffer = new BigEndianBuffer();
-            if (fromIndex(index) == DerivationType.HARD)
-            {
-                zBuffer.Write(new byte[] { 0x00 });
-                zBuffer.Write(ekey);
-                zBuffer.Write(seri);
-
-                iBuffer.Write(new byte[] { 0x01 });
-                iBuffer.Write(ekey);
-                iBuffer.Write(seri);
-            }
-            else
-            {
-                var pk = GetPublicKey(ekey, false);
-                zBuffer.Write(new byte[] { 0x02 });
-                zBuffer.Write(pk);
-                zBuffer.Write(seri);
-
-                iBuffer.Write(new byte[] { 0x03 });
-                iBuffer.Write(pk);
-                iBuffer.Write(seri);
-            }
-
-
-            using (HMACSHA512 hmacSha512 = new HMACSHA512(chainCode))
-            {
-                z = hmacSha512.ComputeHash(zBuffer.ToArray());
-                zl = z.Slice(0, 32);
-                zr = z.Slice(32);
-            }
-
-            // left = kl + 8 * trunc28(zl)
-            var left = add_28_mul8(kl, zl);
-            // right = zr + kr
-            var right = add_256bits(kr, zr);
-
-            var key = new byte[left.Length + right.Length];
-            Buffer.BlockCopy(left, 0, key, 0, left.Length);
-            Buffer.BlockCopy(right, 0, key, left.Length, right.Length);
-
-            //chaincode
-
-            byte[] cc;
-            using (HMACSHA512 hmacSha512 = new HMACSHA512(chainCode))
-            {
-                i = hmacSha512.ComputeHash(iBuffer.ToArray());
-                cc = i.Slice(32);
-            }
-
-            return (key, cc);
-        }
-
-        private bool IsValidPath(string path)
-        {
-            var regex = new Regex("^m(\\/[0-9]+')+$");
-
-            // if (!regex.IsMatch(path))
-            //     return false;
-
-            var valid = !(path.Split('/')
-                .Slice(1)
-                .Select(a => a.Replace("'", ""))
-                .Any(a => !Int32.TryParse(a, out _)));
-
-            return valid;
-        }
-
-        private byte[] add_28_mul8(byte[] x, byte[] y)
-        {
-            if (x.Length != 32) throw new Exception("x is incorrect length");
-            if (y.Length != 32) throw new Exception("y is incorrect length");
-
-            ushort carry = 0;
-            var res = new byte[32];
-
-            for(var i = 0; i < 28; i++)
-            {
-                var r = (ushort)x[i] + (((ushort)y[i]) << 3) + carry;
-                res[i] = (byte)(r & 0xff);
-                carry = (ushort)(r >> 8);
-            }
-
-            for (var j = 28; j < 32; j++)
-            { 
-                var r = (ushort)x[j] + carry;
-                res[j] = (byte)(r & 0xff);
-                carry = (ushort)(r >> 8);
-            }
-
-            return res;
-        }
-
-        private byte[] add_256bits(byte[] x, byte[] y)
-        {
-            if (x.Length != 32) throw new Exception("x is incorrect length");
-            if (y.Length != 32) throw new Exception("y is incorrect length");
-
-            ushort carry = 0;
-            var res = new byte[32];
-
-            for (var i = 0; i < 32; i++)
-            {
-                var r = (ushort)x[i] + (ushort)y[i] + carry;
-                res[i] = (byte)(r);
-                carry = (ushort)(r >> 8);
-            }
-
-            return res;
-        }
-
-        private byte[] point_of_trunc28_mul8(byte[] sk) {
-            var kl = new byte[32];
-            var copy = add_28_mul8(kl, sk);
-            return Ed25519.GetPublicKey(copy);
-        }
-
-        private DerivationType fromIndex(uint index) =>
-            index >= 0x80000000
-                ? DerivationType.HARD 
-                : DerivationType.SOFT;
-
-        private byte[] le32(uint i) =>
-            new byte[] { (byte)i, (byte)(i >> 8), (byte)(i >> 16), (byte)(i >> 24) };
-        #endregion
-
     }
 }

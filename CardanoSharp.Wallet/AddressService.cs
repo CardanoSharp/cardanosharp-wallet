@@ -1,26 +1,24 @@
 ﻿
-using CardanoSharp.Wallet.Common;
-using CardanoSharp.Wallet.Encoding;
-using CardanoSharp.Wallet.Enums;
-using CardanoSharp.Wallet.Extensions;
-using CardanoSharp.Wallet.Models.Addresses;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using CardanoSharp.Wallet.Common;
+using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Models.Addresses;
+using CardanoSharp.Wallet.Models.Keys;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet
 {
     public interface IAddressService
     {
-        Address GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType);
+        Address GetAddress(PublicKey payment, PublicKey stake, NetworkType networkType, AddressType addressType);
     }
     public class AddressService : IAddressService
     {
-        public Address GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType)
+        public Address GetAddress(PublicKey payment, PublicKey stake, NetworkType networkType, AddressType addressType)
         {
             var networkInfo = getNetworkInfo(networkType);
-            var paymentEncoded = HashHelper.Blake2b244(payment);
-            var stakeEncoded = HashHelper.Blake2b244(stake);
+            var paymentEncoded = HashUtility.Blake2b244(payment.Key);
+            var stakeEncoded = HashUtility.Blake2b244(stake.Key);
 
             //get prefix
             var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using Blake2Fast;
 
-namespace CardanoSharp.Wallet.Common
+namespace CardanoSharp.Wallet.Utilities
 {
-    public static class HashHelper
+    public static class HashUtility
     {
         public static byte[] Blake2b244(byte[] data)
         {

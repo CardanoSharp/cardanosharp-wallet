@@ -2,13 +2,9 @@
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Extensions.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CardanoSharp.Wallet.Extensions;
 using Xunit;
-using System.Buffers.Text;
+using CardanoSharp.Wallet.Models.Keys;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -89,12 +85,12 @@ namespace CardanoSharp.Wallet.Test
         /// </summary>
         [Theory]
         [InlineData(__mnemonic, "cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94")]
-        public void VerifyRewardAddress(string mnemonic, string stakingAddr)
+        public void VerifyRewardAddress(string words, string stakingAddr)
         {
             // create two payment addresses from same root key
             //arrange
-            var entropy = _keyService.Restore(mnemonic);
-            var rootKey = _keyService.GetRootKey(entropy);
+            var mnemonic = _keyService.Restore(words);
+            var rootKey = mnemonic.GetRootKey();
             
             ////get payment keys
             (var paymentPrv1, var paymentPub1) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
@@ -125,11 +121,10 @@ namespace CardanoSharp.Wallet.Test
         /// <param name="path"></param>
         /// <param name="rootKey"></param>
         /// <returns></returns>
-        private (byte[], byte[]) getKeyPairFromPath(string path, (byte[], byte[]) rootKey)
+        private (PrivateKey, PublicKey) getKeyPairFromPath(string path, PrivateKey rootKey)
         {
-            var privateKey = _keyService.DerivePath(path, rootKey.Item1, rootKey.Item2);
-            var publicKey = _keyService.GetPublicKey(privateKey.Item1, false);
-            return (privateKey.Item1, publicKey);
+            var privateKey = rootKey.Derive(path);
+            return (privateKey, privateKey.GetPublicKey(false));
         }
 
     }
