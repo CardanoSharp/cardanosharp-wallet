@@ -28,7 +28,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
             return new PublicKey(
                 buffer.ToArray(),
-                privateKey.Chaincode);
+                privateKey.ChainCode);
         }
 
         public static PrivateKey Derive(this PrivateKey privateKey, string path)
@@ -41,7 +41,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
             if (segments[0] == "m") segments = segments.Slice(1);
 
-            PrivateKey newPrivateKey = new PrivateKey(privateKey.Key, privateKey.Chaincode);
+            PrivateKey newPrivateKey = new PrivateKey(privateKey.Key, privateKey.ChainCode);
             foreach (var segment in segments)
             {
                 var isHardened = segment.Contains("'");
@@ -93,7 +93,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             }
 
 
-            using (HMACSHA512 hmacSha512 = new HMACSHA512(privateKey.Chaincode))
+            using (HMACSHA512 hmacSha512 = new HMACSHA512(privateKey.ChainCode))
             {
                 z = hmacSha512.ComputeHash(zBuffer.ToArray());
                 zl = z.Slice(0, 32);
@@ -112,7 +112,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             //chaincode
 
             byte[] cc;
-            using (HMACSHA512 hmacSha512 = new HMACSHA512(privateKey.Chaincode))
+            using (HMACSHA512 hmacSha512 = new HMACSHA512(privateKey.ChainCode))
             {
                 i = hmacSha512.ComputeHash(iBuffer.ToArray());
                 cc = i.Slice(32);

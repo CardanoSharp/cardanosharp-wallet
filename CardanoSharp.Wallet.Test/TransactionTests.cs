@@ -30,16 +30,16 @@ namespace CardanoSharp.Wallet.Test
             var rootKey = getBase15WordWallet();
 
             //get payment keys
-            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+            var paymentKeyPair = KeyUtility.GetKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
 
             //get change keys
-            (var changePrv, var changePub) = getKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
+            var changeKeyPair = KeyUtility.GetKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
 
             //get stake keys
-            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+            var stakeKeyPair = KeyUtility.GetKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
-            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = _addressService.GetAddress(paymentKeyPair.PublicKey, stakeKeyPair.PublicKey, NetworkType.Testnet, AddressType.Base);
+            var changeAddr = _addressService.GetAddress(changeKeyPair.PublicKey, stakeKeyPair.PublicKey, NetworkType.Testnet, AddressType.Base);
 
             var transactionBody = new TransactionBody()
             {
@@ -90,15 +90,15 @@ namespace CardanoSharp.Wallet.Test
             var rootKey = getBase15WordWallet();
 
             //get payment keys
-            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+            var paymentKeyPair = KeyUtility.GetKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
 
             //get change keys
-            (var changePrv, var changePub) = getKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
+            var changeKeyPair = KeyUtility.GetKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
 
             //get stake keys
-            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+            var stakeKeyPair = KeyUtility.GetKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = _addressService.GetAddress(paymentKeyPair.PublicKey, stakeKeyPair.PublicKey, NetworkType.Testnet, AddressType.Base);
 
             var transactionBody = new TransactionBody()
             {
@@ -131,8 +131,8 @@ namespace CardanoSharp.Wallet.Test
                 {
                     new VKeyWitness()
                     {
-                        VKey = paymentPub.Key,
-                        SKey = paymentPrv.Key
+                        VKey = paymentKeyPair.PublicKey.Key,
+                        SKey = paymentKeyPair.PrivateKey.Key
                     }
                 }
             };
@@ -157,16 +157,16 @@ namespace CardanoSharp.Wallet.Test
             var rootKey = getBase15WordWallet();
 
             //get payment keys
-            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+            var paymentKeyPair = KeyUtility.GetKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
 
             //get change keys
-            (var changePrv, var changePub) = getKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
+            var changeKeyPair = KeyUtility.GetKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
 
             //get stake keys
-            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+            var stakeKeyPair = KeyUtility.GetKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
-            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
-            var stakeHash = HashUtility.Blake2b244(stakePub.Key);
+            var changeAddr = _addressService.GetAddress(changeKeyPair.PublicKey, stakeKeyPair.PublicKey, NetworkType.Testnet, AddressType.Base);
+            var stakeHash = HashUtility.Blake2b244(stakeKeyPair.PublicKey.Key);
 
             var transactionBody = new TransactionBody()
             {
@@ -216,16 +216,16 @@ namespace CardanoSharp.Wallet.Test
             var rootKey = getBase15WordWallet();
 
             //get payment keys
-            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+            var paymentKeyPair = KeyUtility.GetKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
 
             //get change keys
-            (var changePrv, var changePub) = getKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
+            var changeKeyPair = KeyUtility.GetKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
 
             //get stake keys
-            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+            var stakeKeyPair = KeyUtility.GetKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
-            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = _addressService.GetAddress(paymentKeyPair.PublicKey, stakeKeyPair.PublicKey, NetworkType.Testnet, AddressType.Base);
+            var changeAddr = _addressService.GetAddress(changeKeyPair.PublicKey, stakeKeyPair.PublicKey, NetworkType.Testnet, AddressType.Base);
 
             var transactionBody = new TransactionBody()
             {
@@ -444,12 +444,6 @@ namespace CardanoSharp.Wallet.Test
             var words = "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy";
             var mnemonic = _keyService.Restore(words);
             return mnemonic.GetRootKey();
-        }
-
-        private (PrivateKey, PublicKey) getKeyPairFromPath(string path, PrivateKey rootKey)
-        {
-            var privateKey = rootKey.Derive(path);
-            return (privateKey, privateKey.GetPublicKey(false));
         }
     }
 }

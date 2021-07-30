@@ -4,15 +4,15 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.Models.Keys
 {
-    public class PublicKey
+    public record PublicKey
     {
+        public byte[] Key { get; set; }
+        public byte[] ChainCode { get; set; }
+
         public PublicKey(byte[] key, byte[] chaincode)
         {
             Key = key;
-            Chaincode = chaincode;
+            ChainCode = chaincode;
         }
-
-        public byte[] Key { get; set; }
-        public byte[] Chaincode { get; set; }
     }
 }

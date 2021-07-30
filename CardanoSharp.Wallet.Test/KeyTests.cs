@@ -48,7 +48,7 @@ namespace CardanoSharp.Wallet.Test
             var rootKey = mnemonic.GetRootKey();
 
             Assert.Equal(rootKey.Key.ToStringHex(), expectedPrivateKey.Substring(0, 128));
-            Assert.Equal(rootKey.Chaincode.ToStringHex(), expectedPrivateKey.Substring(128));
+            Assert.Equal(rootKey.ChainCode.ToStringHex(), expectedPrivateKey.Substring(128));
         }
     }
 }

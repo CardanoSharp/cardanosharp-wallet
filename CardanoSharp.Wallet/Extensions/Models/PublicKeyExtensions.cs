@@ -21,7 +21,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
             //if (segments[0] == "m") segments = segments.Slice(1);
 
-            PublicKey newpublicKey = new PublicKey(publicKey.Key, publicKey.Chaincode);
+            PublicKey newpublicKey = new PublicKey(publicKey.Key, publicKey.ChainCode);
             foreach (var segment in segments)
             {
                 if (segment.Contains("'"))
@@ -61,7 +61,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             
 
 
-            using (HMACSHA512 hmacSha512 = new HMACSHA512(publicKey.Chaincode))
+            using (HMACSHA512 hmacSha512 = new HMACSHA512(publicKey.ChainCode))
             {
                 z = hmacSha512.ComputeHash(zBuffer.ToArray());
                 zl = z.Slice(0, 32);
@@ -80,7 +80,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             //chaincode
 
             byte[] cc;
-            using (HMACSHA512 hmacSha512 = new HMACSHA512(publicKey.Chaincode))
+            using (HMACSHA512 hmacSha512 = new HMACSHA512(publicKey.ChainCode))
             {
                 i = hmacSha512.ComputeHash(iBuffer.ToArray());
                 cc = i.Slice(32);
