@@ -1,4 +1,5 @@
 ﻿using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Models.Keys;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,12 +7,17 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.Models
 {
+
+    
+
     /// <summary>
     /// Path used in Hierarchical Deterministic (HD) Wallets for Cardano 
     /// See <see href="https://cips.cardano.org/cips/cip1852/">CIP1852</see> for context
     /// </summary>
     public class WalletPath
     {
+        private const char MASTER_NODE_IDENTIFIER = 'm';
+
         private readonly DerivationType[] _derivations = new DerivationType[]
         {
             DerivationType.SOFT, // m
@@ -29,7 +35,7 @@ namespace CardanoSharp.Wallet.Models
         }
 
         public WalletPath(PurposeType purpose, CoinType coin, int accountIx, RoleType role, int index)
-            : this("m", (int)purpose, (int)coin, accountIx, (int)role, index)
+            : this(MASTER_NODE_IDENTIFIER, (int)purpose, (int)coin, accountIx, (int)role, index)
         {
         }
 
@@ -81,7 +87,7 @@ namespace CardanoSharp.Wallet.Models
             Index = (int)index;
         }
 
-        public string MasterNode => _segments[0];
+        public char MasterNode => MASTER_NODE_IDENTIFIER;
         public PurposeType Purpose { get; }
         public CoinType Coin { get;  }
         public int AccountIndex { get; }

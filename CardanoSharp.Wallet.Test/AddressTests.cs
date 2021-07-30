@@ -126,6 +126,5 @@ namespace CardanoSharp.Wallet.Test
             var privateKey = rootKey.Derive(path);
             return (privateKey, privateKey.GetPublicKey(false));
         }
-
     }
 }
