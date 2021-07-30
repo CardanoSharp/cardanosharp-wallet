@@ -38,8 +38,7 @@ namespace CardanoSharp.Wallet.Test
         [InlineData(__mnemonic)]
         public void PathDerivationTest(string words)
         {
-            // create two payment addresses from same root key
-            //arrange
+            // Arrange
             var mnemonic = new KeyService().Restore(words);
             var rootKey = mnemonic.GetRootKey();
             var testKey = getTestRootKey(mnemonic);
@@ -97,6 +96,33 @@ namespace CardanoSharp.Wallet.Test
             if (depth == 3) AssertDerivedKeys(prv, pub, account);
             if (depth == 4) AssertDerivedKeys(prv, pub, role);
             if (depth == 5) AssertDerivedKeys(prv, pub, index);
+        }
+
+        [Fact]
+        public void ImplicitPathDerivationTest()
+        {
+            var path = "m/1852'/1815'/0'/0/0";
+
+            // Arrange
+            var mnemonic = new KeyService().Restore(__mnemonic);
+            var rootKey = mnemonic.GetRootKey();
+            var testKey = getTestRootKey(mnemonic);
+
+            (var paymentPrv1, var paymentPub1) = getKeyPairFromPath(path, rootKey);
+
+            // Act
+            // Fluent derivation API
+            var derivation = testKey.Derive(RoleType.ExternalChain)      // implicit IRoleNodeDerivation
+                                    .Derive(0);                          // IIndexNodeDerivation
+            var derivation2 = testKey.Derive(RoleType.ExternalChain, 0); // implicit IIndexNodeDerivation
+            var derivation3 = testKey.DeriveAccount(0)                   // implicit IAccountNodeDerivation
+                                    .Derive(RoleType.ExternalChain)      // implicit IRoleNodeDerivation
+                                    .Derive(0);                          // IIndexNodeDerivation
+
+            // Assert
+            AssertDerivedKeys(paymentPrv1, paymentPub1, derivation);
+            AssertDerivedKeys(paymentPrv1, paymentPub1, derivation2);
+            AssertDerivedKeys(paymentPrv1, paymentPub1, derivation3);
         }
 
         private static void AssertDerivedKeys(PrivateKey prv, PublicKey pub, IPathDerivation derivation)
