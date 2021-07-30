@@ -3,5 +3,5 @@ We are seeking contributors to expand the feature set of cardanosharp-wallet to 
 
 ## Maintainers
  - Keith (keith@lovelace.academy)
- - Kyle (liftstakepool@gmail.com)
+ - Kyle (kjohns1337@gmail.com)
 
