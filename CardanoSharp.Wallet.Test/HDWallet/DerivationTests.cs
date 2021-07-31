@@ -192,7 +192,7 @@ namespace CardanoSharp.Wallet.Test
             var account = new MasterNodeDerivation(rootKey)
                 .Derive(path.Purpose)
                 .Derive(path.Coin)
-                .Derive(0);
+                .Derive(path.AccountIndex);
             account.SetPublicKey();
 
 
