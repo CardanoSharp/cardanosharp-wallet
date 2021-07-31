@@ -11,5 +11,9 @@ namespace CardanoSharp.Wallet.Models.Derivations
         public IndexNodeDerivation(PrivateKey key, int value) : base(key, new IndexNodeSegment(value))
         {
         }
+
+        public IndexNodeDerivation(PublicKey key, int value) : base(key, new IndexNodeSegment(value))
+        {
+        }
     }
 }

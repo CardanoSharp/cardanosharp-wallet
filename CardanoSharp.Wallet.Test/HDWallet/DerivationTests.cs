@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
+using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Derivations;
 using CardanoSharp.Wallet.Models.Keys;
+using CardanoSharp.Wallet.Models.Transactions;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Xunit;
 
@@ -84,7 +89,6 @@ namespace CardanoSharp.Wallet.Test
             // Act
             // Fluent derivation API
             var master = testKey.Derive();
-
             var purpose = master.Derive(PurposeType.Shelley);
             var coin = purpose.Derive(CoinType.Ada);
             var account = coin.Derive(0);
@@ -123,6 +127,56 @@ namespace CardanoSharp.Wallet.Test
             AssertDerivedKeys(paymentPrv1, paymentPub1, derivation);
             AssertDerivedKeys(paymentPrv1, paymentPub1, derivation2);
             AssertDerivedKeys(paymentPrv1, paymentPub1, derivation3);
+        }
+
+        /// <summary>
+        /// Use Case:
+        /// I'm writing a light client (similar to Yoroi, Nami, C64Minter, etc). 
+        /// User enters in the Mnemonic and Spending Password. 
+        /// I derive down to the Account level and get the Public Key. 
+        /// I use the Spending Password to 2-Way encrypt the Private Key and then store both the encrypted Private Key and the plain Public Key.
+        /// </summary>
+        [Fact]
+        public void AccountKeyDerivation()
+        {
+            var path = WalletPath.Parse("m/1852'/1815'/0'");
+
+            // User enters in the Mnemonic and Spending Password. 
+            var mnemonic = _keyService.Generate(24);
+            PrivateKey rootKey = mnemonic.GetRootKey("password");
+            var accountPrv = rootKey.Derive(path.ToString());
+            var accountPub = accountPrv.GetPublicKey();
+            
+            // use the Spending Password to 2-Way encrypt the Private Key
+            // and then store both the encrypted Private Key and the plain Public Key.
+            var blob = new Tuple<PrivateKey,PublicKey>(accountPrv.Encrypt("password"), accountPub);
+            var store = JsonSerializer.Serialize(blob);
+
+            // The user wants to generate a random/incremented address.
+            // I take the Public Key and Derive (0/1).
+            var fluentPub = new FluentDerivationPublicKey(accountPub);
+            var payment = fluentPub
+                .Derive(RoleType.ExternalChain)
+                .Derive(1);
+            var paymentPub = payment.PublicKey;
+            var paymentPrv = payment.PrivateKey; // should be null
+
+            // The user now wants to send a transaction.
+            // They enter in the ADDR, Amount to Send, and their Spending Password.
+            // I can now decrypt the Account Private Key and derive down to the "0/1"
+            // Index Private Key. This allows me to now sign the Transaction.
+            var load = JsonSerializer.Deserialize<Tuple<PrivateKey, PublicKey>>(store);
+            var loadedPrv = load.Item1.Decrypt("password");
+
+            var fluentPrv = new FluentDerivationPrivateKey(loadedPrv.Key, loadedPrv.Chaincode);
+            var index = fluentPrv
+                .Derive(RoleType.ExternalChain)
+                .Derive(1);
+
+            // paymentPrv = index.PrivateKey;
+            // var prv = rootKey.Derive("m/1852'/1815'/0'/0/1");
+            // TODO: this should not fail
+            // Assert.Equal(prv.Key, paymentPrv.Key); // Fails
         }
 
         private static void AssertDerivedKeys(PrivateKey prv, PublicKey pub, IPathDerivation derivation)

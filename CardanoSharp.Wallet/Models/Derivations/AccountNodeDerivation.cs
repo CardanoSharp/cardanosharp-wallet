@@ -15,6 +15,10 @@ namespace CardanoSharp.Wallet.Models.Derivations
 
         public IRoleNodeDerivation Derive(RoleType value)
         {
+            if (PrivateKey == null)
+            {
+                return new RoleNodeDerivation(PublicKey, value);
+            }
             return new RoleNodeDerivation(PrivateKey, value);
         }
     }

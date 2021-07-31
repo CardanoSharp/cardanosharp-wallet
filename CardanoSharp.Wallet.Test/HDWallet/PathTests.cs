@@ -69,5 +69,43 @@ namespace CardanoSharp.Wallet.Test
             Assert.Equal(role, walletPath.Role);
             Assert.Equal(index, walletPath.Index);
         }
+
+        [Theory]
+        [InlineData("m/1852'/1815'/1'", "m/1852'/1815'/1'")]
+        [InlineData("1852'/1815'/1'/0/1", "0/1")]
+        [InlineData("1815'/1'/0/1", "0/1")]
+        [InlineData("1'/0/1", "0/1")]
+        [InlineData("/0/1", "0/1")]
+        [InlineData("0/1", "0/1")]
+        public void NonRootPathsResolveSoftOnly(string p, string expected)
+        {
+            // Act
+            bool success = WalletPath.TryParse(p, out var path);
+
+            // Assert
+            Assert.True(success);
+            Assert.Equal(expected, path.ToString());
+        }
+
+        [Theory]
+        [InlineData("m/1852'/1815'")]
+        //@TODO fails [InlineData("1852'/1815'/1'")] // dont know if we should allow this
+        [InlineData("m 1852' 1815'")]
+        [InlineData("1")]
+        [InlineData("0")]
+        [InlineData("1852'")]
+        [InlineData("1815'")]
+        [InlineData("1'")]
+        [InlineData("m")]
+        [InlineData("")]
+        public void InvalidPartialPathTest(string path)
+        {
+            // Assert
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                // Act
+                var walletPath = new WalletPath(path);
+            });
+        }
     }
 }

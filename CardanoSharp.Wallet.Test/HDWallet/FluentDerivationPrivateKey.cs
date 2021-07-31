@@ -5,9 +5,33 @@ using System;
 
 namespace CardanoSharp.Wallet.Test
 {
+    public class FluentDerivationPublicKey : PublicKey
+    {
+        public FluentDerivationPublicKey(byte[] key, byte[] chaincode) : base(key, chaincode)
+        {
+        }
+
+        public FluentDerivationPublicKey(PublicKey key) : base(key.Key, key.Chaincode)
+        {
+        }
+
+        /// <summary>
+        /// Master node derivation
+        /// </summary>
+        /// <returns></returns>
+        public IRoleNodeDerivation Derive(RoleType value)
+        {
+            return new RoleNodeDerivation(new PublicKey(this.Key, this.Chaincode), value);
+        }
+    }
+
     public class FluentDerivationPrivateKey : PrivateKey
     {
         public FluentDerivationPrivateKey(byte[] key, byte[] chaincode) : base(key, chaincode)
+        {
+        }
+
+        public FluentDerivationPrivateKey(PrivateKey key) : base(key.Key, key.Chaincode)
         {
         }
 
