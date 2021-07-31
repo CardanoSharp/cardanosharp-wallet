@@ -4,6 +4,8 @@ using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Utilities;
 using Chaos.NaCl;
 using System;
+using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 
 namespace CardanoSharp.Wallet.Extensions.Models
@@ -12,6 +14,16 @@ namespace CardanoSharp.Wallet.Extensions.Models
     {
         static UInt32 MinHardIndex = 0x80000000;
 
+        public static PrivateKey Encrypt(this PrivateKey skey, string password)
+        {
+            return new PrivateKey(skey.Key.Encrypt(password), skey.Chaincode.Encrypt(password));
+        }
+
+        public static PrivateKey Decrypt(this PrivateKey key, string password)
+        {
+            return new PrivateKey(key.Key.Decrypt(password), key.Chaincode.Decrypt(password));
+        }       
+        
         public static PublicKey GetPublicKey(this PrivateKey privateKey, bool withZeroByte = true)
         {
             var sk = new byte[privateKey.Key.Length];

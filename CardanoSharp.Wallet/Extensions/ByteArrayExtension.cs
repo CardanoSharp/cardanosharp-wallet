@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions
@@ -109,6 +112,7 @@ namespace CardanoSharp.Wallet.Extensions
 
             return arr;
         }
+
         public static int GetHexVal(char hex)
         {
             int val = (int)hex;
@@ -118,6 +122,71 @@ namespace CardanoSharp.Wallet.Extensions
             //return val - (val < 58 ? 48 : 87);
             //Or the two combined, but a bit slower:
             return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
+        }
+        public static byte[] Encrypt(this byte[] bytesToEncrypt, string password)
+        {
+            using var f = new RNGCryptoServiceProvider();
+            byte[] ivSeed = Guid.NewGuid().ToByteArray();
+            f.GetBytes(ivSeed);
+
+            var rfc = new Rfc2898DeriveBytes(password, ivSeed);
+            byte[] Key = rfc.GetBytes(16);
+            byte[] IV = rfc.GetBytes(16);
+
+            byte[] encrypted;
+            using (var mstream = new MemoryStream())
+            {
+                using (var aesProvider = new AesCryptoServiceProvider())
+                {
+                    using CryptoStream cryptoStream = new CryptoStream(mstream, aesProvider.CreateEncryptor(Key, IV), CryptoStreamMode.Write);
+                    cryptoStream.Write(bytesToEncrypt, 0, bytesToEncrypt.Length);
+                }
+                encrypted = mstream.ToArray();
+            }
+
+            var messageLengthAs32Bits = Convert.ToInt32(bytesToEncrypt.Length);
+            var messageLength = BitConverter.GetBytes(messageLengthAs32Bits);
+
+            encrypted = encrypted.Prepend(ivSeed);
+            encrypted = encrypted.Prepend(messageLength);
+
+            return encrypted;
+        }
+        public static byte[] Decrypt(this byte[] bytesToDecrypt, string password)
+        {
+            (byte[] messageLengthAs32Bits, byte[] bytesWithIv) = bytesToDecrypt.Shift(4); // get the message length
+            (byte[] ivSeed, byte[] encrypted) = bytesWithIv.Shift(16);                    // get the initialization vector
+
+            var length = BitConverter.ToInt32(messageLengthAs32Bits, 0);
+
+            var rfc = new Rfc2898DeriveBytes(password, ivSeed);
+            byte[] Key = rfc.GetBytes(16);
+            byte[] IV = rfc.GetBytes(16);
+
+            using var mStream = new MemoryStream(encrypted);
+            using var aesProvider = new AesCryptoServiceProvider() { Padding = PaddingMode.None };
+            using var cryptoStream = new CryptoStream(mStream, aesProvider.CreateDecryptor(Key, IV), CryptoStreamMode.Read);
+            cryptoStream.Read(encrypted, 0, length);
+            return mStream.ToArray().Take(length).ToArray();
+        }
+
+        public static byte[] Prepend(this byte[] bytes, byte[] bytesToPrepend)
+        {
+            var tmp = new byte[bytes.Length + bytesToPrepend.Length];
+            bytesToPrepend.CopyTo(tmp, 0);
+            bytes.CopyTo(tmp, bytesToPrepend.Length);
+            return tmp;
+        }
+
+        public static (byte[] left, byte[] right) Shift(this byte[] bytes, int size)
+        {
+            var left = new byte[size];
+            var right = new byte[bytes.Length - size];
+
+            Array.Copy(bytes, 0, left, 0, left.Length);
+            Array.Copy(bytes, left.Length, right, 0, right.Length);
+
+            return (left, right);
         }
     }
 }

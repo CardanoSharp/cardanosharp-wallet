@@ -39,8 +39,8 @@ namespace CardanoSharp.Wallet.Extensions.Models
         {
             var kl = new byte[32];
             Buffer.BlockCopy(publicKey.Key, 0, kl, 0, 32);
-            var kr = new byte[32];
-            Buffer.BlockCopy(publicKey.Key, 32, kr, 0, 32);
+            //var kr = new byte[32];
+            //Buffer.BlockCopy(publicKey.Key, 32, kr, 0, 32);
 
             var z = new byte[64];
             var zl = new byte[32];
@@ -59,8 +59,6 @@ namespace CardanoSharp.Wallet.Extensions.Models
             iBuffer.Write(publicKey.Key);
             iBuffer.Write(seri);
             
-
-
             using (HMACSHA512 hmacSha512 = new HMACSHA512(publicKey.Chaincode))
             {
                 z = hmacSha512.ComputeHash(zBuffer.ToArray());
@@ -71,11 +69,14 @@ namespace CardanoSharp.Wallet.Extensions.Models
             // left = kl + 8 * trunc28(zl)
             var left = Bip32Utility.Add28Mul8(kl, zl);
             // right = zr + kr
-            var right = Bip32Utility.Add256Bits(kr, zr);
+            // var right = Bip32Utility.Add256Bits(kr, zr);
 
-            var key = new byte[left.Length + right.Length];
+            //var key = new byte[left.Length + right.Length];
+            //Buffer.BlockCopy(left, 0, key, 0, left.Length);
+            //Buffer.BlockCopy(right, 0, key, left.Length, right.Length);
+
+            var key = new byte[left.Length];
             Buffer.BlockCopy(left, 0, key, 0, left.Length);
-            Buffer.BlockCopy(right, 0, key, left.Length, right.Length);
 
             //chaincode
 

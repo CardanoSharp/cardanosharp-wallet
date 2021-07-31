@@ -1,11 +1,15 @@
 ﻿using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
+using CardanoSharp.Wallet.Models.Keys;
+using System;
+using System.Text.Json;
 using Xunit;
 
 namespace CardanoSharp.Wallet.Test
 {
     public class KeyTests
     {
+        private const string _password = "password";
         private readonly IKeyService _keyService;
 
         public KeyTests()
@@ -40,7 +44,7 @@ namespace CardanoSharp.Wallet.Test
 
         [Theory]
         [InlineData(
-            "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy", 
+            "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy",
             "b8f2bece9bdfe2b0282f5bad705562ac996efb6af96b648f4445ec44f47ad95c10e3d72f26ed075422a36ed8585c745a0e1150bcceba2357d058636991f38a3791e248de509c070d812ab2fda57860ac876bc489192c1ef4ce253c197ee219a4")]
         public void RestoreTest_PrivateKey_withChainCode(string words, string expectedPrivateKey)
         {
@@ -49,6 +53,28 @@ namespace CardanoSharp.Wallet.Test
 
             Assert.Equal(rootKey.Key.ToStringHex(), expectedPrivateKey.Substring(0, 128));
             Assert.Equal(rootKey.Chaincode.ToStringHex(), expectedPrivateKey.Substring(128));
+        }
+
+        [Theory]
+        [InlineData(
+            "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy",
+            "b8f2bece9bdfe2b0282f5bad705562ac996efb6af96b648f4445ec44f47ad95c10e3d72f26ed075422a36ed8585c745a0e1150bcceba2357d058636991f38a3791e248de509c070d812ab2fda57860ac876bc489192c1ef4ce253c197ee219a4")]
+        public void Enrypt_PrivateKey_withChainCode(string words, string expectedPrivateKey)
+        {
+            var password = _password;
+            var mnemonic = _keyService.Restore(words);
+            var rootKey = mnemonic.GetRootKey();
+
+            var json = JsonSerializer.Serialize(rootKey.Encrypt(password));
+            var load = JsonSerializer.Deserialize<PrivateKey>(json);
+
+            var loadKey = load.Decrypt(password);
+
+            Assert.Equal(rootKey.Key, loadKey.Key);
+            Assert.Equal(rootKey.Chaincode, loadKey.Chaincode);
+
+            Assert.Equal(loadKey.Key.ToStringHex(), expectedPrivateKey.Substring(0, 128));
+            Assert.Equal(loadKey.Chaincode.ToStringHex(), expectedPrivateKey.Substring(128));
         }
     }
 }
