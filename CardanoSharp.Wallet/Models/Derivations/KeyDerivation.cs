@@ -33,6 +33,9 @@ namespace CardanoSharp.Wallet.Models.Derivations
 
         public void SetPublicKey()
         {
+            if (PrivateKey == null)
+                throw new Exception("Private Key is not set");
+            
             PublicKey = PrivateKey.GetPublicKey(false);
         }
     }
