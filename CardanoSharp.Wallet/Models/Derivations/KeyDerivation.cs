@@ -5,6 +5,7 @@ using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Models.Segments;
 using CardanoSharp.Wallet.Utilities;
+using Chaos.NaCl;
 using System;
 using System.Security.Cryptography;
 
@@ -62,11 +63,6 @@ namespace CardanoSharp.Wallet.Models.Derivations
 
         private static PublicKey GetChildKeyDerivation(PublicKey pKey, uint index)
         {
-            var kl = new byte[32];
-            Buffer.BlockCopy(pKey.Key, 0, kl, 0, 32);
-            //var kr = new byte[32];
-            //Buffer.BlockCopy(pKey.Key, 32, kr, 0, 32);
-
             var z = new byte[64];
             var zl = new byte[32];
             var zr = new byte[32];
@@ -76,13 +72,14 @@ namespace CardanoSharp.Wallet.Models.Derivations
             BigEndianBuffer zBuffer = new BigEndianBuffer();
             BigEndianBuffer iBuffer = new BigEndianBuffer();
 
-            zBuffer.Write(new byte[] { 0x02 }); //constant or enum?
+            zBuffer.Write(new byte[] { 0x02 });
             zBuffer.Write(pKey.Key);
             zBuffer.Write(seri);
 
-            iBuffer.Write(new byte[] { 0x03 }); //constant or enum?
+            iBuffer.Write(new byte[] { 0x03 });
             iBuffer.Write(pKey.Key);
             iBuffer.Write(seri);
+            
 
             using (HMACSHA512 hmacSha512 = new HMACSHA512(pKey.Chaincode))
             {
@@ -92,16 +89,7 @@ namespace CardanoSharp.Wallet.Models.Derivations
             }
 
             // left = kl + 8 * trunc28(zl)
-            var left = Bip32Utility.Add28Mul8(kl, zl);
-            // right = zr + kr
-            //var right = Bip32Utility.Add256Bits(kr, zr);
-
-            //var key = new byte[left.Length + right.Length];
-            //Buffer.BlockCopy(left, 0, key, 0, left.Length);
-            //Buffer.BlockCopy(right, 0, key, left.Length, right.Length);
-            var key = new byte[left.Length];
-            Buffer.BlockCopy(left, 0, key, 0, left.Length);
-            //chaincode
+            var key = Ed25519.PointPlus(pKey.Key, Bip32Utility.PointOfTrunc28Mul8(zl));
 
             byte[] cc;
             using (HMACSHA512 hmacSha512 = new HMACSHA512(pKey.Chaincode))

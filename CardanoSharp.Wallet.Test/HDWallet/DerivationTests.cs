@@ -136,16 +136,17 @@ namespace CardanoSharp.Wallet.Test
         /// I derive down to the Account level and get the Public Key. 
         /// I use the Spending Password to 2-Way encrypt the Private Key and then store both the encrypted Private Key and the plain Public Key.
         /// </summary>
-        [Fact]
-        public void AccountKeyDerivation()
+        [Theory]
+        [InlineData(__mnemonic)]
+        public void AccountKeyDerivation(string words)
         {
             var path = WalletPath.Parse("m/1852'/1815'/0'");
 
             // User enters in the Mnemonic and Spending Password. 
-            var mnemonic = _keyService.Generate(24);
-            PrivateKey rootKey = mnemonic.GetRootKey("password");
+            var mnemonic = _keyService.Restore(words);
+            PrivateKey rootKey = mnemonic.GetRootKey();
             var accountPrv = rootKey.Derive(path.ToString());
-            var accountPub = accountPrv.GetPublicKey();
+            var accountPub = accountPrv.GetPublicKey(false);
             
             // use the Spending Password to 2-Way encrypt the Private Key
             // and then store both the encrypted Private Key and the plain Public Key.
