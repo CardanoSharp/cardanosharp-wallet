@@ -1,4 +1,5 @@
 ﻿using CardanoSharp.Wallet.Models;
+using CardanoSharp.Wallet.Models.Derivations;
 using CardanoSharp.Wallet.Models.Keys;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
@@ -17,6 +18,11 @@ namespace CardanoSharp.Wallet.Extensions.Models
             rootKey[31] |= 64;
 
             return new PrivateKey(rootKey.Slice(0, 64), rootKey.Slice(64));
+        }
+        public static MasterNodeDerivation GetMasterNode(this Mnemonic mnemonic, string password = "")
+        {
+            return new MasterNodeDerivation(
+                mnemonic.GetRootKey(password));
         }
     }
 }
