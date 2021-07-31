@@ -219,12 +219,12 @@ namespace CardanoSharp.Wallet.Test
             var roleNodePrv = new RoleNodeDerivation(new PrivateKey(loadedPrv.Key, loadedPrv.Chaincode), RoleType.ExternalChain);
             var index = roleNodePrv
                 .Derive(1);
-
             paymentPrv = index.PrivateKey;
+
             var prv = rootKey.Derive("m/1852'/1815'/0'/0/1");
             var pub = prv.GetPublicKey(false);
-            //TODO: this should not fail
-            Assert.Equal(prv.Key, paymentPrv.Key); // Fails
+
+            Assert.Equal(prv.Key, paymentPrv.Key);
             Assert.Equal(pub.Key, paymentPub.Key);
         }
 
