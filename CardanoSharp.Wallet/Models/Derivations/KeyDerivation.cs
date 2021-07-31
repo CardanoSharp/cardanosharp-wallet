@@ -16,6 +16,8 @@ namespace CardanoSharp.Wallet.Models.Derivations
         ISegment Segment { get; }
         PrivateKey PrivateKey { get; }
         PublicKey PublicKey { get; }
+
+        void SetPublicKey();
     }
 
     public abstract class AKeyDerivation : IPathDerivation
@@ -28,6 +30,11 @@ namespace CardanoSharp.Wallet.Models.Derivations
         public ISegment Segment { get; }
         public PrivateKey PrivateKey { get; protected set; }
         public PublicKey PublicKey { get; protected set; }
+
+        public void SetPublicKey()
+        {
+            PublicKey = PrivateKey.GetPublicKey(false);
+        }
     }
 
     public abstract class AChildKeyDerivation : AKeyDerivation, IPathDerivation
