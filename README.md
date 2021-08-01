@@ -34,7 +34,8 @@ class Program
         int size = 24;
 
         // This will generate a 24 English Mnemonic
-        string mnemonic = keyService.Generate(24, WordLists.English);
+        Mnemonic mnemonic = keyService.Generate(24, WordLists.English);
+        string mnemonicWords = mnemonic.Words;
     }
 }
 ```
@@ -42,26 +43,26 @@ class Program
 ## Create Private and Public Keys
 ```csharp
 // Here we can get the entropy from our mnemonic
-var entropy = keyService.Restore(mnemonic);
+byte[] entropy = mnemonic.Entropy;
 
-// The masterKey is a Tuple made of up of the 
-//  - Private Key(Item1) 
-//  - Chain Chain(Item2)
-var masterKey = keyService.GetRootKey(entropy);
+// The masterKey is a PrivateKey made of up of the 
+//  - byte[] Key
+//  - byte[] Chaincode
+PrivateKey masterKey = mnemonic.GetRootKey();
 
 // This path will give us our Payment Key on index 0
-var paymentPath = $"m/1852'/1815'/0'/0/0";
+string paymentPath = $"m/1852'/1815'/0'/0/0";
 // The paymentPrv is another Tuple with the Private Key and Chain Code
-var paymentPrv = keyService.DerivePath(paymentPath, masterKey.Item1, masterKey.Item2);
+PrivateKey paymentPrv = masterKey.Derive(paymentPath);
 // Get the Public Key from the Payment Private Key
-var paymentPub = keyService.GetPublicKey(paymentPrv.Item1, false);
+PublicKey paymentPub = paymentPrv.GetPublicKey(false);
 
 // This path will give us our Stake Key on index 0
 var stakePath = $"m/1852'/1815'/0'/2/0";
 // The stakePrv is another Tuple with the Private Key and Chain Code
-var stakePrv = keyService.DerivePath(stakePath, masterKey.Item1, masterKey.Item2);
+var stakePrv = masterKey.Derive(stakePath);
 // Get the Public Key from the Stake Private Key
-var stakePub = keyService.GetPublicKey(stakePrv.Item1, false);
+var stakePub = stakePrv.GetPublicKey(false);
 ```
 
 ## Create Addresses
@@ -154,8 +155,8 @@ var witnesses = new TransactionWitnessSet()
     {
         new VKeyWitness()
         {
-            VKey = paymentPub,
-            SKey = paymentPrv
+            VKey = paymentPub.Key,
+            SKey = paymentPrv.Key
         }
     }
 };
