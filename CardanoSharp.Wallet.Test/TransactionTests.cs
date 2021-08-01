@@ -1,14 +1,11 @@
 ﻿using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Models.Transactions;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 using CardanoSharp.Wallet.Extensions;
-using CardanoSharp.Wallet.Common;
-using System.IO;
+using CardanoSharp.Wallet.Extensions.Models;
+using CardanoSharp.Wallet.Models.Keys;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -102,7 +99,6 @@ namespace CardanoSharp.Wallet.Test
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
             var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
-            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
 
             var transactionBody = new TransactionBody()
             {
@@ -135,8 +131,8 @@ namespace CardanoSharp.Wallet.Test
                 {
                     new VKeyWitness()
                     {
-                        VKey = paymentPub,
-                        SKey = paymentPrv
+                        VKey = paymentPub.Key,
+                        SKey = paymentPrv.Key
                     }
                 }
             };
@@ -170,7 +166,7 @@ namespace CardanoSharp.Wallet.Test
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
             var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
-            var stakeHash = HashHelper.Blake2b244(stakePub);
+            var stakeHash = HashUtility.Blake2b244(stakePub.Key);
 
             var transactionBody = new TransactionBody()
             {
@@ -443,18 +439,17 @@ namespace CardanoSharp.Wallet.Test
             return hash;
         }
 
-        private (byte[], byte[]) getBase15WordWallet()
+        private PrivateKey getBase15WordWallet()
         {
-            var mnemonic = "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy";
-            var entropy = _keyService.Restore(mnemonic);
-            return _keyService.GetRootKey(entropy);
+            var words = "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy";
+            var mnemonic = _keyService.Restore(words);
+            return mnemonic.GetRootKey();
         }
 
-        private (byte[], byte[]) getKeyPairFromPath(string path, (byte[], byte[]) rootKey)
+        private (PrivateKey, PublicKey) getKeyPairFromPath(string path, PrivateKey rootKey)
         {
-            var privateKey = _keyService.DerivePath(path, rootKey.Item1, rootKey.Item2);
-            var publicKey = _keyService.GetPublicKey(privateKey.Item1, false);
-            return (privateKey.Item1, publicKey);
+            var privateKey = rootKey.Derive(path);
+            return (privateKey, privateKey.GetPublicKey(false));
         }
     }
 }

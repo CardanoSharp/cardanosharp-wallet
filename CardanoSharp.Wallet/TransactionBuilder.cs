@@ -3,10 +3,7 @@ using CardanoSharp.Wallet.Models.Transactions;
 using Chaos.NaCl;
 using PeterO.Cbor2;
 using CardanoSharp.Wallet.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
+using CardanoSharp.Wallet.Utilities;
 using System.Linq;
 using CardanoSharp.Wallet.Extensions.Models;
 
@@ -201,13 +198,13 @@ namespace CardanoSharp.Wallet
             if (transactionBody.Ttl.HasValue) _cborTransactionBody.Add(3, transactionBody.Ttl.Value);
 
             //add metadata
-            if (_cborTransactionMetadata != null) _cborTransactionBody.Add(7, HashHelper.Blake2b256(_cborTransactionMetadata.EncodeToBytes()));
+            if (_cborTransactionMetadata != null) _cborTransactionBody.Add(7, HashUtility.Blake2b256(_cborTransactionMetadata.EncodeToBytes()));
         }
 
         private void AddVKeyWitnesses(VKeyWitness vKeyWitness)
         {
             //sign body
-            var txBodyHash = HashHelper.Blake2b256(_cborTransactionBody.EncodeToBytes());
+            var txBodyHash = HashUtility.Blake2b256(_cborTransactionBody.EncodeToBytes());
             if (vKeyWitness.SKey.Length == 32)
             {
                 vKeyWitness.SKey = Ed25519.ExpandedPrivateKeyFromSeed(vKeyWitness.SKey.Slice(0, 32));
