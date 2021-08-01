@@ -1,5 +1,6 @@
 ﻿using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Models.Derivations;
 using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Utilities;
 using System;
@@ -10,7 +11,16 @@ using System.Text;
 namespace CardanoSharp.Wallet.Extensions.Models
 {
     public static class PublicKeyExtensions
-    {
+    {   
+        /// <summary>
+        /// Master node derivation
+        /// </summary>
+        /// <returns></returns>
+        public static IRoleNodeDerivation Derive(this PublicKey publicKey, RoleType role)
+        {
+            return new RoleNodeDerivation(publicKey, role);
+        }
+
         public static PublicKey Derive(this PublicKey publicKey, string path)
         {
             if (!Bip32Utility.IsValidPath(path))

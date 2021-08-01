@@ -1,5 +1,6 @@
 ﻿using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Models.Derivations;
 using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Utilities;
 using Chaos.NaCl;
@@ -14,14 +15,33 @@ namespace CardanoSharp.Wallet.Extensions.Models
     {
         static UInt32 MinHardIndex = 0x80000000;
 
-        public static PrivateKey Encrypt(this PrivateKey skey, string password)
+        /// <summary>
+        /// Master node derivation
+        /// </summary>
+        /// <returns></returns>
+        public static IMasterNodeDerivation Derive(this PrivateKey privateKey)
         {
-            return new PrivateKey(skey.Key.Encrypt(password), skey.Chaincode.Encrypt(password));
+            return new MasterNodeDerivation(privateKey);
         }
 
-        public static PrivateKey Decrypt(this PrivateKey key, string password)
+        /// <summary>
+        /// Role node derivation on Account Private Key
+        /// </summary>
+        /// <param name="role">The role we want to derive</param>
+        /// <returns></returns>
+        public static IRoleNodeDerivation Derive(this PrivateKey privateKey, RoleType role)
         {
-            return new PrivateKey(key.Key.Decrypt(password), key.Chaincode.Decrypt(password));
+            return new RoleNodeDerivation(privateKey, role);
+        }
+
+        public static PrivateKey Encrypt(this PrivateKey privateKey, string password)
+        {
+            return new PrivateKey(privateKey.Key.Encrypt(password), privateKey.Chaincode.Encrypt(password));
+        }
+
+        public static PrivateKey Decrypt(this PrivateKey privateKey, string password)
+        {
+            return new PrivateKey(privateKey.Key.Decrypt(password), privateKey.Chaincode.Decrypt(password));
         }       
         
         public static PublicKey GetPublicKey(this PrivateKey privateKey, bool withZeroByte = true)
