@@ -41,6 +41,8 @@ namespace CardanoSharp.Wallet.Test
             var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
             var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
 
+            
+
             var transactionBody = new TransactionBody()
             {
                 TransactionInputs = new List<TransactionInput>()
@@ -48,7 +50,67 @@ namespace CardanoSharp.Wallet.Test
                     new TransactionInput()
                     {
                         TransactionIndex = 0,
-                        TransactionId = getGenesisTransaction()
+                        TransactionId = new byte[32]
+                    }
+                },
+                TransactionOutputs = new List<TransactionOutput>()
+                {
+                    new TransactionOutput()
+                    {
+                        Address = baseAddr.GetBytes(),
+                        Value = new TransactionOutputValue()
+                        {
+                            Coin = 10
+                        }
+                    },
+                    new TransactionOutput()
+                    {
+                        Address = changeAddr.GetBytes(),
+                        Value = new TransactionOutputValue()
+                        {
+                            Coin = 856488
+                        }
+                    }
+                },
+                Ttl = 1000,
+                Fee = 143502
+            };
+
+            //act
+            var serialized = _transactionBuilder.SerializeBody(transactionBody);
+
+            //assert
+            Assert.Equal("a4008182582000000000000000000000000000000000000000000000000000000000000000000001828258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d940a82583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d941a000d11a8021a0002308e031903e8",
+                serialized.ToStringHex());
+        }
+
+        //Replicate Test from Emurgo's Rust Serialization library
+        [Fact]
+        public void CreateTxWithChange()
+        {
+            //arrange
+            var rootKey = getBase15WordWallet();
+
+            //get payment keys
+            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+
+            //get change keys
+            (var changePrv, var changePub) = getKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
+
+            //get stake keys
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+
+            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+
+            var transactionBody = new TransactionBody()
+            {
+                TransactionInputs = new List<TransactionInput>()
+                {
+                    new TransactionInput()
+                    {
+                        TransactionIndex = 0,
+                        TransactionId = new byte[32]
                     }
                 },
                 TransactionOutputs = new List<TransactionOutput>()
