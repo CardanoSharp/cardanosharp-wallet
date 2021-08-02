@@ -323,5 +323,15 @@ namespace CardanoSharp.Wallet
         {
             return transaction.Length * FeeStructure.Coefficient + FeeStructure.Constant;
         }
+
+        public TransactionBody DeserializeBody(byte[] transactionBody)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Transaction DeserializeTransaction(byte[] transaction)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

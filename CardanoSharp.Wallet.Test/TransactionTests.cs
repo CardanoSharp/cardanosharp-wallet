@@ -6,19 +6,148 @@ using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Utilities;
+using System.Text;
+using System.IO;
+using System.Text.Json;
+using System.Reflection;
+using System;
 
 namespace CardanoSharp.Wallet.Test
 {
     public class TransactionTests
     {
-        private readonly TransactionBuilder _transactionBuilder;
+        private readonly TransactionSerializer _transactionSerializer;
         private readonly IKeyService _keyService;
         private readonly IAddressService _addressService;
+        private static string __projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;      
+        private static DirectoryInfo __dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
+        private static JsonSerializerOptions __jsonSerializerOptions = new JsonSerializerOptions() { WriteIndented = true };
+
         public TransactionTests()
         {
             _keyService = new KeyService();
             _addressService = new AddressService();
-            _transactionBuilder = new TransactionBuilder();
+            _transactionSerializer = new TransactionSerializer();
+            DirectoryInfo dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
+        }
+
+        [Fact]
+        public void DeserializeTransaction()
+        {
+            
+        }
+        
+        [Fact]
+        public void SerializeTransaction()
+        {
+            var vectorId = "01";
+            var vectorReference = "reference.draft";
+            var outputFileName = "tx.draft";
+
+            // we might define a TestVector class that holds these values
+            // and can be deserialized from dat/{vectorId}/vector.json
+            uint fee = 0;
+            uint amount = 0;
+            var type = "TxBodyMary";
+            var description = "";
+            var utxo = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
+            var payment1Addr = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress();
+            var payment2Addr = "addr_test1vqah2xrfp8qjp2tldu8wdq38q8c8tegnduae5zrqff3aeec7g467q".ToAddress();
+            byte[] expectedCBOR = "83a3008182582098035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d12000018282581d60d0c43926a989c88d5049e61bdebf2a887aca10fa284b9067373ea28f0082581d603b75186909c120a97f6f0ee6822701f075e5136f3b9a08604a63dce70002009ffff6".HexToByteArray();
+
+            // Arrange
+            Transaction tx = new Transaction()
+            {
+                TransactionBody = new TransactionBody()
+                {
+                    TransactionInputs = new TransactionInput[]
+                    {
+                        new TransactionInput()
+                        {
+                            TransactionId = utxo,
+                            TransactionIndex = 0
+                        }
+                    },
+                    TransactionOutputs = new TransactionOutput[]
+                    {
+                        new TransactionOutput()
+                        {
+                            Address = payment1Addr.GetBytes(),
+                            Value = new TransactionOutputValue()
+                            {
+                                Coin = amount
+                            }
+                        },
+                        new TransactionOutput()
+                        {
+                            Address = payment2Addr.GetBytes(),
+                            Value = new TransactionOutputValue()
+                            {
+                                Coin = amount
+                            }
+                        }
+                    },
+                    Fee = fee,
+                },
+                TransactionWitnessSet = new TransactionWitnessSet()
+                {
+
+                }
+            };
+
+            // Act
+            var cbor = _transactionSerializer.SerializeTransaction(tx);
+            var cborHex = cbor.ToStringHex();
+            var draftTx = new { type, description, cborHex };
+            var json = JsonSerializer.Serialize(draftTx, __jsonSerializerOptions);
+
+            WriteVectorFile(vectorId, json, outputFileName);
+            string referenceTx = ReadVectorFile(vectorId, vectorReference);
+            
+            // Assert
+            Assert.Equal(referenceTx, json);
+            Assert.Equal(expectedCBOR, cbor);
+
+            var expected = _transactionSerializer.DeserializeTransaction(expectedCBOR);
+            var deserialized = _transactionSerializer.DeserializeTransaction(cbor);
+            Assert.Equal(expected, deserialized);
+        }
+
+        private static string ReadVectorFile(string vectorId, string fileName)
+        {
+            string referenceTx;
+            FileInfo referenceTxFile = GetVectorFileInfo(vectorId, fileName);
+            using (var fs = referenceTxFile.OpenRead())
+            {
+                using (var sr = new StreamReader(fs))
+                {
+                    referenceTx = sr.ReadToEnd();
+                    sr.Close();
+                    fs.Close();
+                }
+            }
+
+            return referenceTx;
+        }
+
+        private static void WriteVectorFile(string vectorId, string json, string fileName)
+        {
+            FileInfo draftTxFile = GetVectorFileInfo(vectorId, fileName);
+            using (var sw = draftTxFile.CreateText())
+            {
+                sw.WriteLine(json);
+                sw.Close();
+            }
+        }
+
+        private static FileInfo GetVectorFileInfo(string vectorId, string fn)
+        {
+            return new FileInfo(GetVectorFilePath(vectorId, fn));
+        }
+
+        private static string GetVectorFilePath(string vectorId, string fn)
+        {
+            return Path.Combine(__dat.FullName, vectorId, fn);
         }
 
 
@@ -77,7 +206,7 @@ namespace CardanoSharp.Wallet.Test
             };
 
             //act
-            var serialized = _transactionBuilder.SerializeBody(transactionBody);
+            var serialized = _transactionSerializer.SerializeBody(transactionBody);
 
             //assert
             Assert.Equal("a4008182582000000000000000000000000000000000000000000000000000000000000000000001828258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d940a82583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d941a000d11a8021a0002308e031903e8",
@@ -137,7 +266,7 @@ namespace CardanoSharp.Wallet.Test
             };
 
             //act
-            var serialized = _transactionBuilder.SerializeBody(transactionBody);
+            var serialized = _transactionSerializer.SerializeBody(transactionBody);
 
             //assert
             Assert.Equal("a4008182582000000000000000000000000000000000000000000000000000000000000000000001828258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d940a82583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d941a000d11a8021a0002308e031903e8",
@@ -206,7 +335,7 @@ namespace CardanoSharp.Wallet.Test
             };
 
             //act
-            var serializedTx = _transactionBuilder.SerializeTransaction(transaction);
+            var serializedTx = _transactionSerializer.SerializeTransaction(transaction);
 
             //assert
             Assert.Equal("83a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70001818258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94010200030aa10081825820489ef28ea97f719ee7768645fc74b811c271e5d7ef06c2310854db30158e945d5840e6489d8cdc11ac139158b878251819a31f01644310fa4a4b9c72c2319aa8887f4e299054346c2ad08016e4b8f55684ccae8bddcc5e2137af730acbed5642ff09f6",
@@ -265,7 +394,7 @@ namespace CardanoSharp.Wallet.Test
             };
 
             //act
-            var serialized = _transactionBuilder.SerializeBody(transactionBody);
+            var serialized = _transactionSerializer.SerializeBody(transactionBody);
 
             //assert
             Assert.Equal("a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d941a0039c702021a000341fe031903e8048282008200581ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d9483028200581ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94581ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94",
@@ -353,7 +482,7 @@ namespace CardanoSharp.Wallet.Test
             };
 
             //act
-            var serialized = _transactionBuilder.SerializeBody(transactionBody);
+            var serialized = _transactionSerializer.SerializeBody(transactionBody);
 
             //assert
             Assert.Equal("a3008282582000000000000000000000000000000000000000000000000000000000000000000082582000000000000000000000000000000000000000000000000000000000000000000001828258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948201a1581c00000000000000000000000000000000000000000000000000000000a14400010203183c82583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948212a1581c00000000000000000000000000000000000000000000000000000000a1440001020318f00201",
@@ -408,8 +537,8 @@ namespace CardanoSharp.Wallet.Test
             };
 
             //act
-            var serialized = _transactionBuilder.SerializeTransaction(transaction);
-            var fee = _transactionBuilder.CalculateFee(serialized);
+            var serialized = _transactionSerializer.SerializeTransaction(transaction);
+            var fee = _transactionSerializer.CalculateFee(serialized);
 
             //assert
             Assert.Equal("83a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182581d611c616f1acb460668a9b2f123c80372c2adad3583b9c6cd2b1deeed1c01021a00016f32030aa10081825820f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee5840fae5de40c94d759ce13bf9886262159c4f26a289fd192e165995b785259e503f6887bf39dfa23a47cf163784c6eee23f61440e749bc1df3c73975f5231aeda0ff6",
@@ -474,7 +603,7 @@ namespace CardanoSharp.Wallet.Test
             };
 
             //act
-            var serialized = _transactionBuilder.SerializeTransaction(transaction);
+            var serialized = _transactionSerializer.SerializeTransaction(transaction);
 
             //assert
             Assert.Equal("83a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900477367d9134e384a25edd3e23c72735ee6de6490d39c537a247e1b65d9e5a6498b927f664a2c82343aa6a50cdde47de0a2b8c54ecd9c99c21a000f42400200030a0758208dc8a798a1da0e2a6df17e66b10a49b5047133dd4daae2686ef1f73369d3fa16a100818258200f8ad2c7def332bca2f897ef2a1608ee655341227efe7d2284eeb3f94d08d5fa584074a7a181addbda26d7974119ac6e3fe35286fb4a6f7a9db573a5e5836808613097256fa2f0284e255cadc566cef96bde750a3ca5cb79a0726349d3424148e00082a11904d2a1646e616d656e73696d706c65206d65737361676580",
