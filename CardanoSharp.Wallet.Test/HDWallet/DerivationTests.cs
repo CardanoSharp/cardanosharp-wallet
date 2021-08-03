@@ -136,7 +136,8 @@ namespace CardanoSharp.Wallet.Test
 
             // The user wants to generate a random/incremented address.
             // I take the Public Key and Derive (0/1).
-            var payment = account.PublicKey
+            // This should be used to test the Public Key Derivation
+            var pub = account.PublicKey
                 .Derive(paymentPath.Role)
                 .Derive(paymentPath.Index);
 
@@ -154,9 +155,63 @@ namespace CardanoSharp.Wallet.Test
 
             // Assert
             var prv = rootKey.Derive("m/1852'/1815'/0'/0/1");
-            AssertDerivedKeys(prv, prv.GetPublicKey(false), index);
+            AssertDerivedKeys(prv, pub.PublicKey, index);
 
-            Assert.Null(payment.PrivateKey);
+            Assert.Null(pub.PrivateKey);
+        }
+
+        /// <summary>
+        /// Use Case:
+        /// I'm writing a light client (similar to Yoroi, Nami, C64Minter, etc). 
+        /// User enters in the Mnemonic and Spending Password. 
+        /// I derive down to the Account level and get the Public Key. 
+        /// I use the Spending Password to 2-Way encrypt the Private Key and then store both the encrypted Private Key and the plain Public Key.
+        /// </summary>
+        [Theory]
+        [InlineData(__mnemonic)]
+        public void AccountKeyDerivation_UsingBaseKeyMethods(string words)
+        {
+            // Arrange
+            var accountPath = "m/1852'/1815'/0'";
+            var paymentPath = "0/1";
+
+            // User enters in the Mnemonic and Spending Password. 
+            var mnemonic = _keyService.Restore(words);
+            PrivateKey rootKey = mnemonic.GetRootKey();
+
+            var accountPrv = rootKey.Derive(accountPath);
+            var accountPub = accountPrv.GetPublicKey(false);
+
+            // use the Spending Password to 2-Way encrypt the Private Key
+            // and then store both the encrypted Private Key and the plain Public Key.
+            var blob = new Tuple<PrivateKey, PublicKey>(accountPrv.Encrypt("password"), accountPub);
+            var store = JsonSerializer.Serialize(blob);
+
+            // The user wants to generate a random/incremented address.
+            // I take the Public Key and Derive (0/1).
+            // This should be used to test the Public Key Derivation
+            var indexPub = accountPub.Derive(paymentPath);
+
+            // The user now wants to send a transaction.
+            // They enter in the ADDR, Amount to Send, and their Spending Password.
+            // I can now decrypt the Account Private Key...
+            var load = JsonSerializer.Deserialize<Tuple<PrivateKey, PublicKey>>(store);
+            var loadedPrv = load.Item1.Decrypt("password");
+
+            // ...and derive down to the "0/1" Index Private Key.
+            // This allows me to now sign the Transaction.
+            var indexPrv = loadedPrv.Derive(paymentPath);
+
+            // Assert
+            var fullPathPrv = rootKey.Derive("m/1852'/1815'/0'/0/1");
+            var fullPathPub = fullPathPrv.GetPublicKey(false);
+
+            // Assert
+            Assert.Equal(indexPrv.Key, fullPathPrv.Key);
+            Assert.Equal(indexPrv.Chaincode, fullPathPrv.Chaincode);
+
+            Assert.Equal(indexPub.Key, fullPathPub.Key);
+            Assert.Equal(indexPub.Chaincode, fullPathPub.Chaincode);
         }
 
         [Theory]
