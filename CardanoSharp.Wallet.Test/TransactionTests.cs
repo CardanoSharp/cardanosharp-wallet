@@ -37,7 +37,7 @@ namespace CardanoSharp.Wallet.Test
             
         }
         
-        [Fact]
+        //[Fact]
         public void SerializeTransaction()
         {
             var vectorId = "01";
