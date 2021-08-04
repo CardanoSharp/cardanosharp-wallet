@@ -12,6 +12,7 @@ using System.Text.Json;
 using System.Reflection;
 using System;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
+using CardanoSharp.Wallet.TransactionBuilding;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -37,7 +38,7 @@ namespace CardanoSharp.Wallet.Test
         {
             
         }
-        
+
         //[Fact]
         public void SerializeTransaction()
         {
@@ -57,40 +58,34 @@ namespace CardanoSharp.Wallet.Test
             byte[] expectedCBOR = "83a3008182582098035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d12000018282581d60d0c43926a989c88d5049e61bdebf2a887aca10fa284b9067373ea28f0082581d603b75186909c120a97f6f0ee6822701f075e5136f3b9a08604a63dce70002009ffff6".HexToByteArray();
 
             // Arrange
-            Transaction tx = new Transaction()
-            {
-                TransactionBody = new TransactionBody()
-                {
-                    TransactionInputs = new TransactionInput[]
+
+            var tx = new TransactionBuilder()
+                .WithTransactionBody(new TransactionBodyBuilder()
+                    .WithTransactionInputs(new List<TransactionInput>()
                     {
-                        new TransactionInput()
-                        {
-                            TransactionId = utxo,
-                            TransactionIndex = 0
-                        }
-                    },
-                    TransactionOutputs = new TransactionOutput[]
+                        new TransactionInputBuilder()
+                            .WithTransactionIndex(0)
+                            .WithTransactionId(utxo)
+                            .Build()
+                    })
+                    .WithTransactionOutputs(new List<TransactionOutput>()
                     {
-                        new TransactionOutput()
-                        {
-                            Address = payment1Addr.GetBytes(),
-                            Value = new TransactionOutputValue()
-                            {
-                                Coin = amount
-                            }
-                        },
-                        new TransactionOutput()
-                        {
-                            Address = payment2Addr.GetBytes(),
-                            Value = new TransactionOutputValue()
-                            {
-                                Coin = amount
-                            }
-                        }
-                    },
-                    Fee = fee,
-                }
-            };
+                        new TransactionOutputBuilder()
+                            .WithAddress(payment1Addr.GetBytes())
+                            .WithTransactionOutputValue(new TransactionOutputValueBuilder()
+                                .WithCoin(amount)
+                                .Build())
+                            .Build(),
+                        new TransactionOutputBuilder()
+                            .WithAddress(payment2Addr.GetBytes())
+                            .WithTransactionOutputValue(new TransactionOutputValueBuilder()
+                                .WithCoin(amount)
+                                .Build())
+                            .Build()
+                    })
+                    .WithFee(fee)
+                    .Build())
+                .Build();
 
             // Act
             var cbor = tx.Serialize();
@@ -170,40 +165,32 @@ namespace CardanoSharp.Wallet.Test
             var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
             var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
 
-            
-
-            var transactionBody = new TransactionBody()
-            {
-                TransactionInputs = new List<TransactionInput>()
+            var transactionBody = new TransactionBodyBuilder()
+                .WithTransactionInputs(new List<TransactionInput>()
                 {
-                    new TransactionInput()
-                    {
-                        TransactionIndex = 0,
-                        TransactionId = new byte[32]
-                    }
-                },
-                TransactionOutputs = new List<TransactionOutput>()
+                    new TransactionInputBuilder()
+                        .WithTransactionIndex(0)
+                        .WithTransactionId(new byte[32])
+                        .Build()
+                })
+                .WithTransactionOutputs(new List<TransactionOutput>()
                 {
-                    new TransactionOutput()
-                    {
-                        Address = baseAddr.GetBytes(),
-                        Value = new TransactionOutputValue()
-                        {
-                            Coin = 10
-                        }
-                    },
-                    new TransactionOutput()
-                    {
-                        Address = changeAddr.GetBytes(),
-                        Value = new TransactionOutputValue()
-                        {
-                            Coin = 856488
-                        }
-                    }
-                },
-                Ttl = 1000,
-                Fee = 143502
-            };
+                    new TransactionOutputBuilder()
+                        .WithAddress(baseAddr.GetBytes())
+                        .WithTransactionOutputValue(new TransactionOutputValueBuilder()
+                            .WithCoin(10)
+                            .Build())
+                        .Build(),
+                    new TransactionOutputBuilder()
+                        .WithAddress(changeAddr.GetBytes())
+                        .WithTransactionOutputValue(new TransactionOutputValueBuilder()
+                            .WithCoin(856488)
+                            .Build())
+                        .Build()
+                })
+                .WithTtl(1000)
+                .WithFee(143502)
+                .Build();
 
             //act
             var serialized = transactionBody.Serialize(null);
@@ -232,38 +219,32 @@ namespace CardanoSharp.Wallet.Test
             var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
             var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
 
-            var transactionBody = new TransactionBody()
-            {
-                TransactionInputs = new List<TransactionInput>()
+            var transactionBody = new TransactionBodyBuilder()
+                .WithTransactionInputs(new List<TransactionInput>()
                 {
-                    new TransactionInput()
-                    {
-                        TransactionIndex = 0,
-                        TransactionId = new byte[32]
-                    }
-                },
-                TransactionOutputs = new List<TransactionOutput>()
+                    new TransactionInputBuilder()
+                        .WithTransactionIndex(0)
+                        .WithTransactionId(new byte[32])
+                        .Build()
+                })
+                .WithTransactionOutputs(new List<TransactionOutput>()
                 {
-                    new TransactionOutput()
-                    {
-                        Address = baseAddr.GetBytes(),
-                        Value = new TransactionOutputValue()
-                        {
-                            Coin = 10
-                        }
-                    },
-                    new TransactionOutput()
-                    {
-                        Address = changeAddr.GetBytes(),
-                        Value = new TransactionOutputValue()
-                        {
-                            Coin = 856488
-                        }
-                    }
-                },
-                Ttl = 1000,
-                Fee = 143502
-            };
+                    new TransactionOutputBuilder()
+                        .WithAddress(baseAddr.GetBytes())
+                        .WithTransactionOutputValue(new TransactionOutputValueBuilder()
+                            .WithCoin(10)
+                            .Build())
+                        .Build(),
+                    new TransactionOutputBuilder()
+                        .WithAddress(changeAddr.GetBytes())
+                        .WithTransactionOutputValue(new TransactionOutputValueBuilder()
+                            .WithCoin(856488)
+                            .Build())
+                        .Build()
+                })
+                .WithTtl(1000)
+                .WithFee(143502)
+                .Build();
 
             //act
             var serialized = transactionBody.Serialize(null);
@@ -291,48 +272,41 @@ namespace CardanoSharp.Wallet.Test
 
             var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
 
-            var transactionBody = new TransactionBody()
-            {
-                TransactionInputs = new List<TransactionInput>()
+            var transactionBody = new TransactionBodyBuilder()
+                .WithTransactionInputs(new List<TransactionInput>()
                 {
-                    new TransactionInput()
-                    {
-                        TransactionIndex = 0,
-                        TransactionId = "3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7".HexToByteArray()
-                    }
-                },
-                TransactionOutputs = new List<TransactionOutput>()
+                    new TransactionInputBuilder()
+                        .WithTransactionIndex(0)
+                        .WithTransactionId("3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7".HexToByteArray())
+                        .Build()
+                })
+                .WithTransactionOutputs(new List<TransactionOutput>()
                 {
-                    new TransactionOutput()
-                    {
-                        Address = baseAddr.GetBytes(),
-                        Value = new TransactionOutputValue()
-                        {
-                            Coin = 1
-                        }
-                    }
-                },
-                Ttl = 10,
-                Fee = 0
-            };
+                    new TransactionOutputBuilder()
+                        .WithAddress(baseAddr.GetBytes())
+                        .WithTransactionOutputValue(new TransactionOutputValueBuilder()
+                            .WithCoin(1)
+                            .Build())
+                        .Build()
+                })
+                .WithTtl(10)
+                .WithFee(0)
+                .Build();
 
-            var witnesses = new TransactionWitnessSet()
-            {
-                VKeyWitnesses = new List<VKeyWitness>()
+            var witnesses = new TransactionWitnessSetBuilder()
+                .WithVKeyWitnesses(new List<VKeyWitness>()
                 {
-                    new VKeyWitness()
-                    {
-                        VKey = paymentPub.Key,
-                        SKey = paymentPrv.Key
-                    }
-                }
-            };
+                    new VKeyWitnessBuilder()
+                        .WithVKey(paymentPub.Key)
+                        .WithSKey(paymentPrv.Key)
+                        .Build()
+                })
+                .Build();
 
-            var transaction = new Transaction()
-            {
-                TransactionBody = transactionBody,
-                TransactionWitnessSet = witnesses
-            };
+            var transaction = new TransactionBuilder()
+                .WithTransactionBody(transactionBody)
+                .WithTransactionWitnessSet(witnesses)
+                .Build();
 
             //act
             var serializedTx = transaction.Serialize();
@@ -359,39 +333,33 @@ namespace CardanoSharp.Wallet.Test
             var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
             var stakeHash = HashUtility.Blake2b244(stakePub.Key);
 
-            var transactionBody = new TransactionBody()
-            {
-                TransactionInputs = new List<TransactionInput>()
+            var transactionBody = new TransactionBodyBuilder()
+                .WithTransactionInputs(new List<TransactionInput>()
                 {
-                    new TransactionInput()
-                    {
-                        TransactionIndex = 0,
-                        TransactionId = getGenesisTransaction()
-                    }
-                },
-                TransactionOutputs = new List<TransactionOutput>()
+                    new TransactionInputBuilder()
+                        .WithTransactionIndex(0)
+                        .WithTransactionId(getGenesisTransaction())
+                        .Build()
+                })
+                .WithTransactionOutputs(new List<TransactionOutput>()
                 {
-                    new TransactionOutput()
-                    {
-                        Address = changeAddr.GetBytes(),
-                        Value = new TransactionOutputValue()
-                        {
-                            Coin = 3786498
-                        }
-                    }
-                },
-                Ttl = 1000,
-                Fee = 213502,
-                Certificate = new Certificate()
-                {
-                    StakeRegistration = stakeHash,
-                    StakeDelegation = new StakeDelegation()
-                    {
-                        PoolHash = stakeHash,
-                        StakeCredential = stakeHash
-                    }
-                }
-            };
+                    new TransactionOutputBuilder()
+                        .WithAddress(changeAddr.GetBytes())
+                        .WithTransactionOutputValue(new TransactionOutputValueBuilder()
+                            .WithCoin(3786498)
+                            .Build())
+                        .Build()
+                })
+                .WithCertificate(new CertificateBuilder()
+                    .WithStakeRegistration(stakeHash)
+                    .WithStakeDelegation(new StakeDelegationBuilder()
+                        .WithPoolHash(stakeHash)
+                        .WithStakeCredential(stakeHash)
+                        .Build())
+                    .Build())
+                .WithTtl(1000)
+                .WithFee(213502)
+                .Build();
 
             //act
             var serialized = transactionBody.Serialize(null);
@@ -418,68 +386,57 @@ namespace CardanoSharp.Wallet.Test
             var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
             var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
 
-            var transactionBody = new TransactionBody()
-            {
-                TransactionInputs = new List<TransactionInput>()
+            var transactionBody = new TransactionBodyBuilder()
+                .WithTransactionInputs(new List<TransactionInput>()
                 {
-                    new TransactionInput()
-                    {
-                        TransactionIndex = 0,
-                        TransactionId = getGenesisTransaction()
-                    },
-                    new TransactionInput()
-                    {
-                        TransactionIndex = 0,
-                        TransactionId = getGenesisTransaction()
-                    }
-                },
-                TransactionOutputs = new List<TransactionOutput>()
+                    new TransactionInputBuilder()
+                        .WithTransactionIndex(0)
+                        .WithTransactionId(getGenesisTransaction())
+                        .Build(),
+                    new TransactionInputBuilder()
+                        .WithTransactionIndex(0)
+                        .WithTransactionId(getGenesisTransaction())
+                        .Build()
+                })
+                .WithTransactionOutputs(new List<TransactionOutput>()
                 {
-                    new TransactionOutput()
-                    {
-                        Address = baseAddr.GetBytes(),
-                        Value = new TransactionOutputValue()
-                        {
-                            Coin = 1,
-                            MultiAsset = new Dictionary<byte[], NativeAsset>()
-                            {
+                    new TransactionOutputBuilder()
+                        .WithAddress(baseAddr.GetBytes())
+                        .WithTransactionOutputValue(new TransactionOutputValueBuilder()
+                            .WithCoin(1)
+                            .WithMultiAsset(new Dictionary<byte[], NativeAsset>() {
                                 {
                                     getGenesisPolicyId(),
-                                    new NativeAsset()
-                                    {
-                                        Token = new Dictionary<byte[], uint>()
+                                    new NativeAssetBuilder()
+                                        .WithToken(new Dictionary<byte[], uint>()
                                         {
                                             { "00010203".HexToByteArray(), 60 }
-                                        }
-                                    }
+                                        })
+                                        .Build()
                                 }
-                            }
-                        }
-                    },
-                    new TransactionOutput()
-                    {
-                        Address = changeAddr.GetBytes(),
-                        Value = new TransactionOutputValue()
-                        {
-                            Coin = 18,
-                            MultiAsset = new Dictionary<byte[], NativeAsset>()
-                            {
+                            })
+                            .Build())
+                        .Build(),
+                    new TransactionOutputBuilder()
+                        .WithAddress(changeAddr.GetBytes())
+                        .WithTransactionOutputValue(new TransactionOutputValueBuilder()
+                            .WithCoin(18)
+                            .WithMultiAsset(new Dictionary<byte[], NativeAsset>() {
                                 {
                                     getGenesisPolicyId(),
-                                    new NativeAsset()
-                                    {
-                                        Token = new Dictionary<byte[], uint>()
+                                    new NativeAssetBuilder()
+                                        .WithToken(new Dictionary<byte[], uint>()
                                         {
                                             { "00010203".HexToByteArray(), 240 }
-                                        }
-                                    }
+                                        })
+                                        .Build()
                                 }
-                            }
-                        }
-                    }
-                },
-                Fee = 1
-            };
+                            })
+                            .Build())
+                        .Build()
+                })
+                .WithFee(1)
+                .Build();
 
             //act
             var serialized = transactionBody.Serialize(null);
@@ -493,48 +450,41 @@ namespace CardanoSharp.Wallet.Test
         public void SimpleTransactionTest()
         {
             //arrange
-            var transactionBody = new TransactionBody()
-            {
-                TransactionInputs = new List<TransactionInput>()
+            var transactionBody = new TransactionBodyBuilder()
+                .WithTransactionInputs(new List<TransactionInput>()
                 {
-                    new TransactionInput()
-                    {
-                        TransactionIndex = 0,
-                        TransactionId = "3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7".HexToByteArray()
-                    }
-                },
-                TransactionOutputs = new List<TransactionOutput>()
+                    new TransactionInputBuilder()
+                        .WithTransactionIndex(0)
+                        .WithTransactionId("3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7".HexToByteArray())
+                        .Build()
+                })
+                .WithTransactionOutputs(new List<TransactionOutput>()
                 {
-                    new TransactionOutput()
-                    {
-                        Address = "611c616f1acb460668a9b2f123c80372c2adad3583b9c6cd2b1deeed1c".HexToByteArray(),
-                        Value = new TransactionOutputValue()
-                        {
-                            Coin = 1
-                        }
-                    }
-                },
-                Ttl = 10,
-                Fee = 94002
-            };
+                    new TransactionOutputBuilder()
+                        .WithAddress("611c616f1acb460668a9b2f123c80372c2adad3583b9c6cd2b1deeed1c".HexToByteArray())
+                        .WithTransactionOutputValue(new TransactionOutputValueBuilder()
+                            .WithCoin(1)
+                            .Build())
+                        .Build()
+                })
+                .WithTtl(10)
+                .WithFee(94002)
+                .Build();
 
-            var witnesses = new TransactionWitnessSet()
-            {
-                VKeyWitnesses = new List<VKeyWitness>()
+            var witnesses = new TransactionWitnessSetBuilder()
+                .WithVKeyWitnesses(new List<VKeyWitness>()
                 {
-                    new VKeyWitness()
-                    {
-                        VKey = "f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(),
-                        SKey = "c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray()
-                    }
-                }
-            };
+                    new VKeyWitnessBuilder()
+                        .WithVKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray())
+                        .WithSKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray())
+                        .Build()
+                })
+                .Build();
 
-            var transaction = new Transaction()
-            {
-                TransactionBody = transactionBody,
-                TransactionWitnessSet = witnesses
-            };
+            var transaction = new TransactionBuilder()
+                .WithTransactionBody(transactionBody)
+                .WithTransactionWitnessSet(witnesses)
+                .Build();
 
             //act
             var serialized = transaction.Serialize();
@@ -550,57 +500,49 @@ namespace CardanoSharp.Wallet.Test
         public void MetadataTest()
         {
             //arrange
-            var transactionBody = new TransactionBody()
-            {
-                TransactionInputs = new List<TransactionInput>()
+            var transactionBody = new TransactionBodyBuilder()
+                .WithTransactionInputs(new List<TransactionInput>()
                 {
-                    new TransactionInput()
-                    {
-                        TransactionIndex = 0,
-                        TransactionId = "0000000000000000000000000000000000000000000000000000000000000000".HexToByteArray()
-                    }
-                },
-                TransactionOutputs = new List<TransactionOutput>()
+                    new TransactionInputBuilder()
+                        .WithTransactionIndex(0)
+                        .WithTransactionId(getGenesisTransaction())
+                        .Build()
+                })
+                .WithTransactionOutputs(new List<TransactionOutput>()
                 {
-                    new TransactionOutput()
-                    {
-                        Address = "00477367D9134E384A25EDD3E23C72735EE6DE6490D39C537A247E1B65D9E5A6498B927F664A2C82343AA6A50CDDE47DE0A2B8C54ECD9C99C2".HexToByteArray(),
-                        Value = new TransactionOutputValue()
-                        {
-                            Coin = 1000000
-                        }
-                    }
-                },
-                Ttl = 10,
-                Fee = 0
-            };
+                    new TransactionOutputBuilder()
+                        .WithAddress("00477367D9134E384A25EDD3E23C72735EE6DE6490D39C537A247E1B65D9E5A6498B927F664A2C82343AA6A50CDDE47DE0A2B8C54ECD9C99C2".HexToByteArray())
+                        .WithTransactionOutputValue(new TransactionOutputValueBuilder()
+                            .WithCoin(1000000)
+                            .Build())
+                        .Build()
+                })
+                .WithTtl(10)
+                .WithFee(0)
+                .Build();
 
-            var auxData = new AuxiliaryData()
-            {
-                Metadata = new Dictionary<int, object>()
+            var witnesses = new TransactionWitnessSetBuilder()
+                .WithVKeyWitnesses(new List<VKeyWitness>()
+                {
+                    new VKeyWitnessBuilder()
+                        .WithVKey("0f8ad2c7def332bca2f897ef2a1608ee655341227efe7d2284eeb3f94d08d5fa".HexToByteArray())
+                        .WithSKey("501181718c28e401cb77bb31e65e16c125960d225dc615a20d18cce9cd852f4e9af87333cefe80a142e5f270e03d737f6cb3e5e0f27c023d0c4a6380de0a039d".HexToByteArray())
+                        .Build()
+                })
+                .Build();
+
+            var auxData = new AuxiliaryDataBuilder()
+                .WithMetadata(new Dictionary<int, object>()
                 {
                     { 1234, new { name = "simple message" } }
-                }
-            };
+                })
+                .Build();
 
-            var witnesses = new TransactionWitnessSet()
-            {
-                VKeyWitnesses = new List<VKeyWitness>()
-                {
-                    new VKeyWitness()
-                    {
-                        VKey = "0f8ad2c7def332bca2f897ef2a1608ee655341227efe7d2284eeb3f94d08d5fa".HexToByteArray(),
-                        SKey = "501181718c28e401cb77bb31e65e16c125960d225dc615a20d18cce9cd852f4e9af87333cefe80a142e5f270e03d737f6cb3e5e0f27c023d0c4a6380de0a039d".HexToByteArray()
-                    }
-                }
-            };
-
-            var transaction = new Transaction()
-            {
-                TransactionBody = transactionBody,
-                TransactionWitnessSet = witnesses,
-                AuxiliaryData = auxData
-            };
+            var transaction = new TransactionBuilder()
+                .WithTransactionBody(transactionBody)
+                .WithTransactionWitnessSet(witnesses)
+                .WithAuxiliaryData(auxData)
+                .Build();
 
             //act
             var serialized = transaction.Serialize();
