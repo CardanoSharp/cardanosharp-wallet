@@ -18,7 +18,8 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
                 var cborVKeyWitnesses = CBORObject.NewArray();
                 foreach (var vkeyWitness in transactionWitnessSet.VKeyWitnesses)
                 {
-                    cborWitnessSet.Add(vkeyWitness.GetCBOR(transactionBody, auxiliaryData));
+
+                    cborVKeyWitnesses.Add(vkeyWitness.GetCBOR(transactionBody, auxiliaryData));
                 }
 
                 cborWitnessSet.Add(0, cborVKeyWitnesses);
@@ -36,6 +37,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             }
 
             return cborWitnessSet;
+        }
+
+        public static byte[] Serialize(this TransactionWitnessSet transactionWitnessSet, TransactionBody transactionBody, AuxiliaryData auxiliaryData)
+        {
+            return transactionWitnessSet.GetCBOR(transactionBody, auxiliaryData).EncodeToBytes();
         }
     }
 }

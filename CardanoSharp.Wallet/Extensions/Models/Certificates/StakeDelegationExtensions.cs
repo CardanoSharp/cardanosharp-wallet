@@ -18,5 +18,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Certificates
                 )
                 .Add(stakeDelegation.PoolHash);
         }
+
+        public static byte[] Serialize(this StakeDelegation stakeDelegation)
+        {
+            return stakeDelegation.GetCBOR().EncodeToBytes();
+        }
     }
 }

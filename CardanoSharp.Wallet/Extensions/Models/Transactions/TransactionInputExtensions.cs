@@ -14,5 +14,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 .Add(transactionInput.TransactionId)
                 .Add(transactionInput.TransactionIndex);
         }
+
+        public static byte[] Serialize(this TransactionInput transactionInput)
+        {
+            return transactionInput.GetCBOR().EncodeToBytes();
+        }
     }
 }

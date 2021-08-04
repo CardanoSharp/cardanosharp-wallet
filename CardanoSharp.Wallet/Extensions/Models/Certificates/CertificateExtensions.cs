@@ -77,6 +77,13 @@ namespace CardanoSharp.Wallet.Extensions.Models.Certificates
             //{
 
             //}
+
+            return cborCert;
+        }
+
+        public static byte[] Serialize(this Certificate certificate)
+        {
+            return certificate.GetCBOR().EncodeToBytes();
         }
     }
 }

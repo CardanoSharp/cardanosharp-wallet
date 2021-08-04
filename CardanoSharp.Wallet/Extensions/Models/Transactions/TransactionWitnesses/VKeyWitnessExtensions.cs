@@ -25,11 +25,14 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             }
 
             //fill out cbor structure for vkey witnesses
-            var cborVKeyWitness = CBORObject.NewArray()
+            return CBORObject.NewArray()
                 .Add(vKeyWitness.VKey)
                 .Add(vKeyWitness.Signature);
+        }
 
-            return cborVKeyWitness;
+        public static byte[] Serialize(this VKeyWitness vKeyWitness, TransactionBody transactionBody, AuxiliaryData auxiliaryData)
+        {
+            return vKeyWitness.GetCBOR(transactionBody, auxiliaryData).EncodeToBytes();
         }
     }
 }

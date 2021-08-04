@@ -4,6 +4,7 @@ using CardanoSharp.Wallet.Utilities;
 using PeterO.Cbor2;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
@@ -17,18 +18,26 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             CBORObject cborBody = CBORObject.NewMap();
 
             //add all the transaction inputs
-            foreach (var txInput in transactionBody.TransactionInputs)
+            if (transactionBody.TransactionInputs.Any())
             {
-                cborInputs.Add(txInput.GetCBOR());
+                cborInputs = CBORObject.NewArray();
+                foreach (var txInput in transactionBody.TransactionInputs)
+                {
+                    cborInputs.Add(txInput.GetCBOR());
+                }
             }
 
             if (cborInputs != null) cborBody.Add(0, cborInputs);
 
 
             //add all the transaction outputs
-            foreach (var txOutput in transactionBody.TransactionOutputs)
+            if (transactionBody.TransactionOutputs.Any())
             {
-                cborOutputs.Add(txOutput.GetCBOR());
+                cborOutputs = CBORObject.NewArray();
+                foreach (var txOutput in transactionBody.TransactionOutputs)
+                {
+                    cborOutputs.Add(txOutput.GetCBOR());
+                }
             }
 
             if (cborOutputs != null) cborBody.Add(1, cborOutputs);
@@ -52,6 +61,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
 
             return cborBody;
+        }
+
+        public static byte[] Serialize(this TransactionBody transactionBody, AuxiliaryData auxiliaryData)
+        {
+            return transactionBody.GetCBOR(auxiliaryData).EncodeToBytes();
         }
     }
 }

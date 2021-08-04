@@ -1,4 +1,5 @@
-﻿using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
+﻿using CardanoSharp.Wallet.Common;
+using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
 using CardanoSharp.Wallet.Models.Transactions;
 using PeterO.Cbor2;
 using System;
@@ -32,10 +33,25 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
 
             //add metadata
-            cborTransaction.Add(transaction.AuxiliaryData.GetCBOR());
+            cborTransaction.Add(transaction.AuxiliaryData != null
+                ? transaction.AuxiliaryData.GetCBOR()
+                : null);
 
             //return serialized cbor
             return cborTransaction;
+        }
+
+        public static long CalculateFee(this Transaction transaction, long? a = null, long? b = null)
+        {
+            if (!a.HasValue) a = FeeStructure.Coefficient;
+            if (!b.HasValue) b = FeeStructure.Constant;
+
+            return transaction.Serialize().ToStringHex().Length * a.Value + b.Value;
+        }
+
+        public static byte[] Serialize(this Transaction transaction)
+        {
+            return transaction.GetCBOR().EncodeToBytes();
         }
     }
 }

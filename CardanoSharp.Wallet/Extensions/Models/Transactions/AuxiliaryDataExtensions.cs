@@ -14,5 +14,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 .Add(auxiliaryData.Metadata)
                 .Add(auxiliaryData.List);
         }
+
+        public static byte[] Serialize(this AuxiliaryData auxiliaryData)
+        {
+            return auxiliaryData.GetCBOR().EncodeToBytes();
+        }
     }
 }
