@@ -13,6 +13,7 @@ using System.Reflection;
 using System;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
+using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -39,7 +40,7 @@ namespace CardanoSharp.Wallet.Test
             
         }
 
-        //[Fact]
+        [Fact]
         public void SerializeTransaction()
         {
             var vectorId = "01";
@@ -88,24 +89,30 @@ namespace CardanoSharp.Wallet.Test
                 .Build();
 
             // Act
-            var cbor = tx.Serialize();
-            var cborHex = cbor.ToStringHex();
-            var draftTx = new { type, description, cborHex };
-            var json = JsonSerializer.Serialize(draftTx, __jsonSerializerOptions);
+            var actual = CBORObject.DecodeFromBytes(tx.Serialize());
+            var expected = CBORObject.DecodeFromBytes(expectedCBOR);
+            Assert.Equal(expected, actual);
 
-            WriteVectorFile(vectorId, json, outputFileName);
-            string referenceTx = ReadVectorFile(vectorId, vectorReference);
 
-            // Assert
-            // ok when i use http://cbor.me/ + https://text-compare.com/ = identical... 
-            // unsure exactly whats going on
-            // the serialization string/bytes are off a little but i think its a newline or something
-            Assert.Equal(referenceTx, json);
-            Assert.Equal(expectedCBOR, cbor);
 
-            var expected = _transactionSerializer.DeserializeTransaction(expectedCBOR);
-            var deserialized = _transactionSerializer.DeserializeTransaction(cbor);
-            Assert.Equal(expected, deserialized);
+            //var cbor = tx.Serialize();
+            //var cborHex = cbor.ToStringHex();
+            //var draftTx = new { type, description, cborHex };
+            //var json = JsonSerializer.Serialize(draftTx, __jsonSerializerOptions);
+
+            //WriteVectorFile(vectorId, json, outputFileName);
+            //string referenceTx = ReadVectorFile(vectorId, vectorReference);
+
+            //// Assert
+            //// ok when i use http://cbor.me/ + https://text-compare.com/ = identical... 
+            //// unsure exactly whats going on
+            //// the serialization string/bytes are off a little but i think its a newline or something
+            //Assert.Equal(referenceTx, json);
+            //Assert.Equal(expectedCBOR, cbor);
+
+            //var expected = _transactionSerializer.DeserializeTransaction(expectedCBOR);
+            //var deserialized = _transactionSerializer.DeserializeTransaction(cbor);
+            //Assert.Equal(expected, deserialized);
         }
 
         private static string ReadVectorFile(string vectorId, string fileName)
