@@ -9,11 +9,6 @@ namespace CardanoSharp.Wallet.Models.Keys
         public byte[] Key { get; }
         public byte[] Chaincode { get; }
 
-        public PrivateKey(byte[] key)
-        {
-            Key = key;
-        }
-
         public PrivateKey(byte[] key, byte[] chaincode)
         {
             Key = key;

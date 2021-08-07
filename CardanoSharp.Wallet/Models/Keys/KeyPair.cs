@@ -28,8 +28,8 @@ namespace CardanoSharp.Wallet.Models.Keys
             Ed25519.KeyPairFromSeed(out publicKey, out _, privateKey);
 
             return new KeyPair(
-                new PrivateKey(privateKey),
-                new PublicKey(publicKey));
+                new PrivateKey(privateKey, new byte[0]),
+                new PublicKey(publicKey, new byte[0]));
         }
     }
 }
