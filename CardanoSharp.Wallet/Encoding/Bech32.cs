@@ -11,7 +11,7 @@ namespace CardanoSharp.Wallet.Encoding
         /// <summary>
         /// Maximum length of the whole Bech32 string (hrp + separator + data)
         /// </summary>
-        private const int TotalMaxLength = 90;
+        private const int TotalMaxLength = 108; //103 = mainnet length of a delegation address, 108 = testnet length
         private const int CheckSumSize = 6;
         private const int HrpMinLength = 1;
         private const int HrpMaxLength = 83;

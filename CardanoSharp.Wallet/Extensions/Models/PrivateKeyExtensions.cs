@@ -65,6 +65,11 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
         public static PrivateKey Derive(this PrivateKey privateKey, string path)
         {
+            if (privateKey is null)
+            {
+                throw new ArgumentNullException(nameof(privateKey));
+            }
+
             if (!Bip32Utility.IsValidPath(path))
                 throw new FormatException("Invalid derivation path");
 
@@ -81,7 +86,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
                 if (isHardened) index += MinHardIndex;
 
-                newPrivateKey = GetChildKeyDerivation(newPrivateKey, index);
+                newPrivateKey = Bip32Utility.GetChildKeyDerivation(newPrivateKey, index);
             }
 
             return newPrivateKey;

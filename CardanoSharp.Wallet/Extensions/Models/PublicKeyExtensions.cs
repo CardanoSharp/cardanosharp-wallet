@@ -24,13 +24,16 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
         public static PublicKey Derive(this PublicKey publicKey, string path)
         {
+            if (publicKey is null)
+            {
+                throw new ArgumentNullException(nameof(publicKey));
+            }
+
             if (!Bip32Utility.IsValidPath(path))
                 throw new FormatException("Invalid derivation path");
 
             var segments = path
                 .Split('/');
-
-            //if (segments[0] == "m") segments = segments.Slice(1);
 
             PublicKey newpublicKey = new PublicKey(publicKey.Key, publicKey.Chaincode);
             foreach (var segment in segments)
@@ -40,7 +43,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
                 var index = Convert.ToUInt32(segment);
 
-                newpublicKey = GetChildKeyDerivation(newpublicKey, index);
+                newpublicKey = Bip32Utility.GetChildKeyDerivation(newpublicKey, index);
             }
 
             return newpublicKey;

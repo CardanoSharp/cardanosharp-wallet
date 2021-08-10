@@ -35,3 +35,6 @@ msbuild.wrn
 nuget.config
 # Visual Studio 2015
 .vs/
+
+# developers
+cli/

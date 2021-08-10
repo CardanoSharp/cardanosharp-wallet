@@ -30,5 +30,10 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
             return scriptAllCbor;
         }
+
+        public static byte[] Serialize(this ScriptAll scriptAll)
+        {
+            return scriptAll.GetCBOR().EncodeToBytes();
+        }
     }
 }
