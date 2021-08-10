@@ -1,4 +1,5 @@
-﻿using CardanoSharp.Wallet.Models.Transactions;
+﻿using CardanoSharp.Wallet.Models.Keys;
+using CardanoSharp.Wallet.Models.Transactions;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,13 +13,13 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             _model = new VKeyWitness();
         }
 
-        public VKeyWitnessBuilder WithVKey(byte[] vKey)
+        public VKeyWitnessBuilder WithVKey(PublicKey vKey)
         {
             _model.VKey = vKey;
             return this;
         }
 
-        public VKeyWitnessBuilder WithSKey(byte[] sKey)
+        public VKeyWitnessBuilder WithSKey(PrivateKey sKey)
         {
             _model.SKey = sKey;
             return this;
