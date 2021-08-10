@@ -20,8 +20,8 @@ namespace CardanoSharp.Wallet.Test
             var keyPair = KeyPair.GenerateKeyPair();
             var messageByte = message.HexToByteArray();
 
-            var signature = keyPair.Sign(messageByte);
-            var verified = keyPair.Verify(messageByte, signature);
+            var signature = keyPair.PrivateKey.Sign(messageByte);
+            var verified = keyPair.PublicKey.Verify(messageByte, signature);
 
             Assert.True(verified);
         }
