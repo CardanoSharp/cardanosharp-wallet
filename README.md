@@ -1,6 +1,7 @@
-﻿# CardanoSharp.Wallet [![Build status](https://ci.appveyor.com/api/projects/status/knh87k86mf7gbxyo?svg=true)](https://ci.appveyor.com/project/nothingalike/cardanosharp-wallet/branch/main) [![Test status](https://img.shields.io/appveyor/tests/nothingalike/cardanosharp-wallet)](https://ci.appveyor.com/project/nothingalike/cardanosharp-wallet/branch/main) [![NuGet Version](https://img.shields.io/nuget/v/CardanoSharp.Wallet.svg?style=flat)](https://www.nuget.org/packages/CardanoSharp.Wallet/) ![NuGet Downloads](https://img.shields.io/nuget/dt/CardanoSharp.Wallet.svg)
+﻿# CardanoSharp.Wallet 
+[![Build status](https://ci.appveyor.com/api/projects/status/knh87k86mf7gbxyo?svg=true)](https://ci.appveyor.com/project/nothingalike/cardanosharp-wallet/branch/main) [![Test status](https://img.shields.io/appveyor/tests/nothingalike/cardanosharp-wallet)](https://ci.appveyor.com/project/nothingalike/cardanosharp-wallet/branch/main) [![NuGet Version](https://img.shields.io/nuget/v/CardanoSharp.Wallet.svg?style=flat)](https://www.nuget.org/packages/CardanoSharp.Wallet/) ![NuGet Downloads](https://img.shields.io/nuget/dt/CardanoSharp.Wallet.svg)
 
-CardanoSharp.Wallet is a Cardano Serialization library for .NET applications.
+CardanoSharp Wallet is a .NET library for Creating/Managing Wallets and Building/Signing Transactions.
 
 ## Features
 
@@ -76,7 +77,7 @@ var stakePub = stakePrv.GetPublicKey(false);
 
 ```csharp
 // Creating Addresses require the Public Payment and Stake Keys
-var baseAddr = addressService.GetAddress(
+Address baseAddr = addressService.GetAddress(
     paymentPub, 
     stakePub, 
     NetworkType.Testnet, 
@@ -120,7 +121,10 @@ using CardanoSharp.Wallet.Models.Transactions;
 
 ```csharp
 // The Transaction Builder allows us to contruct and serialize our Transaction
-var transactionBuilder = new TransactionBuilder();
+using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.Extensions.Models.Transactions;
+//For CBOR Utilities
+using PeterO.Cbor2;
 
 // Create the Transaction Body
 //  The Transaction Body:
@@ -149,7 +153,7 @@ var transactionBody = new TransactionBody()
     {
         new TransactionOutput()
         {
-            Address = addressService.GetAddressBytes(baseAddr),
+            Address = baseAddr.GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 1
@@ -183,13 +187,16 @@ var transaction = new Transaction()
 
 // Serialize Transaction with Body and Witnesses
 //  This results in a Signed Transaction
-var signedTx = transactionBuilder.SerializeTransaction(transaction);
+var signedTxSerialized = transaction.Serialize();
 ```
 
 ### Calculate Fees
 
 ```csharp
-var fee = transactionBuilder.CalculateFee(signedTx);
+// From Current Protocol Parameters
+// 44     = txFeePerByte
+// 155381 = txFeeFixed
+var fee = transaction.CalculateFee(44, 155381);
 ```
 
 ### Adding Metadata
