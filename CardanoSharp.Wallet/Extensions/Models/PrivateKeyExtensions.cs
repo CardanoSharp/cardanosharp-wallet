@@ -91,5 +91,20 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
             return newPrivateKey;
         }
+
+        public static byte[] Sign(this PrivateKey privateKey, byte[] message)
+        {
+            var skey = privateKey.Key;
+
+            if (skey.Length == 32)
+            {
+                skey = Ed25519.ExpandedPrivateKeyFromSeed(skey.Slice(0, 32));
+                return Ed25519.Sign(message, skey);
+            }
+            else
+            {
+                return Ed25519.SignCrypto(message, skey);
+            }
+        }
     }
 }

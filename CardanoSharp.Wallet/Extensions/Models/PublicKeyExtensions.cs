@@ -3,6 +3,7 @@ using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Models.Derivations;
 using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Utilities;
+using Chaos.NaCl;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -46,6 +47,11 @@ namespace CardanoSharp.Wallet.Extensions.Models
             }
 
             return newpublicKey;
+        }
+        
+        public static bool Verify(this PublicKey publicKey, byte[] message, byte[] signature)
+        {
+            return Ed25519.Verify(signature, message, publicKey.Key);
         }
     }
 }

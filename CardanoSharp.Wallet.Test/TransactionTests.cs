@@ -304,8 +304,8 @@ namespace CardanoSharp.Wallet.Test
                 .WithVKeyWitnesses(new List<VKeyWitness>()
                 {
                     new VKeyWitnessBuilder()
-                        .WithVKey(paymentPub.Key)
-                        .WithSKey(paymentPrv.Key)
+                        .WithVKey(paymentPub)
+                        .WithSKey(paymentPrv)
                         .Build()
                 })
                 .Build();
@@ -482,8 +482,8 @@ namespace CardanoSharp.Wallet.Test
                 .WithVKeyWitnesses(new List<VKeyWitness>()
                 {
                     new VKeyWitnessBuilder()
-                        .WithVKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray())
-                        .WithSKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray())
+                        .WithVKey(new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null))
+                        .WithSKey(new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null))
                         .Build()
                 })
                 .Build();
@@ -532,8 +532,8 @@ namespace CardanoSharp.Wallet.Test
                 .WithVKeyWitnesses(new List<VKeyWitness>()
                 {
                     new VKeyWitnessBuilder()
-                        .WithVKey("0f8ad2c7def332bca2f897ef2a1608ee655341227efe7d2284eeb3f94d08d5fa".HexToByteArray())
-                        .WithSKey("501181718c28e401cb77bb31e65e16c125960d225dc615a20d18cce9cd852f4e9af87333cefe80a142e5f270e03d737f6cb3e5e0f27c023d0c4a6380de0a039d".HexToByteArray())
+                        .WithVKey(new PublicKey("0f8ad2c7def332bca2f897ef2a1608ee655341227efe7d2284eeb3f94d08d5fa".HexToByteArray(), null))
+                        .WithSKey(new PrivateKey("501181718c28e401cb77bb31e65e16c125960d225dc615a20d18cce9cd852f4e9af87333cefe80a142e5f270e03d737f6cb3e5e0f27c023d0c4a6380de0a039d".HexToByteArray(), null))
                         .Build()
                 })
                 .Build();

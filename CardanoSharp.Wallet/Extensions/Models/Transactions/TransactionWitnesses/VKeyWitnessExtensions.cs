@@ -14,19 +14,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
         {
             //sign body
             var txBodyHash = HashUtility.Blake2b256(transactionBody.GetCBOR(auxiliaryData).EncodeToBytes());
-            if (vKeyWitness.SKey.Length == 32)
-            {
-                vKeyWitness.SKey = Ed25519.ExpandedPrivateKeyFromSeed(vKeyWitness.SKey.Slice(0, 32));
-                vKeyWitness.Signature = Ed25519.Sign(txBodyHash, vKeyWitness.SKey);
-            }
-            else
-            {
-                vKeyWitness.Signature = Ed25519.SignCrypto(txBodyHash, vKeyWitness.SKey);
-            }
+            vKeyWitness.Signature = vKeyWitness.SKey.Sign(txBodyHash);
 
             //fill out cbor structure for vkey witnesses
             return CBORObject.NewArray()
-                .Add(vKeyWitness.VKey)
+                .Add(vKeyWitness.VKey.Key)
                 .Add(vKeyWitness.Signature);
         }
 
