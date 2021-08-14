@@ -172,8 +172,8 @@ var witnesses = new TransactionWitnessSet()
     {
         new VKeyWitness()
         {
-            VKey = paymentPub.Key,
-            SKey = paymentPrv.Key
+            VKey = paymentPub,
+            SKey = paymentPrv
         }
     }
 };
