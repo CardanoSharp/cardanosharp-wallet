@@ -22,7 +22,7 @@ namespace CardanoSharp.Wallet.Test
         private readonly TransactionSerializer _transactionSerializer;
         private readonly IKeyService _keyService;
         private readonly IAddressService _addressService;
-        private static string __projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;      
+        private static string __projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
         private static DirectoryInfo __dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
         private static JsonSerializerOptions __jsonSerializerOptions = new JsonSerializerOptions() { WriteIndented = true };
 
@@ -37,7 +37,7 @@ namespace CardanoSharp.Wallet.Test
         [Fact]
         public void DeserializeTransaction()
         {
-            
+
         }
 
         [Fact]
@@ -104,7 +104,7 @@ namespace CardanoSharp.Wallet.Test
             //string referenceTx = ReadVectorFile(vectorId, vectorReference);
 
             //// Assert
-            //// ok when i use http://cbor.me/ + https://text-compare.com/ = identical... 
+            //// ok when i use http://cbor.me/ + https://text-compare.com/ = identical...
             //// unsure exactly whats going on
             //// the serialization string/bytes are off a little but i think its a newline or something
             //Assert.Equal(referenceTx, json);
@@ -452,7 +452,7 @@ namespace CardanoSharp.Wallet.Test
             Assert.Equal("a3008282582000000000000000000000000000000000000000000000000000000000000000000082582000000000000000000000000000000000000000000000000000000000000000000001828258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948201a1581c00000000000000000000000000000000000000000000000000000000a14400010203183c82583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948212a1581c00000000000000000000000000000000000000000000000000000000a1440001020318f00201",
                 serialized.ToStringHex());
         }
-        
+
         [Fact]
         public void SimpleTransactionTest()
         {
@@ -500,7 +500,7 @@ namespace CardanoSharp.Wallet.Test
             //assert
             Assert.Equal("83a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182581d611c616f1acb460668a9b2f123c80372c2adad3583b9c6cd2b1deeed1c01021a00016f32030aa10081825820f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee5840fae5de40c94d759ce13bf9886262159c4f26a289fd192e165995b785259e503f6887bf39dfa23a47cf163784c6eee23f61440e749bc1df3c73975f5231aeda0ff6",
                 serialized.ToStringHex());
-            Assert.Equal(188002, fee);
+            Assert.Equal((uint)188002, fee);
         }
 
         [Fact]
