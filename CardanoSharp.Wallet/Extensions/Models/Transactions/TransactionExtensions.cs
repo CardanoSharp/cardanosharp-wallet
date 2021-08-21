@@ -41,12 +41,12 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return cborTransaction;
         }
 
-        public static long CalculateFee(this Transaction transaction, long? a = null, long? b = null)
+        public static uint CalculateFee(this Transaction transaction, uint? a = null, uint? b = null)
         {
             if (!a.HasValue) a = FeeStructure.Coefficient;
             if (!b.HasValue) b = FeeStructure.Constant;
 
-            return transaction.Serialize().ToStringHex().Length * a.Value + b.Value;
+            return ((uint)transaction.Serialize().ToStringHex().Length * a.Value) + b.Value;
         }
 
         public static byte[] Serialize(this Transaction transaction)
