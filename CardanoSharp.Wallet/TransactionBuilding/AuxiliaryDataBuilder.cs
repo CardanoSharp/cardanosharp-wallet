@@ -5,16 +5,26 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public class AuxiliaryDataBuilder: ABuilder<AuxiliaryData>
+    public interface IAuxiliaryDataBuilder: IABuilder<AuxiliaryData>
     {
-        public AuxiliaryDataBuilder()
+        IAuxiliaryDataBuilder AddMetadata(int index, object metadata);
+    }
+
+    public class AuxiliaryDataBuilder: ABuilder<AuxiliaryData>, IAuxiliaryDataBuilder
+    {
+        private AuxiliaryDataBuilder()
         {
             _model = new AuxiliaryData();
         }
 
-        public AuxiliaryDataBuilder WithMetadata(Dictionary<int, object> metadata)
+        public static IAuxiliaryDataBuilder Create
         {
-            _model.Metadata = metadata;
+            get => new AuxiliaryDataBuilder();
+        }
+
+        public IAuxiliaryDataBuilder AddMetadata(int index, object metadata)
+        {
+            _model.Metadata.Add(index, metadata);
             return this;
         }
     }
