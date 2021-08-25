@@ -5,28 +5,44 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public class CertificateBuilder: ABuilder<Certificate>
+    public interface ICertificateBuilder : IABuilder<Certificate>
     {
-        public CertificateBuilder()
+        ICertificateBuilder SetStakeRegistration(byte[] stakeRegistration);
+        ICertificateBuilder SetStakeDeregistration(byte[] stakeDeregistration);
+        ICertificateBuilder SetStakeDelegation(byte[] stakeCredential, byte[] poolHash);
+    }
+
+    public class CertificateBuilder: ABuilder<Certificate>, ICertificateBuilder
+    {
+        private CertificateBuilder()
         {
             _model = new Certificate();
         }
 
-        public CertificateBuilder WithStakeRegistration(byte[] stakeRegistration)
+        public static ICertificateBuilder Create
+        {
+            get => new CertificateBuilder();
+        }
+
+        public ICertificateBuilder SetStakeRegistration(byte[] stakeRegistration)
         {
             _model.StakeRegistration = stakeRegistration;
             return this;
         }
 
-        public CertificateBuilder WithStakeDeregistration(byte[] stakeDeregistration)
+        public ICertificateBuilder SetStakeDeregistration(byte[] stakeDeregistration)
         {
             _model.StakeDeregistration = stakeDeregistration;
             return this;
         }
 
-        public CertificateBuilder WithStakeDelegation(StakeDelegation stakeDelegation)
+        public ICertificateBuilder SetStakeDelegation(byte[] stakeCredential, byte[] poolHash)
         {
-            _model.StakeDelegation = stakeDelegation;
+            _model.StakeDelegation = new StakeDelegation()
+            {
+                StakeCredential = stakeCredential,
+                PoolHash = poolHash
+            };
             return this;
         }
     }
