@@ -12,6 +12,7 @@ using CardanoSharp.Wallet.Common;
 using Chaos.NaCl;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Keys;
+using System.Collections.Generic;
 
 namespace CardanoSharp.Wallet
 {
@@ -27,7 +28,6 @@ namespace CardanoSharp.Wallet
         private readonly int[] allowedEntropyLengths = { 12, 16, 20, 24, 28, 32 };
         private static readonly int[] allowedWordLengths = { 9, 12, 15, 18, 21, 24 };
         private const int allWordsLength = 2048;
-        private string[] allWords;
 
         public Mnemonic Generate(int wordSize, WordLists wl = WordLists.English)
         {
@@ -38,19 +38,19 @@ namespace CardanoSharp.Wallet
             if (!allowedEntropyLengths.Contains(entropySize))
                 throw new ArgumentOutOfRangeException(nameof(entropySize), $"Derived entropy {entropySize} is not within the allowed values ({string.Join(", ", allowedEntropyLengths)})");
 
-            allWords = GetAllWords(wl);
+            var allWords = GetAllWords(wl);
 
             var entropy = new byte[entropySize];
             var rng = new RNGCryptoServiceProvider();
             rng.GetBytes(entropy);
-            return CreateMnemonicFromEntropy(entropy);
+            return CreateMnemonicFromEntropy(entropy, allWords);
         }
 
         public Mnemonic Restore(string words, WordLists wl = WordLists.English)
         {
             if (string.IsNullOrWhiteSpace(words))
                 throw new ArgumentNullException(nameof(words), "Seed can not be null or empty!");
-            allWords = GetAllWords(wl);
+            var allWords = GetAllWords(wl);
 
             string[] wordArr = words.Normalize(NormalizationForm.FormKD)
                                      .Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -178,7 +178,7 @@ namespace CardanoSharp.Wallet
             }
         }
 
-        private Mnemonic CreateMnemonicFromEntropy(byte[] entropy)
+        private Mnemonic CreateMnemonicFromEntropy(byte[] entropy, string[] allWords)
         {
             using SHA256 hash = SHA256.Create();
             byte[] hashOfEntropy = hash.ComputeHash(entropy);

@@ -2,7 +2,9 @@
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models.Keys;
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace CardanoSharp.Wallet.Test
@@ -75,6 +77,45 @@ namespace CardanoSharp.Wallet.Test
 
             Assert.Equal(loadKey.Key.ToStringHex(), expectedPrivateKey.Substring(0, 128));
             Assert.Equal(loadKey.Chaincode.ToStringHex(), expectedPrivateKey.Substring(128));
+        }
+
+        [Fact]
+        public async Task Handles_Concurrency_For_A_Shared_KeyService_Instance()
+        {
+            var random = new Random();
+            var mnemonicWordLengths = new[] { 9, 12, 15, 18, 21, 24 };
+            var mnemonicWords = new[]
+            {
+                "elder lottery unlock common assume beauty grant curtain various horn spot youth exclude rude boost fence used two spawn toddler soup awake across use",
+                "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy",
+            };
+
+            (int ExpectedWordLength, int ResultWordLength) GenerateRandomMnemonic()
+            {
+                var wordLength = mnemonicWordLengths[random.Next(mnemonicWordLengths.Length)];
+                var mnemonic = _keyService.Generate(wordLength, Enums.WordLists.Spanish);
+                return (ExpectedWordLength: wordLength, ResultWordLength: mnemonic.Words.Split(' ').Length);
+            }
+
+            (int ExpectedWordLength, int ResultWordLength) RestoreMnemonic()
+            {
+                var words = mnemonicWords[random.Next(mnemonicWords.Length)];
+                var mnemonic = _keyService.Restore(words);
+                return (ExpectedWordLength: words.Split(' ').Length, ResultWordLength: mnemonic.Words.Split(' ').Length);
+            }
+
+            var concurrentTasks = new List<Task<(int ExpectedWordLength, int ResultWordLength)>>();
+            for (var i = 0; i < 15; i++)
+            {
+                concurrentTasks.Add(Task.Run(RestoreMnemonic));
+                concurrentTasks.Add(Task.Run(GenerateRandomMnemonic));
+            }
+
+            var completedTasks = await Task.WhenAll(concurrentTasks);
+            foreach(var completedTask in completedTasks)
+            {
+                Assert.Equal(completedTask.ExpectedWordLength, completedTask.ResultWordLength);
+            }
         }
     }
 }
