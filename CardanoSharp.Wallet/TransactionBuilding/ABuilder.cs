@@ -4,7 +4,12 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public abstract class ABuilder<T>
+    public interface IABuilder<T>
+    {
+        T Build();
+    }
+
+    public abstract class ABuilder<T>: IABuilder<T>
     {
         protected T _model;
 

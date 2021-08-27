@@ -5,28 +5,40 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public partial class TransactionBuilder: ABuilder<Transaction>
+    public interface ITransactionBuilder: IABuilder<Transaction>
     {
-        public TransactionBuilder()
+        ITransactionBuilder SetBody(ITransactionBodyBuilder bodyBuilder);
+        ITransactionBuilder SetWitnesses(ITransactionWitnessSetBuilder witnessBuilder);
+        ITransactionBuilder SetAuxData(IAuxiliaryDataBuilder auxDataBuilder);
+    }
+
+    public partial class TransactionBuilder : ABuilder<Transaction>, ITransactionBuilder
+    {
+        private TransactionBuilder()
         {
             _model = new Transaction();
         }
 
-        public TransactionBuilder WithTransactionBody(TransactionBody transactionBody)
+        public static ITransactionBuilder Create
         {
-            _model.TransactionBody = transactionBody;
+            get => new TransactionBuilder();
+        }
+
+        public ITransactionBuilder SetAuxData(IAuxiliaryDataBuilder auxDataBuilder)
+        {
+            _model.AuxiliaryData = auxDataBuilder.Build();
             return this;
         }
 
-        public TransactionBuilder WithTransactionWitnessSet(TransactionWitnessSet transactionWitnessSet)
+        public ITransactionBuilder SetBody(ITransactionBodyBuilder bodyBuilder)
         {
-            _model.TransactionWitnessSet = transactionWitnessSet;
+            _model.TransactionBody = bodyBuilder.Build();
             return this;
         }
 
-        public TransactionBuilder WithAuxiliaryData(AuxiliaryData auxiliaryData)
+        public ITransactionBuilder SetWitnesses(ITransactionWitnessSetBuilder witnessBuilder)
         {
-            _model.AuxiliaryData = auxiliaryData;
+            _model.TransactionWitnessSet = witnessBuilder.Build();
             return this;
         }
     }

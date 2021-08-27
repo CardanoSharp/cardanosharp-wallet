@@ -1,4 +1,5 @@
-﻿using CardanoSharp.Wallet.Models.Transactions;
+﻿using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.Scripts;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.Scripts;
 using System;
@@ -7,46 +8,71 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public class NativeScriptBuilder: ABuilder<NativeScript>
+    public interface INativeScriptBuilder: IABuilder<NativeScript>
     {
-        public NativeScriptBuilder()
+        INativeScriptBuilder SetKeyHash(byte[] keyHash);
+        INativeScriptBuilder SetScript(NativeScriptType type, INativeScriptBuilder nativeScriptBuilder);
+        INativeScriptBuilder SetInvalidAfter(uint after);
+        INativeScriptBuilder SetInvalidBefore(uint before);
+    }
+
+    public class NativeScriptBuilder: ABuilder<NativeScript>, INativeScriptBuilder
+    {
+        private NativeScriptBuilder()
         {
             _model = new NativeScript();
         }
 
-        public NativeScriptBuilder WithScriptPubKey(ScriptPubKey scriptPubKey)
+        public static INativeScriptBuilder Create
         {
-            _model.ScriptPubKey = scriptPubKey;
+            get => new NativeScriptBuilder();
+        }
+
+        public INativeScriptBuilder SetKeyHash(byte[] keyHash)
+        {
+            _model.ScriptPubKey = new ScriptPubKey()
+            {
+                KeyHash = keyHash
+            };
             return this;
         }
 
-        public NativeScriptBuilder WithScriptAll(ScriptAll scriptAll)
+        public INativeScriptBuilder SetScript(NativeScriptType type, INativeScriptBuilder nativeScriptBuilder)
         {
-            _model.ScriptAll = scriptAll;
+            switch(type)
+            {
+                case NativeScriptType.ScriptAll:
+                    if (_model.ScriptAll == null) _model.ScriptAll = new ScriptAll();
+                    _model.ScriptAll.NativeScripts.Add(nativeScriptBuilder.Build());
+                    break;
+                case NativeScriptType.ScriptAny:
+                    if (_model.ScriptAny == null) _model.ScriptAny = new ScriptAny();
+                    _model.ScriptAny.NativeScripts.Add(nativeScriptBuilder.Build());
+                    break;
+                case NativeScriptType.ScriptNofK:
+                    if (_model.ScriptNofK == null) _model.ScriptNofK = new ScriptNofK();
+                    _model.ScriptNofK.NativeScripts.Add(nativeScriptBuilder.Build());
+                    break;
+            }
+
             return this;
         }
 
-        public NativeScriptBuilder WithScriptAny(ScriptAny scriptAny)
+        public INativeScriptBuilder SetInvalidAfter(uint after)
         {
-            _model.ScriptAny = scriptAny;
+            _model.InvalidAfter = new ScriptInvalidAfter()
+            {
+                After = after
+            };
             return this;
         }
 
-        public NativeScriptBuilder WithScriptNofK(ScriptNofK scriptNofK)
+        public INativeScriptBuilder SetInvalidBefore(uint before)
         {
-            _model.ScriptNofK = scriptNofK;
-            return this;
-        }
-
-        public NativeScriptBuilder WithScriptInvalidAfter(ScriptInvalidAfter invalidAfter)
-        {
-            _model.InvalidAfter = invalidAfter;
-            return this;
-        }
-
-        public NativeScriptBuilder WithScriptInvalidBefore(ScriptInvalidBefore invalidBefore)
-        {
-            _model.InvalidBefore = invalidBefore;
+            _model.InvalidBefore = new ScriptInvalidBefore()
+            {
+                Before = before
+            };
             return this;
         }
     }

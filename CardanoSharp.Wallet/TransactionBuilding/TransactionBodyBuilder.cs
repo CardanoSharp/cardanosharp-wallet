@@ -5,40 +5,72 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public class TransactionBodyBuilder: ABuilder<TransactionBody>
+    public interface ITransactionBodyBuilder: IABuilder<TransactionBody>
     {
-        public TransactionBodyBuilder()
+        ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex);
+        ITransactionBodyBuilder AddOutput(byte[] address, uint coin, ITokenBundleBuilder tokenBundleBuilder = null);
+        ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
+        ITransactionBodyBuilder SetFee(uint fee);
+        ITransactionBodyBuilder SetTtl(uint ttl);
+    }
+
+    public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBodyBuilder
+    {
+        private TransactionBodyBuilder()
         {
             _model = new TransactionBody();
         }
 
-        public TransactionBodyBuilder WithTransactionInputs(ICollection<TransactionInput> transactionInputs)
+        public static ITransactionBodyBuilder Create
         {
-            _model.TransactionInputs = transactionInputs;
+            get => new TransactionBodyBuilder();
+        }
+
+        public ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder)
+        {
+            _model.Certificate = certificateBuilder.Build();
             return this;
         }
 
-        public TransactionBodyBuilder WithTransactionOutputs(ICollection<TransactionOutput> transactionOutputs)
+        public ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex)
         {
-            _model.TransactionOutputs = transactionOutputs;
+            _model.TransactionInputs.Add(new TransactionInput()
+            {
+                TransactionId = transactionId,
+                TransactionIndex = transactionIndex
+            });
             return this;
         }
 
-        public TransactionBodyBuilder WithFee(uint fee)
+        public ITransactionBodyBuilder AddOutput(byte[] address, uint coin, ITokenBundleBuilder tokenBundleBuilder = null)
+        {
+            var outputValue = new TransactionOutputValue()
+            {
+                Coin = coin
+            };
+
+            if (tokenBundleBuilder != null)
+            {
+                outputValue.MultiAsset = tokenBundleBuilder.Build();
+            }
+
+            _model.TransactionOutputs.Add(new TransactionOutput()
+            {
+                Address = address,
+                Value = outputValue
+            });
+            return this;
+        }
+
+        public ITransactionBodyBuilder SetFee(uint fee)
         {
             _model.Fee = fee;
             return this;
         }
 
-        public TransactionBodyBuilder WithTtl(uint ttl)
+        public ITransactionBodyBuilder SetTtl(uint ttl)
         {
             _model.Ttl = ttl;
-            return this;
-        }
-
-        public TransactionBodyBuilder WithCertificate(Certificate certificate)
-        {
-            _model.Certificate = certificate;
             return this;
         }
     }

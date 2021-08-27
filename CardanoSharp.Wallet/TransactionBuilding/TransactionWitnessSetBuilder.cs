@@ -1,32 +1,42 @@
-﻿using CardanoSharp.Wallet.Models.Transactions;
+﻿using CardanoSharp.Wallet.Models.Keys;
+using CardanoSharp.Wallet.Models.Transactions;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public class TransactionWitnessSetBuilder: ABuilder<TransactionWitnessSet>
+    public interface ITransactionWitnessSetBuilder: IABuilder<TransactionWitnessSet>
+    {
+        ITransactionWitnessSetBuilder AddVKeyWitness(PublicKey vKey, PrivateKey sKey);
+        ITransactionWitnessSetBuilder AddNativeScript(INativeScriptBuilder nativeScriptBuilder);
+    }
+
+    public class TransactionWitnessSetBuilder: ABuilder<TransactionWitnessSet>, ITransactionWitnessSetBuilder
     {
         public TransactionWitnessSetBuilder()
         {
             _model = new TransactionWitnessSet();
         }
 
-        public TransactionWitnessSetBuilder WithVKeyWitnesses(ICollection<VKeyWitness> vKeyWitnesses)
+        public static ITransactionWitnessSetBuilder Create
         {
-            _model.VKeyWitnesses = vKeyWitnesses;
+            get => new TransactionWitnessSetBuilder();
+        }
+
+        public ITransactionWitnessSetBuilder AddNativeScript(INativeScriptBuilder nativeScriptBuilder)
+        {
+            _model.NativeScripts.Add(nativeScriptBuilder.Build());
             return this;
         }
 
-        public TransactionWitnessSetBuilder WithNativeScripts(ICollection<NativeScript> nativeScripts)
+        public ITransactionWitnessSetBuilder AddVKeyWitness(PublicKey vKey, PrivateKey sKey)
         {
-            _model.NativeScripts = nativeScripts;
-            return this;
-        }
-
-        public TransactionWitnessSetBuilder WithBootStrapWitnesses(ICollection<BootStrapWitness> bootStrapWitnesses)
-        {
-            _model.BootStrapWitnesses = bootStrapWitnesses;
+            _model.VKeyWitnesses.Add(new VKeyWitness()
+            {
+                VKey = vKey,
+                SKey = sKey
+            });
             return this;
         }
     }
