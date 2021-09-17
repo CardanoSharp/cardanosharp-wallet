@@ -1,9 +1,7 @@
 ﻿using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Models.Transactions;
 using PeterO.Cbor2;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {
@@ -14,7 +12,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             BigEndianBuffer buffer = new BigEndianBuffer();
             buffer.Write(new byte[] { 0x00 });
             buffer.Write(nativeScript.GetCBOR().EncodeToBytes());
-            return HashHelper.Blake2b244(buffer.ToArray());
+            return HashUtility.Blake2b244(buffer.ToArray());
         }
 
         public static CBORObject GetCBOR(this NativeScript nativeScript)
@@ -40,6 +38,11 @@ namespace CardanoSharp.Wallet.Extensions.Models
                 nativeScriptCbor.Add(nativeScript.InvalidBefore.GetCBOR());
 
             return nativeScriptCbor;
+        }
+
+        public static byte[] Serialize(this NativeScript nativeScript)
+        {
+            return nativeScript.GetCBOR().EncodeToBytes();
         }
     }
 }

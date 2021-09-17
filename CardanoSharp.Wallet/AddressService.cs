@@ -1,33 +1,24 @@
 ﻿
-using CardanoSharp.Wallet.Common;
-using CardanoSharp.Wallet.Encoding;
-using CardanoSharp.Wallet.Enums;
-using CardanoSharp.Wallet.Extensions;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using CardanoSharp.Wallet.Common;
+using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Models.Addresses;
+using CardanoSharp.Wallet.Models.Keys;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet
 {
     public interface IAddressService
     {
-        string GetAddress(byte[] addressArray, string prefix);
-        string GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType);
-        byte[] GetAddressBytes(string addressHash);
+        Address GetAddress(PublicKey payment, PublicKey stake, NetworkType networkType, AddressType addressType);
     }
     public class AddressService : IAddressService
     {
-        public string GetAddress(byte[] addressArray, string prefix)
-        {
-            var bech32 = new Bech32();
-            return bech32.Encode(addressArray, prefix);
-        }
-
-        public string GetAddress(byte[] payment, byte[] stake, NetworkType networkType, AddressType addressType)
+        public Address GetAddress(PublicKey payment, PublicKey stake, NetworkType networkType, AddressType addressType)
         {
             var networkInfo = getNetworkInfo(networkType);
-            var paymentEncoded = HashHelper.Blake2b244(payment);
-            var stakeEncoded = HashHelper.Blake2b244(stake);
+            var paymentEncoded = HashUtility.Blake2b244(payment.Key);
+            var stakeEncoded = HashUtility.Blake2b244(stake.Key);
 
             //get prefix
             var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
@@ -54,16 +45,7 @@ namespace CardanoSharp.Wallet
                     throw new Exception("Unknown address type");
             }
 
-            var bech32 = new Bech32();
-            return bech32.Encode(addressArray, prefix);
-        }
-
-        public byte[] GetAddressBytes(string addressHash)
-        {
-            var bech32 = new Bech32();
-            byte witVer;
-            string prefix;
-            return bech32.Decode(addressHash, out witVer, out prefix);
+            return new Address(prefix, addressArray);
         }
 
         private string getPrefixHeader(AddressType addressType) =>

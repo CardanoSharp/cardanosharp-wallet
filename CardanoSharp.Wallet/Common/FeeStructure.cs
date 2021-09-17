@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CardanoSharp.Wallet.Common
+﻿namespace CardanoSharp.Wallet.Common
 {
     public static class FeeStructure
     {
-        public static long Coefficient = 500;
-        public static long Constant = 2;
+        public static uint Coefficient = 500;
+        public static uint Constant = 2;
     }
 }

@@ -17,5 +17,10 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
             return scriptInvalidAfterCbor;
         }
+
+        public static byte[] Serialize(this ScriptInvalidAfter scriptInvalidAfter)
+        {
+            return scriptInvalidAfter.GetCBOR().EncodeToBytes();
+        }
     }
 }

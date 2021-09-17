@@ -12,7 +12,13 @@ namespace CardanoSharp.Wallet.Models.Transactions
 
 	public partial class AuxiliaryData
     {
+		public AuxiliaryData()
+        {
+			Metadata = new Dictionary<int, object>();
+			List = new List<object>();
+        }
+
         public Dictionary<int, object> Metadata { get; set; }
-		public List<object> List { get; set; } = new List<object>();
+		public List<object> List { get; set; }
     }
 }
