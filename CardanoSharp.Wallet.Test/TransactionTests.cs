@@ -382,9 +382,9 @@ namespace CardanoSharp.Wallet.Test
         [Fact]
         public void MintingTest()
         {
-            var mnemonic = "object dwarf meadow dry figure return february once become eye cricket circle repair security palm year secret wine blind phone brown rain tissue spread";
-            var entropy = _keyService.Restore(mnemonic);
-            var rootKey = _keyService.GetRootKey(entropy);
+            var words = "object dwarf meadow dry figure return february once become eye cricket circle repair security palm year secret wine blind phone brown rain tissue spread";
+            var mnemonic = _keyService.Restore(words);
+            var rootKey = mnemonic.GetRootKey();
 
             //get payment keys
             (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
@@ -398,129 +398,53 @@ namespace CardanoSharp.Wallet.Test
             //policy info
             var policySkey = "a1fef97babefc02bb927cb56c19308503e297607b1dbdfc72941ebdd388ade6f".HexToByteArray();
             var policyVkey = "848AC717B552FCD1F2DCB4933E4A8198187E7E424693B51E1B8B16250F3CADFE".HexToByteArray();
-            var policyKeyHash = HashHelper.Blake2b244(policyVkey);
-            var policyScript = new ScriptAll()
-            {
-                NativeScripts = new List<NativeScript>()
-                {
-                    new NativeScript()
-                    {
-                        ScriptPubKey = new ScriptPubKey()
-                        {
-                            KeyHash = policyKeyHash
-                        }
-                    } 
-                }
-            };
+            var policyKeyHash = HashUtility.Blake2b244(policyVkey);
+            var policyScriptBuilder = NativeScriptBuilder.Create
+                .SetScript(NativeScriptType.ScriptAll,
+                    NativeScriptBuilder.Create
+                        .SetKeyHash(policyKeyHash));
+
+            var policyScript = policyScriptBuilder.Build();
+
             var policyId = policyScript.GetPolicyId();
 
             uint txInIndex = 0;
             string txInAddr = "b7f62d53d30d785f5a72d6b75c31214e721886224fdedbb70c2b4932bb156d5a";
 
-            AssetName assetName = new AssetName()
-            {
-                StringValue = "sharptest"
-            };
+            string assetName = "sharptest";
             uint assetAmount = 1;
 
-            var transactionBody = new TransactionBody()
-            {
-                TransactionInputs = new List<TransactionInput>()
-                {
-                    new TransactionInput()
-                    {
-                        TransactionIndex = txInIndex,
-                        TransactionId = txInAddr.HexToByteArray()
-                    }
-                },
-                TransactionOutputs = new List<TransactionOutput>()
-                {
-                    new TransactionOutput()
-                    {
-                        Address = _addressService.GetAddressBytes(baseAddr),
-                        Value = new TransactionOutputValue()
-                        {
-                            Coin = 1000000000,
-                            MultiAsset = new Dictionary<byte[], NativeAsset>()
-                            {
-                                {
-                                    policyId,
-                                    new NativeAsset()
-                                    {
-                                        Token = new Dictionary<AssetName, uint>()
-                                        {
-                                            { assetName, assetAmount }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                Fee = 0,
-                Mint = new Dictionary<byte[], NativeAsset>()
-                {
-                    {
-                        policyId,
-                        new NativeAsset()
-                        {
-                            Token = new Dictionary<AssetName, uint>()
-                            {
-                                { assetName, assetAmount }
-                            }
-                        }
-                    }
-                }
-            };
+            var tokenAsset = TokenBundleBuilder.Create
+                .AddToken(policyId, assetName.ToBytes(), assetAmount);
 
-            var witnesses = new TransactionWitnessSet()
-            {
-                VKeyWitnesses = new List<VKeyWitness>()
-                {
-                    new VKeyWitness()
-                    {
-                        VKey = paymentPub,
-                        SKey = paymentPrv
-                    },
-                    new VKeyWitness()
-                    {
-                        VKey = policyVkey,
-                        SKey = policySkey
-                    }
-                },
-                NativeScripts = new List<NativeScript>() 
-                { 
-                    new NativeScript()
-                    {
-                        ScriptAll = policyScript
-                    }
-                }
-            };
+            var transactionBody = TransactionBodyBuilder.Create
+                .AddInput(txInAddr.HexToByteArray(), txInIndex)
+                .AddOutput(baseAddr.GetBytes(), 1000000000, tokenAsset)
+                .SetMint(tokenAsset)
+                .SetFee(0);
 
-            var auxData = new AuxiliaryData()
-            {
-                Metadata = new Dictionary<int, object>()
-                {
-                    { 1337, new { message = "sharptest" } }
-                }
-            };
+            var witnesses = TransactionWitnessSetBuilder.Create
+                .AddVKeyWitness(paymentPub, paymentPrv)
+                .AddVKeyWitness(new PublicKey(policyVkey, new byte[0]), new PrivateKey(policySkey, new byte[0]))
+                .AddNativeScript(policyScriptBuilder);
 
-            var transaction = new Transaction()
-            {
-                TransactionBody = transactionBody,
-                TransactionWitnessSet = witnesses,
-                AuxiliaryData = auxData
-            };
+            var auxData = AuxiliaryDataBuilder.Create
+                .AddMetadata(1337, new { message = "sharp minting test" });
 
-            var rawTx = _transactionBuilder.SerializeTransaction(transaction);
-            var fee = _transactionBuilder.CalculateFee(rawTx, 44, 155381);
-            fee = (uint)((fee < 155381) ? 155381 : fee);
+            var transaction = TransactionBuilder.Create
+                .SetBody(transactionBody)
+                .SetWitnesses(witnesses)
+                .SetAuxData(auxData);
 
-            transactionBody.TransactionOutputs.First().Value.Coin -= (uint)fee;
-            transactionBody.Fee = (uint)fee;
+            //var rawTx = _transactionBuilder.SerializeTransaction(transaction);
+            //var fee = _transactionBuilder.CalculateFee(rawTx, 44, 155381);
+            //fee = (uint)((fee < 155381) ? 155381 : fee);
 
-            var signedTx = _transactionBuilder.SerializeTransaction(transaction);
-            var signedTxStr = signedTx.ToStringHex();
+            //transactionBody.TransactionOutputs.First().Value.Coin -= (uint)fee;
+            //transactionBody.Fee = (uint)fee;
+
+            //var signedTx = _transactionBuilder.SerializeTransaction(transaction);
+            //var signedTxStr = signedTx.ToStringHex();
         }
 
         private byte[] getGenesisTransaction()

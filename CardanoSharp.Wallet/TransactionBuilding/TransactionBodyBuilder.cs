@@ -12,6 +12,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
         ITransactionBodyBuilder SetFee(uint fee);
         ITransactionBodyBuilder SetTtl(uint ttl);
+        ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
     }
 
     public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBodyBuilder
@@ -71,6 +72,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionBodyBuilder SetTtl(uint ttl)
         {
             _model.Ttl = ttl;
+            return this;
+        }
+
+        public ITransactionBodyBuilder SetMint(ITokenBundleBuilder tokenBuilder)
+        {
+            _model.Mint = tokenBuilder.Build();
             return this;
         }
     }

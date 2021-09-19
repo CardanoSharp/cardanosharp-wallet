@@ -15,6 +15,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         {
             CBORObject cborInputs = null;
             CBORObject cborOutputs = null;
+            CBORObject cborTransactionMint = null;
             CBORObject cborBody = CBORObject.NewMap();
 
             //add all the transaction inputs
@@ -58,6 +59,22 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (auxiliaryData != null)
             {
                 cborBody.Add(7, HashUtility.Blake2b256(auxiliaryData.GetCBOR().EncodeToBytes()));
+            }
+
+            //add tokens for minting
+            if(transactionBody.Mint.Any())
+            {
+                cborTransactionMint = CBORObject.NewMap();
+                foreach (var nativeAsset in transactionBody.Mint)
+                {
+                    var assetCbor = CBORObject.NewMap();
+                    foreach (var asset in nativeAsset.Value.Token)
+                    {
+                        assetCbor.Add(asset.Key, asset.Value);
+                    }
+                    cborTransactionMint.Add(nativeAsset.Key, assetCbor);
+                }
+                cborBody.Add(9, cborTransactionMint);
             }
 
             return cborBody;
