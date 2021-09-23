@@ -22,8 +22,8 @@ public partial class TransactionBody
         public TransactionBody()
         {
             TransactionInputs = new HashSet<TransactionInput>();
-            TransactionOutputs = new HashSet<TransactionOutput>(); 
-
+            TransactionOutputs = new HashSet<TransactionOutput>();
+            Mint = new Dictionary<byte[], NativeAsset>();
         }
 
         public virtual ICollection<TransactionInput> TransactionInputs { get; set; }
