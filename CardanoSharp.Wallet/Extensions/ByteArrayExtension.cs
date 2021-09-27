@@ -188,5 +188,22 @@ namespace CardanoSharp.Wallet.Extensions
 
             return (left, right);
         }
+
+        /// <summary>
+        /// Returns the last n bits of the byte
+        /// </summary>
+        /// <param name="b"></param>
+        /// <param name="n"></param>
+        /// <returns></returns>
+        public static int LastBits(this byte b, int n)
+        {
+            if (n > 8)
+            {
+                throw new InvalidOperationException($"{nameof(n)} must be <= 8");
+            }
+
+            int mask = ~(0xff >> n << n);
+            return b & mask;
+        }
     }
 }
