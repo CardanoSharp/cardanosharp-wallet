@@ -30,7 +30,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
                 var cborNativeScriptWitnesses = CBORObject.NewArray();
                 foreach (var nativeScript in transactionWitnessSet.NativeScripts)
                 {
-                    cborNativeScriptWitnesses.Add(nativeScript.GetCBOR());
+                    cborNativeScriptWitnesses.Add(nativeScript.GetCBOR2());
                 }
 
                 cborWitnessSet.Add(1, cborNativeScriptWitnesses);

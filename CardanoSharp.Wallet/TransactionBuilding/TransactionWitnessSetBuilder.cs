@@ -10,6 +10,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
     {
         ITransactionWitnessSetBuilder AddVKeyWitness(PublicKey vKey, PrivateKey sKey);
         ITransactionWitnessSetBuilder AddNativeScript(INativeScriptBuilder nativeScriptBuilder);
+        ITransactionWitnessSetBuilder SetNativeScript(IScriptAllBuilder scriptAllBuilder);
     }
 
     public class TransactionWitnessSetBuilder: ABuilder<TransactionWitnessSet>, ITransactionWitnessSetBuilder
@@ -27,6 +28,16 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionWitnessSetBuilder AddNativeScript(INativeScriptBuilder nativeScriptBuilder)
         {
             _model.NativeScripts.Add(nativeScriptBuilder.Build());
+            return this;
+        }
+
+        public ITransactionWitnessSetBuilder SetNativeScript(IScriptAllBuilder scriptAllBuilder)
+        {
+            _model.NativeScripts = new List<NativeScript>() { 
+                new NativeScript() {
+                    ScriptAll = scriptAllBuilder.Build()
+                }
+            };
             return this;
         }
 

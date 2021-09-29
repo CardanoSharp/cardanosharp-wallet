@@ -14,6 +14,7 @@ using System;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
 using PeterO.Cbor2;
+using System.Linq;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -399,34 +400,39 @@ namespace CardanoSharp.Wallet.Test
             var policySkey = "a1fef97babefc02bb927cb56c19308503e297607b1dbdfc72941ebdd388ade6f".HexToByteArray();
             var policyVkey = "848AC717B552FCD1F2DCB4933E4A8198187E7E424693B51E1B8B16250F3CADFE".HexToByteArray();
             var policyKeyHash = HashUtility.Blake2b244(policyVkey);
-            var policyScriptBuilder = NativeScriptBuilder.Create
-                .SetScript(NativeScriptType.ScriptAll,
-                    NativeScriptBuilder.Create
-                        .SetKeyHash(policyKeyHash));
 
-            var policyScript = policyScriptBuilder.Build();
+            var scriptAllBuilder = ScriptAllBuilder.Create.SetScript(NativeScriptBuilder.Create.SetKeyHash(policyKeyHash));
+
+            var policyScript = scriptAllBuilder.Build();
 
             var policyId = policyScript.GetPolicyId();
 
             uint txInIndex = 0;
-            string txInAddr = "b7f62d53d30d785f5a72d6b75c31214e721886224fdedbb70c2b4932bb156d5a";
+            string txInAddr = "d4336c090815d67d069f4f09a520c617385b803d0f1ba13e682dcb9c5ebcb746";
 
-            string assetName = "sharptest";
+            string tokenAssetName = "sharptest";
+            string mintAssetName = "cardanosharptest";
             uint assetAmount = 1;
+            uint slotAdd = 1000;
+
+            var mintAsset = TokenBundleBuilder.Create
+                .AddToken(policyId, mintAssetName.ToBytes(), assetAmount);
 
             var tokenAsset = TokenBundleBuilder.Create
-                .AddToken(policyId, assetName.ToBytes(), assetAmount);
+                .AddToken(policyId, mintAssetName.ToBytes(), assetAmount)
+                .AddToken(policyId, tokenAssetName.ToBytes(), assetAmount);
 
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(txInAddr.HexToByteArray(), txInIndex)
-                .AddOutput(baseAddr.GetBytes(), 1000000000, tokenAsset)
-                .SetMint(tokenAsset)
+                .AddOutput(baseAddr.GetBytes(), 999800707, tokenAsset)
+                .SetMint(mintAsset)
+                .SetTtl(38572632 + slotAdd)
                 .SetFee(0);
 
             var witnesses = TransactionWitnessSetBuilder.Create
                 .AddVKeyWitness(paymentPub, paymentPrv)
                 .AddVKeyWitness(new PublicKey(policyVkey, new byte[0]), new PrivateKey(policySkey, new byte[0]))
-                .AddNativeScript(policyScriptBuilder);
+                .SetNativeScript(scriptAllBuilder);
 
             var auxData = AuxiliaryDataBuilder.Create
                 .AddMetadata(1337, new { message = "sharp minting test" });
@@ -434,17 +440,19 @@ namespace CardanoSharp.Wallet.Test
             var transaction = TransactionBuilder.Create
                 .SetBody(transactionBody)
                 .SetWitnesses(witnesses)
-                .SetAuxData(auxData);
+                .SetAuxData(auxData)
+                .Build();
 
-            //var rawTx = _transactionBuilder.SerializeTransaction(transaction);
-            //var fee = _transactionBuilder.CalculateFee(rawTx, 44, 155381);
-            //fee = (uint)((fee < 155381) ? 155381 : fee);
+            var fee = transaction.CalculateFee(44, 155381);
+            fee = (uint)((fee < 155381) ? 155381 : fee);
 
-            //transactionBody.TransactionOutputs.First().Value.Coin -= (uint)fee;
-            //transactionBody.Fee = (uint)fee;
+            transaction.TransactionBody.TransactionOutputs.First().Value.Coin -= (uint)fee;
+            transaction.TransactionBody.Fee = (uint)fee;
 
-            //var signedTx = _transactionBuilder.SerializeTransaction(transaction);
-            //var signedTxStr = signedTx.ToStringHex();
+            var signedTx = transaction.Serialize();
+            var signedTxStr = transaction.Serialize().ToStringHex();
+
+            Assert.True(true);
         }
 
         private byte[] getGenesisTransaction()
