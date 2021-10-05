@@ -22,19 +22,19 @@ public partial class TransactionBody
         public TransactionBody()
         {
             TransactionInputs = new HashSet<TransactionInput>();
-            TransactionOutputs = new HashSet<TransactionOutput>(); 
-
+            TransactionOutputs = new HashSet<TransactionOutput>();
+            Mint = new Dictionary<byte[], NativeAsset>();
         }
 
         public virtual ICollection<TransactionInput> TransactionInputs { get; set; }
         public virtual ICollection<TransactionOutput> TransactionOutputs { get; set; }
-        public uint Fee { get; set; }
+        public ulong Fee { get; set; }
         public uint? Ttl { get; set; }
         public Certificate Certificate { get; set; }
         public Dictionary<byte[], uint> Withdrawls { get; set; }
         public Update Update { get; set; }
         public string MetadataHash { get; set; }
         public uint? TransactionStartInterval { get; set; }
-        public Dictionary<byte[], Dictionary<List<sbyte>, int>> Mint { get; set; }
+        public Dictionary<byte[], NativeAsset> Mint { get; set; }
     }
 }

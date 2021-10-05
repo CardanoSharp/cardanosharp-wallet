@@ -14,6 +14,7 @@ using System;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
 using PeterO.Cbor2;
+using System.Linq;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -377,6 +378,72 @@ namespace CardanoSharp.Wallet.Test
             //assert
             Assert.Equal("83a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900477367d9134e384a25edd3e23c72735ee6de6490d39c537a247e1b65d9e5a6498b927f664a2c82343aa6a50cdde47de0a2b8c54ecd9c99c21a000f42400200030a0758208dc8a798a1da0e2a6df17e66b10a49b5047133dd4daae2686ef1f73369d3fa16a100818258200f8ad2c7def332bca2f897ef2a1608ee655341227efe7d2284eeb3f94d08d5fa584074a7a181addbda26d7974119ac6e3fe35286fb4a6f7a9db573a5e5836808613097256fa2f0284e255cadc566cef96bde750a3ca5cb79a0726349d3424148e00082a11904d2a1646e616d656e73696d706c65206d65737361676580",
                 serialized.ToStringHex());
+        }
+
+        [Fact]
+        public void MintingTest()
+        {
+            var rootKey = getBase15WordWallet();
+
+            //get payment keys
+            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+
+            //get stake keys
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+
+            //get delegation address
+            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+
+            //policy info
+            var policySkey = getGenesisTransaction();
+            var policyVkey = getGenesisTransaction();
+            var policyKeyHash = HashUtility.Blake2b244(policyVkey);
+
+            var scriptAllBuilder = ScriptAllBuilder.Create.SetScript(NativeScriptBuilder.Create.SetKeyHash(policyKeyHash));
+
+            var policyScript = scriptAllBuilder.Build();
+
+            var policyId = policyScript.GetPolicyId();
+
+            uint txInIndex = 0;
+            string txInAddr = getGenesisTransaction().ToStringHex();
+
+            string mintAssetName = "token";
+            uint assetAmount = 1;
+
+            var mintAsset = TokenBundleBuilder.Create
+                .AddToken(policyId, mintAssetName.ToBytes(), assetAmount);
+
+            var tokenAsset = TokenBundleBuilder.Create
+                .AddToken(policyId, mintAssetName.ToBytes(), assetAmount);
+
+            var transactionBody = TransactionBodyBuilder.Create
+                .AddInput(txInAddr.HexToByteArray(), txInIndex)
+                .AddOutput(baseAddr.GetBytes(), 1, tokenAsset)
+                .SetMint(mintAsset)
+                .SetTtl(1000)
+                .SetFee(0);
+
+            var witnesses = TransactionWitnessSetBuilder.Create
+                .AddVKeyWitness(paymentPub, paymentPrv)
+                .AddVKeyWitness(new PublicKey(policyVkey, new byte[0]), new PrivateKey(policySkey, new byte[0]))
+                .SetNativeScript(scriptAllBuilder);
+
+            var auxData = AuxiliaryDataBuilder.Create
+                .AddMetadata(1337, new { message = "sharp minting test" });
+
+            var transaction = TransactionBuilder.Create
+                .SetBody(transactionBody)
+                .SetWitnesses(witnesses)
+                .SetAuxData(auxData)
+                .Build();
+
+            var signedTxStr = transaction.Serialize().ToStringHex();
+
+            //not the best test but logic was derived from creating this mint
+            //  https://explorer.cardano-testnet.iohkdev.io/en/transaction?id=1aff3b12c5b9fb96f0cdcd975b58f6ed273a5680f2ff42a02d82fe0041cf8e3d
+            Assert.Equal("83a6008182582000000000000000000000000000000000000000000000000000000000000000000001818258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948201a1581c7b45f5a5758a8880b4a6fb0da6d6ad3b11963d217658c7d23ebc62b4a145746f6b656e010200031903e8075820e0850084789cdd38358caaa60f7c0326e9fa3d7bd9acf53c95e348389740da4809a1581c7b45f5a5758a8880b4a6fb0da6d6ad3b11963d217658c7d23ebc62b4a145746f6b656e01a20082825820489ef28ea97f719ee7768645fc74b811c271e5d7ef06c2310854db30158e945d58402cbcd64d35f229665e0de915da5eed37f5a69c937804f3957c534f7fc405dcd3abe9b308e9e743797c749c1aa8ff26c8298bdfea8a9078617039b1b0edab820682582000000000000000000000000000000000000000000000000000000000000000005840e3818414929fbb7cabda04358ba51076bf9e888339efa2fb0783314fcafa01b5d57840ef2e00b6fb3fa7432fcaaaf4c06581c68b8e0d3df3f6dc27b6474c9e0201818201818200581cf9dca21a6c826ec8acb4cf395cbc24351937bfe6560b2683ab8b415f82a1190539a1676d657373616765727368617270206d696e74696e67207465737480",
+                signedTxStr);
         }
 
         private byte[] getGenesisTransaction()

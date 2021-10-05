@@ -8,10 +8,11 @@ namespace CardanoSharp.Wallet.TransactionBuilding
     public interface ITransactionBodyBuilder: IABuilder<TransactionBody>
     {
         ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex);
-        ITransactionBodyBuilder AddOutput(byte[] address, uint coin, ITokenBundleBuilder tokenBundleBuilder = null);
+        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null);
         ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
-        ITransactionBodyBuilder SetFee(uint fee);
+        ITransactionBodyBuilder SetFee(ulong fee);
         ITransactionBodyBuilder SetTtl(uint ttl);
+        ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
     }
 
     public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBodyBuilder
@@ -42,7 +43,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
-        public ITransactionBodyBuilder AddOutput(byte[] address, uint coin, ITokenBundleBuilder tokenBundleBuilder = null)
+        public ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null)
         {
             var outputValue = new TransactionOutputValue()
             {
@@ -62,7 +63,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
-        public ITransactionBodyBuilder SetFee(uint fee)
+        public ITransactionBodyBuilder SetFee(ulong fee)
         {
             _model.Fee = fee;
             return this;
@@ -71,6 +72,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionBodyBuilder SetTtl(uint ttl)
         {
             _model.Ttl = ttl;
+            return this;
+        }
+
+        public ITransactionBodyBuilder SetMint(ITokenBundleBuilder tokenBuilder)
+        {
+            _model.Mint = tokenBuilder.Build();
             return this;
         }
     }

@@ -6,7 +6,7 @@ namespace CardanoSharp.Wallet.Models.Transactions
 {
     public partial class TransactionOutputValue
     {
-        public uint Coin { get; set; }
+        public ulong Coin { get; set; }
         /// <summary>
         /// BPlusTree<byte[], NativeAsset>
         /// byte[] = PolicyID
