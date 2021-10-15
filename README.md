@@ -3,13 +3,6 @@
 
 CardanoSharp Wallet is a .NET library for Creating/Managing Wallets and Building/Signing Transactions.
 
-## Features
-
-* Generate Mnemonics
-* Create Private and Public Keys
-* Create Addresses
-* Build Transactions
-* Sign Transactions
 
 ## Getting Started
 
@@ -21,59 +14,61 @@ Install-Package CardanoSharp.Wallet
 
 ## Generate a Mnemonic
 
-```csharp
-using CardanoSharp.Wallet;
-using CardanoSharp.Wallet.Enums;
-using CardanoSharp.Wallet.Models.Keys;
+The `KeyService` has operations which help for Generating and Restoring Mnemonics.
 
-class Program
-{
-    static void Main(string[] args)
-    {
-        // The KeyServices exposes functions for Mnemonics and Deriving Keys
-        var keyService = new KeyService();
-        // The AddressService allows us to create Addresses from our Public Keys
-        var addressService = new AddressService();
-        // 24 represents the number of words we want for our Mnemonic
-        int size = 24;
+```cs
+var keyService = new KeyService();
+```
 
-        // This will generate a 24 English Mnemonic
-        Mnemonic mnemonic = keyService.Generate(size, WordLists.English);
-        System.Console.WriteLine(mnemonic.Words);
-    }
-}
+> KeyService is built for Dependency Injection and has a cooresponding interface: IKeyService.
+
+Generate a Mnemonic: 
+
+```cs
+// This will generate a 24 English Mnemonic
+Mnemonic mnemonic = keyService.Generate(24, WordLists.English);
+```
+
+Restore a Mnemonic: 
+```cs
+string words = "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy";
+Mnemonic mnemonic = keyService.Restore(words);
 ```
 
 ## Create Private and Public Keys
 
-Add powerful extensions to create and derive keys.
+Use powerful extensions to create and derive keys.
 
 ```csharp
-using CardanoSharp.Wallet.Extensions.Models;
-```
-
-```csharp
-// The masterKey is a PrivateKey made of up of the 
+// The rootKey is a PrivateKey made of up of the 
 //  - byte[] Key
 //  - byte[] Chaincode
-PrivateKey masterKey = mnemonic.GetRootKey();
+PrivateKey rootKey = mnemonic.GetRootKey();
 
 // This path will give us our Payment Key on index 0
 string paymentPath = $"m/1852'/1815'/0'/0/0";
-// The paymentPrv is another Tuple with the Private Key and Chain Code
-PrivateKey paymentPrv = masterKey.Derive(paymentPath);
-// Get the Public Key from the Payment Private Key
+// The paymentPrv is Private Key of the specified path.
+PrivateKey paymentPrv = rootKey.Derive(paymentPath);
+// Get the Public Key from the Private Key
 PublicKey paymentPub = paymentPrv.GetPublicKey(false);
 
 // This path will give us our Stake Key on index 0
 string stakePath = $"m/1852'/1815'/0'/2/0";
-// The stakePrv is another Tuple with the Private Key and Chain Code
-var stakePrv = masterKey.Derive(stakePath);
+// The stakePrv is Private Key of the specified path
+var stakePrv = rootKey.Derive(stakePath);
 // Get the Public Key from the Stake Private Key
 var stakePub = stakePrv.GetPublicKey(false);
 ```
 
 ## Create Addresses
+
+The `AddressService` has operations which help Generating Addresses from Keys.
+
+```cs
+var addressService = new AddressService();
+```
+
+Using the same keys from the above when deriving our child keys, we can now get the public address.
 
 ```csharp
 // Creating Addresses require the Public Payment and Stake Keys
@@ -84,138 +79,126 @@ Address baseAddr = addressService.GetAddress(
     AddressType.Base);
 ```
 
-### NetworkType
-
-```csharp
-namespace CardanoSharp.Wallet.Enums
-{
-    public enum NetworkType
-    {
-        Testnet,
-        Mainnet
-    }
-}
+If you already have an address.
+```cs
+Address baseAddr = new Address("addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp");
 ```
 
-### AddressType
+## Fluent Derivation
 
-```csharp
-namespace CardanoSharp.Wallet.Enums
-{
-    public enum AddressType
-    {
-        Base,
-        Enterprise,
-        Reward
-    }
-}
+We have a fluent api to help naivate the derivation paths.
+
+```cs
+// Restore a Mnemonic
+var mnemonic = new KeyService().Restore(words);
+var rootKey = mnemonic.GetRootKey();
+
+// Fluent derivation API
+var derivation = rootKey.Derive()   // IMasterNodeDerivation
+    .Derive(PurposeType.Shelley)    // IPurposeNodeDerivation
+    .Derive(CoinType.Ada)           // ICoinNodeDerivation
+    .Derive(0)                      // IAccountNodeDerivation
+    .Derive(RoleType.ExternalChain) // IRoleNodeDerivation
+    //or .Derive(RoleType.Staking) 
+    .Derive(0);                     // IIndexNodeDerivation
+
+PrivateKey privateKey = derivation.PrivateKey;
+PublicKey publicKey = derivation.PublicKey;
 ```
 
 ## Build and Sign Transactions
 
-This is just an example of how to start. You will need to Calculate Fees, compare with Protocol Parameters and re-serialize.
+CardanoSharp.Wallet requires input from the chain in order to build transactions. Lets assume we have made a call to gather this information.
 
-```csharp
-using CardanoSharp.Wallet.Models.Transactions;
+```cs 
+uint currentSlot = 40000000;
+ulong minFeeA = 44;
+ulong minFeeB = 155381;
+string inputTx = "0000000000000000000000000000000000000000000000000000000000000000";
 ```
 
-```csharp
-// The Transaction Builder allows us to contruct and serialize our Transaction
-using CardanoSharp.Wallet.Models.Transactions;
-using CardanoSharp.Wallet.Extensions.Models.Transactions;
-//For CBOR Utilities
-using PeterO.Cbor2;
+Lets derive a few keys to use while building transactions.
 
-// Create the Transaction Body
-//  The Transaction Body:
-//      Supported
-//       - Transaction Inputs
-//       - Transaction Outputs
-//       - Fee
-//       - TTL
-//       - Certificates
-//       - Metadata Hash
-//      Coming Soon
-//       - Transaction Start Interval
-//       - Withdrawls
-//       - Mint
-var transactionBody = new TransactionBody()
-{
-    TransactionInputs = new List<TransactionInput>()
-    {
-        new TransactionInput()
-        {
-            TransactionIndex = 0,
-            TransactionId = new byte[32]
-        }
-    },
-    TransactionOutputs = new List<TransactionOutput>()
-    {
-        new TransactionOutput()
-        {
-            Address = baseAddr.GetBytes(),
-            Value = new TransactionOutputValue()
-            {
-                Coin = 1
-            }
-        }
-    },
-    Ttl = 10,
-    Fee = 0
-};
+```cs
+// Derive down to our Account Node
+var accountNode = rootKey.Derive()
+    .Derive(PurposeType.Shelley)
+    .Derive(CoinType.Ada)
+    .Derive(0);
 
-// Add our witness(es)
-//  Currently we only support VKey Witnesses
-var witnesses = new TransactionWitnessSet()
-{
-    VKeyWitnesses = new List<VKeyWitness>()
-    {
-        new VKeyWitness()
-        {
-            VKey = paymentPub,
-            SKey = paymentPrv
-        }
-    }
-};
+// Derive our Change Node on Index 0
+var changeNode = accountNode
+    .Derive(RoleType.InternalChain) 
+    .Derive(0);
 
-// Create Transaction
-var transaction = new Transaction()
-{
-    TransactionBody = transactionBody,
-    TransactionWitnessSet = witnesses
-};
+// Derive our Staking Node on Index 0
+var stakingNode = accountNode
+    .Derive(RoleType.Staking) 
+    .Derive(0);
 
-// Serialize Transaction with Body and Witnesses
-//  This results in a Signed Transaction
-var signedTxSerialized = transaction.Serialize();
+// Deriving our Payment Node
+//  note: We did not derive down to the index.
+var paymentNode = accountNode
+    .Derive(RoleType.ExternalChain);
 ```
 
-### Calculate Fees
+## Simple Transaction
 
-```csharp
-// From Current Protocol Parameters
-// 44     = txFeePerByte
-// 155381 = txFeeFixed
-var fee = transaction.CalculateFee(44, 155381);
+Lets assume the following...
+ - You have 100 ADA on path:        `m/1852'/1815'/0'/0/0`
+ - You want to send 25 ADA to path: `m/1852'/1815'/0'/0/1`
+
+### Build Transaction Body
+```cs
+// Generate the Reciever Address
+Address paymentAddr = addressService.GetAddress(
+    paymentNode.Derive(1).PublicKey, 
+    stakingNode.PublicKey, 
+    NetworkType.Testnet, 
+    AddressType.Base);
+
+// Generate an Address for changes
+Address changeAddr = addressService.GetAddress(
+    changeNode.PublicKey, 
+    stakingNode.PublicKey, 
+    NetworkType.Testnet, 
+    AddressType.Base);
+
+var transactionBody = TransactionBodyBuilder.Create
+    .AddInput(inputTx, 0)
+    .AddOutput(paymentAddr.GetBytes(), 25)
+    .AddOutput(changeAddr.GetBytes(), 75)
+    .SetTtl(currentSlot + 1000)
+    .SetFee(0)
+    .Build();
 ```
 
-### Adding Metadata
+### Build Transaction Witnesses
 
-```csharp
-var auxData = new AuxiliaryData()
-{
-    Metadata = new Dictionary<int, object>()
-    {
-        { 1234, new { name = "simple message" } }
-    }
-};
+For this simple transaction we really only need to add our keys. This is how we sign our transactions.
+```cs
+// Derive Sender Keys
+var senderKeys = paymentNode.Derive(0);
 
-var transaction = new Transaction()
-{
-    TransactionBody = transactionBody,
-    TransactionWitnessSet = witnesses,
-    AuxiliaryData = auxData
-};
+var witnesses = TransactionWitnessSetBuilder.Create
+    .AddVKeyWitness(senderKeys.PublicKey, senderKeys.PrivateKey);
+```
+
+### Calculate Fee 
+
+```cs
+// Construct Transaction Builder
+var transactionBuilder = TransactionBuilder.Create
+    .SetBody(transactionBody)
+    .SetWitnesses(witnesses);
+
+// Calculate Fee
+var fee = transaction.CalculateFee(minFeeA, minFeeB);
+
+// Update Fee and Rebuild
+transactionBody.SetFee(fee);
+Transaction transaction = transactionBuilder.Build();
+transaction.TransactionBody.TransactionOutputs.Last().Value.Coin -= fee;
 ```
 
 ### More Examples
