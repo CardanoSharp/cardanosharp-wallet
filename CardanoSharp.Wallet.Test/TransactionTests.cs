@@ -224,7 +224,7 @@ namespace CardanoSharp.Wallet.Test
             var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
 
             var bodyBuilder = TransactionBodyBuilder.Create
-                .AddInput("3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7".HexToByteArray(), 0)
+                .AddInput("3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7", 0)
                 .AddOutput(baseAddr.GetBytes(), 1)
                 .SetTtl(10)
                 .SetFee(0);
