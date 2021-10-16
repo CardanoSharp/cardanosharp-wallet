@@ -108,7 +108,7 @@ PublicKey publicKey = derivation.PublicKey;
 
 ## Build and Sign Transactions
 
-CardanoSharp.Wallet requires input from the chain in order to build transactions. Lets assume we have made a call to gather this information.
+CardanoSharp.Wallet requires input from the chain in order to build transactions. Lets assume we have gathered this information.
 
 ```cs 
 uint currentSlot = 40000000;
@@ -150,7 +150,7 @@ Lets assume the following...
 
 ### Build Transaction Body
 ```cs
-// Generate the Reciever Address
+// Generate the Recieving Address
 Address paymentAddr = addressService.GetAddress(
     paymentNode.Derive(1).PublicKey, 
     stakingNode.PublicKey, 
@@ -201,6 +201,94 @@ Transaction transaction = transactionBuilder.Build();
 transaction.TransactionBody.TransactionOutputs.Last().Value.Coin -= fee;
 ```
 
-### More Examples
+## Metadata Transaction
 
-Please see the [Transaction Tests](https://github.com/CardanoSharp/cardanosharp-wallet/blob/main/CardanoSharp.Wallet.Test/TransactionTests.cs)
+Building the Body and Witnesses are the same as the Simple Transaction.
+
+```cs
+// Build Metadata and Add to Transaction
+var auxData = AuxiliaryDataBuilder.Create
+    .AddMetadata(1234, new { name = "simple message" });
+
+var transaction = TransactionBuilder.Create
+    .SetBody(transactionBody)
+    .SetWitnesses(witnesses)
+    .SetAuxData(auxData)
+    .Build();
+```
+
+## Minting Transaction
+
+Before we can mint a token, we need to create a policy.
+
+```cs 
+// Generate a Key Pair for your new Policy
+var keyPair = KeyPair.GenerateKeyPair();
+var policySkey = keyPair.PrivateKey;
+var policyVkey = keyPair.PublicKey;
+var policyKeyHash = HashUtility.Blake2b244(policyVkey.Key);
+
+// Create a Policy Script with a type of Script All
+var policyScript = ScriptAllBuilder.Create
+    .SetScript(NativeScriptBuilder.Create.SetKeyHash(policyKeyHash))
+    .Build();
+
+// Generate the Policy Id
+var policyId = policyScript.GetPolicyId();
+```
+
+Now lets define our token.
+
+```cs
+// Create the AWESOME Token
+string tokenName = "AWESOME";
+uint tokenQuantity = 1;
+
+var tokenAsset = TokenBundleBuilder.Create
+    .AddToken(policyId, tokenName.ToBytes(), tokenQuantity);
+```
+
+When minting, we will need to add our new token to one of the outputs of our Transaction Body.
+
+```cs
+
+// Generate an Address to send the Token
+Address baseAddr = addressService.GetAddress(
+    paymentNode.Derive(1).PublicKey, 
+    stakingNode.PublicKey, 
+    NetworkType.Testnet, 
+    AddressType.Base);
+
+// Build Transaction Body with Token Bundle
+var transactionBody = TransactionBodyBuilder.Create
+    .AddInput(inputTx, 0)
+    // Sending to Base Address, includes 100 ADA and the Token we are minting
+    .AddOutput(baseAddr.GetBytes(), 100, tokenAsset)
+    .SetTtl(currentSlot + 1000)
+    .SetFee(0)
+    .Build();
+```
+
+## Handling Token Bundles
+ 
+When building transaction, we need to ensure we handle tokens properly.
+
+```cs
+var tokenBundle = TokenBundleBuilder.Create
+    .AddToken(policyId, "Token1".ToBytes(), 100)
+    .AddToken(policyId, "Token2".ToBytes(), 200);
+
+Address baseAddr = addressService.GetAddress(
+    paymentNode.Derive(1).PublicKey, 
+    stakingNode.PublicKey, 
+    NetworkType.Testnet, 
+    AddressType.Base);
+
+var transactionBody = TransactionBodyBuilder.Create
+    .AddInput(inputTx, 0)
+    .AddOutput(baseAddr.GetBytes(), 2, tokenBundle)
+    .AddOutput(changeAddr.GetBytes(), 98)
+    .SetTtl(currentSlot + 1000)
+    .SetFee(0)
+    .Build();
+```
