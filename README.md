@@ -60,6 +60,8 @@ var stakePrv = rootKey.Derive(stakePath);
 var stakePub = stakePrv.GetPublicKey(false);
 ```
 
+ > If you would like to read more on key paths, please read this article on [About Address Derivation](https://github.com/input-output-hk/technical-docs/blob/main/cardano-components/cardano-wallet/doc/About-Address-Derivation.md)
+
 ## Create Addresses
 
 The `AddressService` has operations which help Generating Addresses from Keys.
@@ -205,6 +207,8 @@ transaction.TransactionBody.TransactionOutputs.Last().Value.Coin -= fee;
 
 Building the Body and Witnesses are the same as the Simple Transaction.
 
+> If you would like to read more about Metadata, please read this article on [Tx Metadata](https://github.com/input-output-hk/cardano-node/blob/master/doc/reference/tx-metadata.md)
+
 ```cs
 // Build Metadata and Add to Transaction
 var auxData = AuxiliaryDataBuilder.Create
@@ -219,7 +223,9 @@ var transaction = TransactionBuilder.Create
 
 ## Minting Transaction
 
-Before we can mint a token, we need to create a policy.
+Before we can mint a token, we need to create a policy. 
+
+> If you would like to read more about policy scripts, please read this article on [Simple Scripts](https://github.com/input-output-hk/cardano-node/blob/master/doc/reference/simple-scripts.md).
 
 ```cs 
 // Generate a Key Pair for your new Policy
