@@ -31,12 +31,12 @@ namespace CardanoSharp.Wallet.Test
     /// </summary>
     public class DerivationTests
     {
-        private readonly IKeyService _keyService;
+        private readonly IMnemonicService _keyService;
         const string __mnemonic = "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy";
 
         public DerivationTests()
         {
-            _keyService = new KeyService();
+            _keyService = new MnemonicService();
         }
 
         [Theory]
@@ -44,7 +44,7 @@ namespace CardanoSharp.Wallet.Test
         public void PathDerivationTest(string words)
         {
             // Arrange
-            var mnemonic = new KeyService().Restore(words);
+            var mnemonic = new MnemonicService().Restore(words);
             var rootKey = mnemonic.GetRootKey();
             var testKey = getTestRootKey(mnemonic);
 
@@ -80,7 +80,7 @@ namespace CardanoSharp.Wallet.Test
 
             // create two payment addresses from same root key
             //arrange
-            var mnemonic = new KeyService().Restore(words);
+            var mnemonic = new MnemonicService().Restore(words);
             var rootKey = mnemonic.GetRootKey();
             var testKey = getTestRootKey(mnemonic);
 
@@ -324,7 +324,7 @@ namespace CardanoSharp.Wallet.Test
         {
             // arrange
             var walletService = new WalletService();
-            var keyService = new KeyService();
+            var keyService = new MnemonicService();
             var wordlist = Enums.WordLists.Japanese;
             var mnemonic = keyService.Generate(24, wordlist);
 

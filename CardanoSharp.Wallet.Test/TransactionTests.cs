@@ -21,7 +21,7 @@ namespace CardanoSharp.Wallet.Test
     public class TransactionTests
     {
         private readonly TransactionSerializer _transactionSerializer;
-        private readonly IKeyService _keyService;
+        private readonly IMnemonicService _keyService;
         private readonly IAddressService _addressService;
         private static string __projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
         private static DirectoryInfo __dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
@@ -29,7 +29,7 @@ namespace CardanoSharp.Wallet.Test
 
         public TransactionTests()
         {
-            _keyService = new KeyService();
+            _keyService = new MnemonicService();
             _addressService = new AddressService();
             _transactionSerializer = new TransactionSerializer();
             DirectoryInfo dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
@@ -64,8 +64,8 @@ namespace CardanoSharp.Wallet.Test
             var tx = TransactionBuilder.Create
                 .SetBody(TransactionBodyBuilder.Create
                     .AddInput(utxo, 0)
-                    .AddOutput(payment1Addr.GetBytes(), amount)
-                     .AddOutput(payment2Addr.GetBytes(), amount)
+                    .AddOutput(payment1Addr, amount)
+                     .AddOutput(payment2Addr, amount)
                     .SetFee(fee)
                 )
                 .Build();
@@ -156,8 +156,8 @@ namespace CardanoSharp.Wallet.Test
 
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(new byte[32], 0)
-                .AddOutput(baseAddr.GetBytes(), 10)
-                .AddOutput(changeAddr.GetBytes(), 856488)
+                .AddOutput(baseAddr, 10)
+                .AddOutput(changeAddr, 856488)
                 .SetTtl(1000)
                 .SetFee(143502)
                 .Build();
@@ -191,8 +191,8 @@ namespace CardanoSharp.Wallet.Test
 
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(new byte[32], 0)
-                .AddOutput(baseAddr.GetBytes(), 10)
-                .AddOutput(changeAddr.GetBytes(), 856488)
+                .AddOutput(baseAddr, 10)
+                .AddOutput(changeAddr, 856488)
                 .SetTtl(1000)
                 .SetFee(143502)
                 .Build();
@@ -225,7 +225,7 @@ namespace CardanoSharp.Wallet.Test
 
             var bodyBuilder = TransactionBodyBuilder.Create
                 .AddInput("3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7", 0)
-                .AddOutput(baseAddr.GetBytes(), 1)
+                .AddOutput(baseAddr, 1)
                 .SetTtl(10)
                 .SetFee(0);
 
@@ -264,7 +264,7 @@ namespace CardanoSharp.Wallet.Test
 
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(getGenesisTransaction(), 0)
-                .AddOutput(changeAddr.GetBytes(), 3786498)
+                .AddOutput(changeAddr, 3786498)
                 .SetCertificate(CertificateBuilder.Create
                     .SetStakeRegistration(stakeHash)
                     .SetStakeDelegation(stakeHash, stakeHash))
@@ -306,8 +306,8 @@ namespace CardanoSharp.Wallet.Test
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(getGenesisTransaction(), 0)
                 .AddInput(getGenesisTransaction(), 0)
-                .AddOutput(baseAddr.GetBytes(), 1, tokenBundle1)
-                .AddOutput(changeAddr.GetBytes(), 18, tokenBundle2)
+                .AddOutput(baseAddr, 1, tokenBundle1)
+                .AddOutput(changeAddr, 18, tokenBundle2)
                 .SetFee(1)
                 .Build();
 
@@ -414,12 +414,9 @@ namespace CardanoSharp.Wallet.Test
             var mintAsset = TokenBundleBuilder.Create
                 .AddToken(policyId, mintAssetName.ToBytes(), assetAmount);
 
-            var tokenAsset = TokenBundleBuilder.Create
-                .AddToken(policyId, mintAssetName.ToBytes(), assetAmount);
-
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(txInAddr.HexToByteArray(), txInIndex)
-                .AddOutput(baseAddr.GetBytes(), 1, tokenAsset)
+                .AddOutput(baseAddr, 1, mintAsset)
                 .SetMint(mintAsset)
                 .SetTtl(1000)
                 .SetFee(0);

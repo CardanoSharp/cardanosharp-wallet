@@ -14,25 +14,25 @@ Install-Package CardanoSharp.Wallet
 
 ## Generate a Mnemonic
 
-The `KeyService` has operations which help for Generating and Restoring Mnemonics.
+The `MnemonicService` has operations which help for Generating and Restoring Mnemonics.
 
 ```cs
-var keyService = new KeyService();
+var MnemonicService = new MnemonicService();
 ```
 
-> KeyService is built for Dependency Injection and has a cooresponding interface: IKeyService.
+> MnemonicService is built for Dependency Injection and has a cooresponding interface: IMnemonicService.
 
 Generate a Mnemonic: 
 
 ```cs
 // This will generate a 24 English Mnemonic
-Mnemonic mnemonic = keyService.Generate(24, WordLists.English);
+Mnemonic mnemonic = MnemonicService.Generate(24, WordLists.English);
 ```
 
 Restore a Mnemonic: 
 ```cs
 string words = "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy";
-Mnemonic mnemonic = keyService.Restore(words);
+Mnemonic mnemonic = MnemonicService.Restore(words);
 ```
 
 ## Create Private and Public Keys
@@ -92,7 +92,7 @@ We have a fluent api to help naivate the derivation paths.
 
 ```cs
 // Restore a Mnemonic
-var mnemonic = new KeyService().Restore(words);
+var mnemonic = new MnemonicService().Restore(words);
 var rootKey = mnemonic.GetRootKey();
 
 // Fluent derivation API
@@ -168,8 +168,8 @@ Address changeAddr = addressService.GetAddress(
 
 var transactionBody = TransactionBodyBuilder.Create
     .AddInput(inputTx, 0)
-    .AddOutput(paymentAddr.GetBytes(), 25)
-    .AddOutput(changeAddr.GetBytes(), 75)
+    .AddOutput(paymentAddr, 25)
+    .AddOutput(changeAddr, 75)
     .SetTtl(currentSlot + 1000)
     .SetFee(0)
     .Build();
@@ -269,7 +269,7 @@ Address baseAddr = addressService.GetAddress(
 var transactionBody = TransactionBodyBuilder.Create
     .AddInput(inputTx, 0)
     // Sending to Base Address, includes 100 ADA and the Token we are minting
-    .AddOutput(baseAddr.GetBytes(), 100, tokenAsset)
+    .AddOutput(baseAddr, 100, tokenAsset)
     .SetTtl(currentSlot + 1000)
     .SetFee(0)
     .Build();
@@ -292,8 +292,8 @@ Address baseAddr = addressService.GetAddress(
 
 var transactionBody = TransactionBodyBuilder.Create
     .AddInput(inputTx, 0)
-    .AddOutput(baseAddr.GetBytes(), 2, tokenBundle)
-    .AddOutput(changeAddr.GetBytes(), 98)
+    .AddOutput(baseAddr, 2, tokenBundle)
+    .AddOutput(changeAddr, 98)
     .SetTtl(currentSlot + 1000)
     .SetFee(0)
     .Build();

@@ -11,13 +11,13 @@ namespace CardanoSharp.Wallet.Test
     public class AddressTests
     {
         private readonly IAddressService _addressService;
-        private readonly IKeyService _keyService;
+        private readonly IMnemonicService _keyService;
         const string __mnemonic = "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy";
 
         public AddressTests()
         {
             _addressService = new AddressService();
-            _keyService = new KeyService();
+            _keyService = new MnemonicService();
         }
 
         [Theory]

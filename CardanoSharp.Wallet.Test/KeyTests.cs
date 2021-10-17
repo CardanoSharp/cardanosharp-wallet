@@ -12,11 +12,11 @@ namespace CardanoSharp.Wallet.Test
     public class KeyTests
     {
         private const string _password = "password";
-        private readonly IKeyService _keyService;
+        private readonly IMnemonicService _keyService;
 
         public KeyTests()
         {
-            _keyService = new KeyService();
+            _keyService = new MnemonicService();
         }
 
         [Theory]

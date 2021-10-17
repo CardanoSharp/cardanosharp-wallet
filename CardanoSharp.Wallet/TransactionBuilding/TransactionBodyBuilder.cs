@@ -1,4 +1,5 @@
 ﻿using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex);
         ITransactionBodyBuilder AddInput(string transactionId, uint transactionIndex);
         ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null);
+        ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null);
         ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
         ITransactionBodyBuilder SetFee(ulong fee);
         ITransactionBodyBuilder SetTtl(uint ttl);
@@ -55,6 +57,11 @@ namespace CardanoSharp.Wallet.TransactionBuilding
                 TransactionIndex = transactionIndex
             });
             return this;
+        }
+
+        public ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null)
+        {
+            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder);
         }
 
         public ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null)

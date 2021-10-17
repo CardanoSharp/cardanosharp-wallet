@@ -16,13 +16,13 @@ using System.Collections.Generic;
 
 namespace CardanoSharp.Wallet
 {
-    public interface IKeyService
+    public interface IMnemonicService
     {
         Mnemonic Generate(int size, WordLists wl = WordLists.English);
         Mnemonic Restore(string mnemonic, WordLists wl = WordLists.English);
     }
 
-    public class KeyService : IKeyService
+    public class MnemonicService : IMnemonicService
     {
         #region BIP39
         private readonly int[] allowedEntropyLengths = { 12, 16, 20, 24, 28, 32 };
