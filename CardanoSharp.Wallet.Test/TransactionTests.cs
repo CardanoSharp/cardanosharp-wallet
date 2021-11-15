@@ -409,7 +409,7 @@ namespace CardanoSharp.Wallet.Test
             string txInAddr = getGenesisTransaction().ToStringHex();
 
             string mintAssetName = "token";
-            uint assetAmount = 1;
+            ulong assetAmount = 1;
 
             var mintAsset = TokenBundleBuilder.Create
                 .AddToken(policyId, mintAssetName.ToBytes(), assetAmount);

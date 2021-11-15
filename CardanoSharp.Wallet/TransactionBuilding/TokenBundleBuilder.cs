@@ -8,7 +8,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 {
     public interface ITokenBundleBuilder: IABuilder<Dictionary<byte[], NativeAsset>>
     {
-        ITokenBundleBuilder AddToken(byte[] policyId, byte[] asset, uint amount);
+        ITokenBundleBuilder AddToken(byte[] policyId, byte[] asset, ulong amount);
     }
 
     public class TokenBundleBuilder: ABuilder<Dictionary<byte[], NativeAsset>>, ITokenBundleBuilder
@@ -23,7 +23,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             get => new TokenBundleBuilder();
         }
 
-        public ITokenBundleBuilder AddToken(byte[] policyId, byte[] asset, uint amount)
+        public ITokenBundleBuilder AddToken(byte[] policyId, byte[] asset, ulong amount)
         {
             var policy = _model.FirstOrDefault(x => x.Key.Equals(policyId));
             if (policy.Key is null)

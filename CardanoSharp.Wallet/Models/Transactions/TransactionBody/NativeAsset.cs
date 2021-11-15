@@ -8,9 +8,9 @@ namespace CardanoSharp.Wallet.Models.Transactions
     {
         public NativeAsset()
         {
-            Token = new Dictionary<byte[], uint>();
+            Token = new Dictionary<byte[], ulong>();
         }
 
-        public Dictionary<byte[], uint> Token { get; set; }
+        public Dictionary<byte[], ulong> Token { get; set; }
     }
 }
