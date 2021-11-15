@@ -12,7 +12,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             _model = new NativeAsset();
         }
 
-        public NativeAssetBuilder WithToken(Dictionary<byte[], uint> token)
+        public NativeAssetBuilder WithToken(Dictionary<byte[], ulong> token)
         {
             _model.Token = token;
             return this;
