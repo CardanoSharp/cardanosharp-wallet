@@ -209,7 +209,7 @@ var fee = transaction.CalculateFee(minFeeA, minFeeB);
 
 // Update Fee and Rebuild
 transactionBody.SetFee(fee);
-Transaction transaction = transactionBuilder.Build();
+transaction = transactionBuilder.Build();
 transaction.TransactionBody.TransactionOutputs.Last().Value.Coin -= fee;
 ```
 
