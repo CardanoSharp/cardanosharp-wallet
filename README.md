@@ -198,10 +198,11 @@ var witnesses = TransactionWitnessSetBuilder.Create
 ### Calculate Fee
 
 ```cs
-// Construct Transaction Builder
-var transactionBuilder = TransactionBuilder.Create
+// Create a Transaction
+var transaction = TransactionBuilder.Create
     .SetBody(transactionBody)
-    .SetWitnesses(witnesses);
+    .SetWitnesses(witnesses)
+    .Build();
 
 // Calculate Fee
 var fee = transaction.CalculateFee(minFeeA, minFeeB);
@@ -305,4 +306,9 @@ var transactionBody = TransactionBodyBuilder.Create
     .SetTtl(currentSlot + 1000)
     .SetFee(0)
     .Build();
+```
+
+## Serialize the Transaction
+```cs
+var signedTx = transaction.Serialize();
 ```
