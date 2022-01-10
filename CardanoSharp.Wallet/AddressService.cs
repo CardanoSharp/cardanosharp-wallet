@@ -36,10 +36,14 @@ namespace CardanoSharp.Wallet
                     Buffer.BlockCopy(stakeEncoded, 0, addressArray, paymentEncoded.Length + 1, stakeEncoded.Length);
                     break;
                 case AddressType.Enterprise:
-                case AddressType.Reward:
                     addressArray = new byte[1 + paymentEncoded.Length];
                     addressArray[0] = header;
                     Buffer.BlockCopy(paymentEncoded, 0, addressArray, 1, paymentEncoded.Length);
+                    break;
+                case AddressType.Reward:
+                    addressArray = new byte[1 + stakeEncoded.Length];
+                    addressArray[0] = header;
+                    Buffer.BlockCopy(stakeEncoded, 0, addressArray, 1, stakeEncoded.Length);
                     break;
                 default:
                     throw new Exception("Unknown address type");
