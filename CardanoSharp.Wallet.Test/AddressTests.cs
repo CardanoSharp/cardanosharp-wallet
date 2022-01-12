@@ -100,9 +100,9 @@ namespace CardanoSharp.Wallet.Test
             ////get stake keys
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
             
-            var baseAddr1 = _addressService.GetAddress(paymentPub1, stakePub, NetworkType.Testnet, AddressType.Base);
-            var baseAddr2 = _addressService.GetAddress(paymentPub2, stakePub, NetworkType.Testnet, AddressType.Base);
-            var baseAddr3 = _addressService.GetAddress(paymentPub3, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr1 = _addressService.GetBaseAddress(paymentPub1, stakePub, NetworkType.Testnet);
+            var baseAddr2 = _addressService.GetBaseAddress(paymentPub2, stakePub, NetworkType.Testnet);
+            var baseAddr3 = _addressService.GetBaseAddress(paymentPub3, stakePub, NetworkType.Testnet);
 
             //act
             var hex1 = baseAddr1.ToStringHex(); 
