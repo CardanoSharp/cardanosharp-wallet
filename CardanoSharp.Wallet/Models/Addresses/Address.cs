@@ -21,6 +21,10 @@ namespace CardanoSharp.Wallet.Models.Addresses
         {
             _bytes = address;
             _address = Bech32.Encode(address, prefix);
+            
+            Prefix = prefix;
+            AddressType = GetAddressType();
+            NetworkType = GetNetworkType();
         }
 
         public Address(string address)
@@ -77,7 +81,7 @@ namespace CardanoSharp.Wallet.Models.Addresses
             {
                 0x00 => NetworkType.Testnet,
                 0x01 => NetworkType.Mainnet,
-                _ => throw new InvalidOperationException("unknown network type"),
+                _ => NetworkType.Unknown,
             };
         }
         
