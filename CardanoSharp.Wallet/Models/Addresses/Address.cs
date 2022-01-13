@@ -39,12 +39,18 @@ namespace CardanoSharp.Wallet.Models.Addresses
             //}
 
             _address = address;
-            _bytes = Bech32.Decode(_address, out byte witVer, out string prefix);
-
-            Prefix = prefix;
-            WitnessVersion = witVer;
-            AddressType = GetAddressType();
-            NetworkType = GetNetworkType();
+            try
+            {
+                _bytes = Bech32.Decode(_address, out byte witVer, out string prefix);
+                Prefix = prefix;
+                WitnessVersion = witVer;
+                AddressType = GetAddressType();
+                NetworkType = GetNetworkType();
+            }
+            catch
+            {
+                NetworkType = NetworkType.Unknown;
+            }
         }
 
         /// <summary>
