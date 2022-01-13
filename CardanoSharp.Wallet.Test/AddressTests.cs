@@ -115,6 +115,15 @@ namespace CardanoSharp.Wallet.Test
             Assert.EndsWith(stakingAddr, hex3);
         }
 
+        [Theory]
+        [InlineData("addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp", true)]
+        [InlineData("addr1qx2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwqfjkjv7", true)]
+        [InlineData("addr_fake1qx2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwqfjkjv7", false)]
+        public void HasValidNetworkTest(string addr, bool isValidNetwork)
+        {
+            Assert.True(new Address(addr).HasValidNetwork() == isValidNetwork);
+        }
+
         /// <summary>
         /// Getting the key from path as descibed in https://github.com/cardano-foundation/CIPs/blob/master/CIP-1852/CIP-1852.md
         /// </summary>

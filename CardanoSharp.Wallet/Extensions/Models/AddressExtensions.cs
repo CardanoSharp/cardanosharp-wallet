@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using CardanoSharp.Wallet.Enums;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {
@@ -10,6 +11,11 @@ namespace CardanoSharp.Wallet.Extensions.Models
         public static Address ToAddress(this string addr)
         {
             return new Address(addr);
+        }
+        
+        public static bool HasValidNetwork(this Address address)
+        {
+            return address.NetworkType != NetworkType.Unknown;
         }
     }
 }
