@@ -87,6 +87,12 @@ If you already have an address.
 
 ```cs
 Address baseAddr = new Address("addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp");
+// Get Address Type
+AddressType addressType = baseAddr.AddressType;
+// Get Network Type
+NetworkType networkType = baseAddr.NetworkType
+// Output the original string address
+string address = baseAddr.ToString();
 ```
 
 ## Fluent Key Derivation
