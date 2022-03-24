@@ -15,11 +15,13 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 .Add(transactionOutput.Address);
 
             //determine if the output has any native assets included
-            if (transactionOutput.Value.MultiAsset != null)
+            if (transactionOutput.Value.MultiAsset != null && transactionOutput.Value.MultiAsset.Count != 0)
             {
                 //add any 'coin' aka ADA to the output
                 var cborAssetOutput = CBORObject.NewArray()
                     .Add(transactionOutput.Value.Coin);
+
+                var cborMultiAsset = CBORObject.NewMap();
 
                 //iterate over the multiassets
                 //reminder of this structure
@@ -42,13 +44,12 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                         assetMap.Add(asset.Key, asset.Value);
                     }
 
-                    //add our PolicyID (policy.Key) and Assets (assetMap)
-                    var multiassetMap = CBORObject.NewMap()
-                        .Add(policy.Key, assetMap);
-
-                    //add our multiasset to our assetOutput
-                    cborAssetOutput.Add(multiassetMap);
+                    //add our PolicyID (policy.Key) and Assets (assetMap) to cborTokenOutput
+                    cborMultiAsset.Add(policy.Key, assetMap);
                 }
+
+                //Add the multi asset to the assets
+                cborAssetOutput.Add(cborMultiAsset);
 
                 //finally add our assetOutput to our transaction output
                 cborTransactionOutput.Add(cborAssetOutput);
