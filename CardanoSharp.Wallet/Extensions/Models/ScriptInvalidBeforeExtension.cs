@@ -10,9 +10,8 @@ namespace CardanoSharp.Wallet.Extensions.Models
     {
         public static CBORObject GetCBOR(this ScriptInvalidBefore scriptInvalidBefore)
         {
-            // invalid_hereafter = (5, uint)
             var scriptInvalidBeforeCbor = CBORObject.NewArray()
-                .Add(5)
+                .Add(4)
                 .Add(scriptInvalidBefore.Before);
 
             return scriptInvalidBeforeCbor;
