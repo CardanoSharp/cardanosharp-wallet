@@ -25,7 +25,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public ITokenBundleBuilder AddToken(byte[] policyId, byte[] asset, ulong amount)
         {
-            var policy = _model.FirstOrDefault(x => x.Key.Equals(policyId));
+            var policy = _model.FirstOrDefault(x => x.Key.SequenceEqual(policyId));
             if (policy.Key is null)
             {
                 policy = new KeyValuePair<byte[], NativeAsset>(policyId, new NativeAsset());

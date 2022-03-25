@@ -281,7 +281,7 @@ namespace CardanoSharp.Wallet.Test
         }
 
         [Fact]
-        public void MultiAssetTest()
+        public void OneAssetForEachOutputTest()
         {
             var rootKey = getBase15WordWallet();
 
@@ -317,6 +317,84 @@ namespace CardanoSharp.Wallet.Test
             //assert
             Assert.Equal("a3008282582000000000000000000000000000000000000000000000000000000000000000000082582000000000000000000000000000000000000000000000000000000000000000000001828258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948201a1581c00000000000000000000000000000000000000000000000000000000a14400010203183c82583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948212a1581c00000000000000000000000000000000000000000000000000000000a1440001020318f00201",
                 serialized.ToStringHex());
+        }
+
+
+        [Fact]
+        public void OnePolicyMultiAssetForOneOutputTest()
+        {
+            var rootKey = getBase15WordWallet();
+
+            //get payment keys
+            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+
+            //get change keys
+            (var changePrv, var changePub) = getKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
+
+            //get stake keys
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+
+            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+
+            var tokenBundle1 = TokenBundleBuilder.Create
+                .AddToken(getGenesisPolicyId(), "00010203".HexToByteArray(), 60)
+                .AddToken(getGenesisPolicyId(), "00010204".HexToByteArray(), 240);
+
+
+            var transactionBody = TransactionBodyBuilder.Create
+                .AddInput(getGenesisTransaction(), 0)
+                .AddInput(getGenesisTransaction(), 0)
+                .AddOutput(baseAddr, 1, tokenBundle1)
+                .SetFee(1)
+                .Build();
+
+            //act
+            var serialized = transactionBody.Serialize(null);
+
+            //assert
+            var hex = serialized.ToStringHex();
+            Assert.Equal("a3008282582000000000000000000000000000000000000000000000000000000000000000000082582000000000000000000000000000000000000000000000000000000000000000000001818258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948201a1581c00000000000000000000000000000000000000000000000000000000a24400010203183c440001020418f00201",
+                hex);
+        }
+
+        [Fact]
+        public void MultiplePolicyOneAssetForOneOutputTest()
+        {
+            var rootKey = getBase15WordWallet();
+
+            //get payment keys
+            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+
+            //get change keys
+            (var changePrv, var changePub) = getKeyPairFromPath("m/1852'/1815'/0'/1/0", rootKey);
+
+            //get stake keys
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+
+            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+
+            var tokenBundle1 = TokenBundleBuilder.Create
+                .AddToken(getGenesisPolicyId(), "00010203".HexToByteArray(), 60)
+                .AddToken(getTest1PolicyId(), "00010204".HexToByteArray(), 240);
+
+
+            var transactionBody = TransactionBodyBuilder.Create
+                .AddInput(getGenesisTransaction(), 0)
+                .AddInput(getGenesisTransaction(), 0)
+                .AddOutput(baseAddr, 1, tokenBundle1)
+                .SetFee(1)
+                .Build();
+
+            //act
+            var serialized = transactionBody.Serialize(null);
+
+
+            //assert
+            var hex = serialized.ToStringHex();
+            Assert.Equal("a3008282582000000000000000000000000000000000000000000000000000000000000000000082582000000000000000000000000000000000000000000000000000000000000000000001818258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948201a2581c00000000000000000000000000000000000000000000000000000000a14400010203183c581c01010101010101010101010101010101010101010101010101010101a1440001020418f00201",
+                hex);
         }
 
         [Fact]
@@ -459,6 +537,16 @@ namespace CardanoSharp.Wallet.Test
             for (var i = 0; i < hash.Length; i++)
             {
                 hash[i] = 0x00;
+            }
+            return hash;
+        }
+
+        private byte[] getTest1PolicyId()
+        {
+            var hash = new byte[28];
+            for (var i = 0; i < hash.Length; i++)
+            {
+                hash[i] = 0x01;
             }
             return hash;
         }
