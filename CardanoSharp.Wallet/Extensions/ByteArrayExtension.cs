@@ -205,5 +205,10 @@ namespace CardanoSharp.Wallet.Extensions
             int mask = ~(0xff >> n << n);
             return b & mask;
         }
+
+        public static bool SequenceEqual(this byte[] x, byte[] y)
+        {
+            return MemoryExtensions.SequenceEqual<byte>(x, y);
+        }
     }
 }
