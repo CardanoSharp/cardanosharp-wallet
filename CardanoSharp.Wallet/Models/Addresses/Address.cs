@@ -101,13 +101,13 @@ namespace CardanoSharp.Wallet.Models.Addresses
 
         public bool Equals(byte[] other)
         {
-            return _bytes.Equals(other);
+            return _bytes.SequenceEqual(other);
         }
 
         public bool Equals(Address other)
         {
             if (other == null) return false;
-            return _bytes.Equals(other.GetBytes());
+            return Equals(other.GetBytes());
         }
 
         public byte[] GetBytes()
