@@ -280,6 +280,7 @@ namespace CardanoSharp.Wallet.Test
                 serialized.ToStringHex());
         }
 
+        
         [Fact]
         public void OneAssetForEachOutputTest()
         {
@@ -317,6 +318,42 @@ namespace CardanoSharp.Wallet.Test
             //assert
             Assert.Equal("a3008282582000000000000000000000000000000000000000000000000000000000000000000082582000000000000000000000000000000000000000000000000000000000000000000001828258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948201a1581c00000000000000000000000000000000000000000000000000000000a14400010203183c82583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948212a1581c00000000000000000000000000000000000000000000000000000000a1440001020318f00201",
                 serialized.ToStringHex());
+        }
+
+        [Fact]
+        public void EmptyTokenBundleShouldBehaveAsNoAssetTest()
+        {
+            var rootKey = getBase15WordWallet();
+
+            //get payment keys
+            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+
+            //get stake keys
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+
+            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+
+            //This is the baseline
+            var withNoTokenBundle = TransactionBodyBuilder.Create
+                .AddInput(getGenesisTransaction(), 0)
+                .AddOutput(baseAddr, 1)
+                .Build();
+
+            //This should do the same
+            var withEmptyTokenBundle = TransactionBodyBuilder.Create
+                .AddInput(getGenesisTransaction(), 0)
+                .AddOutput(baseAddr, 1, TokenBundleBuilder.Create)
+                .Build();
+
+            //act
+            var withNoTokenBundleSerialized = withNoTokenBundle.Serialize(null);
+            var withEmptyTokenBundleSerialized = withEmptyTokenBundle.Serialize(null);
+
+            //assert
+            var withNoTokenBundleHex = withNoTokenBundleSerialized.ToStringHex();
+            var withEmptyTokenBundleHex = withEmptyTokenBundleSerialized.ToStringHex();
+
+            Assert.Equal(withNoTokenBundleHex, withEmptyTokenBundleHex);
         }
 
 
