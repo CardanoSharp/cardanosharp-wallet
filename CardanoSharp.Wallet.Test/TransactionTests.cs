@@ -260,7 +260,7 @@ namespace CardanoSharp.Wallet.Test
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
             var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
-            var stakeHash = HashUtility.Blake2b244(stakePub.Key);
+            var stakeHash = HashUtility.Blake2b224(stakePub.Key);
 
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(getGenesisTransaction(), 0)
@@ -475,7 +475,7 @@ namespace CardanoSharp.Wallet.Test
             //policy info
             var policySkey = getGenesisTransaction();
             var policyVkey = getGenesisTransaction();
-            var policyKeyHash = HashUtility.Blake2b244(policyVkey);
+            var policyKeyHash = HashUtility.Blake2b224(policyVkey);
 
             var scriptAllBuilder = ScriptAllBuilder.Create.SetScript(NativeScriptBuilder.Create.SetKeyHash(policyKeyHash));
 

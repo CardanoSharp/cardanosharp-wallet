@@ -22,8 +22,8 @@ namespace CardanoSharp.Wallet
         public Address GetAddress(PublicKey payment, PublicKey stake, NetworkType networkType, AddressType addressType)
         {
             var networkInfo = getNetworkInfo(networkType);
-            var paymentEncoded = HashUtility.Blake2b244(payment.Key);
-            var stakeEncoded = HashUtility.Blake2b244(stake.Key);
+            var paymentEncoded = HashUtility.Blake2b224(payment.Key);
+            var stakeEncoded = HashUtility.Blake2b224(stake.Key);
 
             //get prefix
             var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
@@ -61,8 +61,8 @@ namespace CardanoSharp.Wallet
         {
             var addressType = AddressType.Base;
             var networkInfo = getNetworkInfo(networkType);
-            var paymentEncoded = HashUtility.Blake2b244(payment.Key);
-            var stakeEncoded = HashUtility.Blake2b244(stake.Key);
+            var paymentEncoded = HashUtility.Blake2b224(payment.Key);
+            var stakeEncoded = HashUtility.Blake2b224(stake.Key);
 
             //get prefix
             var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
@@ -83,7 +83,7 @@ namespace CardanoSharp.Wallet
         {
             var addressType = AddressType.Reward;
             var networkInfo = getNetworkInfo(networkType);
-            var stakeEncoded = HashUtility.Blake2b244(stake.Key);
+            var stakeEncoded = HashUtility.Blake2b224(stake.Key);
 
             //get prefix
             var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
@@ -103,7 +103,7 @@ namespace CardanoSharp.Wallet
         {
             var addressType = AddressType.Enterprise;
             var networkInfo = getNetworkInfo(networkType);
-            var paymentEncoded = HashUtility.Blake2b244(payment.Key);
+            var paymentEncoded = HashUtility.Blake2b224(payment.Key);
 
             //get prefix
             var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
