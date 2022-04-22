@@ -12,6 +12,10 @@
         /// <summary>
         /// Represents a 'Shelley-era' wallet. 1852 was chosen as it is the year of death of Ada Lovelace
         /// </summary>
-        Shelley = 1852 
+        Shelley = 1852,
+        /// <summary>
+        /// Represents a 'Policy Keys' wallet. https://cips.cardano.org/cips/cip1855/
+        /// </summary>
+        PolicyKeys = 1855
     }
 }
