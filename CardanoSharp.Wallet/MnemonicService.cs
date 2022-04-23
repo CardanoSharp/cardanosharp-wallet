@@ -13,6 +13,7 @@ using Chaos.NaCl;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Keys;
 using System.Collections.Generic;
+using CardanoSharp.Wallet.Words;
 
 namespace CardanoSharp.Wallet
 {
@@ -148,35 +149,22 @@ namespace CardanoSharp.Wallet
             return new Mnemonic(words, entropy);
         }
 
-        private static string[] GetAllWords(WordLists wl)
-        {
-            if (!Enum.IsDefined(typeof(WordLists), wl))
-                throw new ArgumentException("Given word list is not defined.");
-
-            string path = $"CardanoSharp.Wallet.Words.{wl}.txt";
-            Assembly asm = Assembly.GetExecutingAssembly();
-            using Stream stream = asm.GetManifestResourceStream(path);
-            if (stream != null)
+        private static string[] GetAllWords(WordLists wl) =>
+            wl switch
             {
-                using StreamReader reader = new StreamReader(stream);
-                int i = 0;
-                string[] result = new string[allWordsLength];
-                while (!reader.EndOfStream)
-                {
-                    result[i++] = reader.ReadLine();
-                }
-                if (i != 2048)
-                {
-                    throw new ArgumentException($"Embedded word list has {i} words instead of {allWordsLength}.");
-                }
-
-                return result;
-            }
-            else
-            {
-                throw new ArgumentException("Word list was not found.");
-            }
-        }
+                WordLists.ChineseSimplified => ChineseSimplified.Words,
+                WordLists.ChineseTraditional => ChineseTraditional.Words,
+                WordLists.Czech => Czech.Words,
+                WordLists.English => English.Words,
+                WordLists.French => French.Words,
+                WordLists.German => German.Words,
+                WordLists.Italian => Italian.Words,
+                WordLists.Japanese => Japanese.Words,
+                WordLists.Korean => Korean.Words,
+                WordLists.Portuguese => Portuguese.Words,
+                WordLists.Spanish => Spanish.Words,
+                _ => throw new NotImplementedException($"Invalid wordlist {wl}"),
+            };
 
         private Mnemonic CreateMnemonicFromEntropy(byte[] entropy, string[] allWords)
         {

@@ -14,7 +14,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             BigEndianBuffer buffer = new BigEndianBuffer();
             buffer.Write(new byte[] { 0x00 });
             buffer.Write(serializedCBOR);
-            return HashUtility.Blake2b244(buffer.ToArray());
+            return HashUtility.Blake2b224(buffer.ToArray());
         }
 
         public static CBORObject GetCBOR(this ScriptAll scriptAll)
