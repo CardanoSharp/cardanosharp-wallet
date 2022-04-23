@@ -41,6 +41,31 @@ namespace CardanoSharp.Wallet.Test
 
         [Theory]
         [InlineData(__mnemonic)]
+        public void HDPolicyKeysDerivationTest(string words)
+        {
+            // Arrange
+            var mnemonic = new MnemonicService().Restore(words);
+            var rootKey = mnemonic.GetRootKey();
+
+            (var paymentPrv1, var paymentPub1) = getKeyPairFromPath("m/1855'/1815'/0'", rootKey);
+
+            // Act
+            // Fluent derivation API
+            var derivation = rootKey.Derive()                   // IMasterNodeDerivation
+                .Derive(PurposeType.PolicyKeys)    // IPurposeNodeDerivation
+                .Derive(CoinType.Ada)           // ICoinNodeDerivation
+                .Derive(0);                      // IAccountNodeDerivation
+
+            // Assert
+            Assert.Equal(paymentPrv1.Key, derivation.PrivateKey.Key);
+            Assert.Equal(paymentPrv1.Chaincode, derivation.PrivateKey.Chaincode);
+
+            Assert.Equal(paymentPub1.Key, derivation.PublicKey.Key);
+            Assert.Equal(paymentPub1.Chaincode, derivation.PublicKey.Chaincode);
+        }
+
+        [Theory]
+        [InlineData(__mnemonic)]
         public void PathDerivationTest(string words)
         {
             // Arrange
@@ -53,11 +78,11 @@ namespace CardanoSharp.Wallet.Test
             // Act
             // Fluent derivation API
             var derivation = testKey.Derive()                   // IMasterNodeDerivation
-                                .Derive(PurposeType.Shelley)    // IPurposeNodeDerivation
-                                .Derive(CoinType.Ada)           // ICoinNodeDerivation
-                                .Derive(0)                      // IAccountNodeDerivation
-                                .Derive(RoleType.ExternalChain) // IRoleNodeDerivation
-                                .Derive(0);                     // IIndexNodeDerivation
+                .Derive(PurposeType.Shelley)    // IPurposeNodeDerivation
+                .Derive(CoinType.Ada)           // ICoinNodeDerivation
+                .Derive(0)                      // IAccountNodeDerivation
+                .Derive(RoleType.ExternalChain) // IRoleNodeDerivation
+                .Derive(0);                     // IIndexNodeDerivation
 
             // Assert
             Assert.Equal(paymentPrv1.Key, derivation.PrivateKey.Key);
