@@ -50,7 +50,7 @@ namespace CardanoSharp.Wallet.Test
         public void KeyHashTest()
         {
             var policyVkey = "848AC717B552FCD1F2DCB4933E4A8198187E7E424693B51E1B8B16250F3CADFE".HexToByteArray();
-            var policyKeyHash = HashUtility.Blake2b244(policyVkey);
+            var policyKeyHash = HashUtility.Blake2b224(policyVkey);
 
             Assert.Equal("5cd719e99fdd80fd889e82cf012e64d5da7ab35364bb02163bc93974", policyKeyHash.ToStringHex());
         }

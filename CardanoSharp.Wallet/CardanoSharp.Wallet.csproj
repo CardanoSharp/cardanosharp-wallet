@@ -4,24 +4,10 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <PackageProjectUrl>https://github.com/CardanoSharp/cardanosharp-wallet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/CardanoSharp/cardanosharp-wallet</RepositoryUrl>
   </PropertyGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Words\ChineseSimplified.txt" />
-    <EmbeddedResource Include="Words\ChineseTraditional.txt" />
-    <EmbeddedResource Include="Words\Czech.txt" />
-    <EmbeddedResource Include="Words\English.txt" />
-    <EmbeddedResource Include="Words\French.txt" />
-    <EmbeddedResource Include="Words\German.txt" />
-    <EmbeddedResource Include="Words\Italian.txt" />
-    <EmbeddedResource Include="Words\Japanese.txt" />
-    <EmbeddedResource Include="Words\Korean.txt" />
-    <EmbeddedResource Include="Words\Portuguese.txt" />
-    <EmbeddedResource Include="Words\Spanish.txt" />
-  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="5.0.6" />
