@@ -80,6 +80,61 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return cborBody;
         }
 
+        public static TransactionBody GetTransactionBody(this CBORObject transactionBodyCbor)
+        {
+            //validation
+            if (transactionBodyCbor == null)
+            {
+                throw new NullReferenceException("Transaction body CBOR is null");
+            }
+            if (transactionBodyCbor.Type != CBORType.Map)
+            {
+                throw new InvalidOperationException("Transaction body CBOR is not Map type");
+            }
+            if (!transactionBodyCbor.ContainsKey(0))
+            {
+                throw new InvalidOperationException("Inputs key not present");
+            }
+
+            //get data
+            var inputsCbor = transactionBodyCbor.Values.First();
+            var outputsCbor = transactionBodyCbor.Values.Skip(1).First();
+            var fee = Convert.ToUInt64(transactionBodyCbor.Values.Skip(2).First().DecodeValueByCborType());
+            uint? ttl;
+            if (true)
+            {
+                ttl = Convert.ToUInt32(transactionBodyCbor.Values.Skip(3).FirstOrDefault().DecodeValueByCborType());
+            }
+
+            //populate
+            var transactionBody = new TransactionBody();
+            foreach (var input in inputsCbor.Values)
+            {
+                var inputAddress = (string)input.Values.First().DecodeValueByCborType();
+                var inputIndex = Convert.ToUInt32(input.Values.Skip(1).First().DecodeValueByCborType());
+                transactionBody.TransactionInputs.Add(new TransactionInput()
+                {
+                    TransactionIndex = inputIndex,
+                    TransactionId = inputAddress.ToBytes()
+                });
+            }
+            foreach (var output in outputsCbor.Values)
+            {
+                var outputAddress = (string)output.Values.First().DecodeValueByCborType();
+                var outputCoin = Convert.ToUInt64(output.Values.Skip(1).First().DecodeValueByCborType());
+                transactionBody.TransactionOutputs.Add(new TransactionOutput()
+                {
+                    Address = outputAddress.ToBytes(),
+                    Value = new TransactionOutputValue() { Coin = outputCoin }
+                });
+            }
+            transactionBody.Fee = fee;
+            transactionBody.Ttl = ttl;
+
+            //return
+            return transactionBody;
+        }
+
         public static byte[] Serialize(this TransactionBody transactionBody, AuxiliaryData auxiliaryData)
         {
             return transactionBody.GetCBOR(auxiliaryData).EncodeToBytes();

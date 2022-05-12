@@ -39,6 +39,19 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             return cborWitnessSet;
         }
 
+        public static TransactionWitnessSet GetTransactionWitnessSet(this CBORObject transactionWitnessSetCbor)
+        {
+            //validation
+
+            //get data
+
+            //populate
+            var transactionWitnessSet = new TransactionWitnessSet();
+
+            //return
+            return transactionWitnessSet;
+        }
+
         public static byte[] Serialize(this TransactionWitnessSet transactionWitnessSet, TransactionBody transactionBody, AuxiliaryData auxiliaryData)
         {
             return transactionWitnessSet.GetCBOR(transactionBody, auxiliaryData).EncodeToBytes();
