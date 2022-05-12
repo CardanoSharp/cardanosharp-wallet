@@ -38,16 +38,11 @@ namespace CardanoSharp.Wallet.Test
         [Fact]
         public void DeserializeTransaction()
         {
-            //actual
-            var encodedCbor = "83A4008182582029AC613345545124FC51A328483569781E75BCF1BA62F967B51A2F14F0AE8BBE0101828258390030D2551F05936209AEEEF31C2B39374D1EBB3357B3BCDB1AB79302C59FC3732432160C7B705AAD4D718F4DA5D5BF754DADBDDC84723573141A006ACFC08258390005677F31D9E34618FB8FECA7F9A50C1CBF4F8974091404E3F37DB11653F79359C9AC1FE10D8BA6071E9442489DBBBEDB06F1527712B7B0251A63D4DF35021A00029D85031A0373A624A0F6";
-            var bytes = encodedCbor.HexToByteArray();
-            var actual = bytes.DeserializeTransaction();
-
             //expected
-            var input1Addr = "29AC613345545124FC51A328483569781E75BCF1BA62F967B51A2F14F0AE8BBE".HexToByteArray();
-            var payment1Addr = "0030D2551F05936209AEEEF31C2B39374D1EBB3357B3BCDB1AB79302C59FC3732432160C7B705AAD4D718F4DA5D5BF754DADBDDC8472357314".HexToByteArray();
-            var payment2Addr = "0005677F31D9E34618FB8FECA7F9A50C1CBF4F8974091404E3F37DB11653F79359C9AC1FE10D8BA6071E9442489DBBBEDB06F1527712B7B025".HexToByteArray();
-            var expected = TransactionBuilder.Create
+            var input1Addr = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
+            var payment1Addr = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress();
+            var payment2Addr = "addr_test1vqah2xrfp8qjp2tldu8wdq38q8c8tegnduae5zrqff3aeec7g467q".ToAddress();
+            var expectedTrans = TransactionBuilder.Create
                 .SetBody(TransactionBodyBuilder.Create
                     .AddInput(input1Addr, 1)
                     .AddOutput(payment1Addr, 7000000)
@@ -56,6 +51,12 @@ namespace CardanoSharp.Wallet.Test
                     .SetTtl(57910820)
                 )
                 .Build();
+            var expected = expectedTrans.GetCBOR().EncodeToBytes().ToStringHex();
+            
+            //actual
+            var bytes = expected.HexToByteArray();
+            var transaction = bytes.DeserializeTransaction();
+            var actual = transaction.Serialize().ToStringHex();
 
             Assert.Equal(expected, actual);
         }

@@ -110,21 +110,21 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             var transactionBody = new TransactionBody();
             foreach (var input in inputsCbor.Values)
             {
-                var inputAddress = (string)input.Values.First().DecodeValueByCborType();
+                var inputAddress = ((string)input.Values.First().DecodeValueByCborType()).HexToByteArray();
                 var inputIndex = Convert.ToUInt32(input.Values.Skip(1).First().DecodeValueByCborType());
                 transactionBody.TransactionInputs.Add(new TransactionInput()
                 {
                     TransactionIndex = inputIndex,
-                    TransactionId = inputAddress.ToBytes()
+                    TransactionId = inputAddress
                 });
             }
             foreach (var output in outputsCbor.Values)
             {
-                var outputAddress = (string)output.Values.First().DecodeValueByCborType();
+                var outputAddress = ((string)output.Values.First().DecodeValueByCborType()).HexToByteArray();
                 var outputCoin = Convert.ToUInt64(output.Values.Skip(1).First().DecodeValueByCborType());
                 transactionBody.TransactionOutputs.Add(new TransactionOutput()
                 {
-                    Address = outputAddress.ToBytes(),
+                    Address = outputAddress,
                     Value = new TransactionOutputValue() { Coin = outputCoin }
                 });
             }

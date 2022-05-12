@@ -74,7 +74,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             {
                 transaction.TransactionWitnessSet = transactionWitnessSetCbor.GetTransactionWitnessSet();
             }
-            if (auxiliaryDataCbor != null)
+            if (auxiliaryDataCbor != null && !auxiliaryDataCbor.IsNull)
             {
                 transaction.AuxiliaryData = auxiliaryDataCbor.GetAuxiliaryData();
             }
