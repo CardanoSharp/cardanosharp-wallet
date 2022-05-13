@@ -85,25 +85,33 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             //validation
             if (transactionBodyCbor == null)
             {
-                throw new NullReferenceException("Transaction body CBOR is null");
+                throw new ArgumentNullException(nameof(transactionBodyCbor));
             }
             if (transactionBodyCbor.Type != CBORType.Map)
             {
-                throw new InvalidOperationException("Transaction body CBOR is not Map type");
+                throw new ArgumentException("transactionBodyCbor is not expected type CBORType.Map");
             }
             if (!transactionBodyCbor.ContainsKey(0))
             {
-                throw new InvalidOperationException("Inputs key not present");
+                throw new ArgumentException("transactionBodyCbor key 0 (Inputs) not present");
+            }
+            if (!transactionBodyCbor.ContainsKey(1))
+            {
+                throw new ArgumentException("transactionBodyCbor key 1 (Outputs) not present");
             }
 
             //get data
-            var inputsCbor = transactionBodyCbor.Values.First();
-            var outputsCbor = transactionBodyCbor.Values.Skip(1).First();
-            var fee = Convert.ToUInt64(transactionBodyCbor.Values.Skip(2).First().DecodeValueByCborType());
-            uint? ttl;
-            if (true)
+            var inputsCbor = transactionBodyCbor[0];
+            var outputsCbor = transactionBodyCbor[1];
+            UInt64 fee = 0;
+            if (transactionBodyCbor.ContainsKey(2))
+            { 
+                fee = Convert.ToUInt64(transactionBodyCbor[2].DecodeValueByCborType());
+            }
+            uint? ttl = null;
+            if (transactionBodyCbor.ContainsKey(3))
             {
-                ttl = Convert.ToUInt32(transactionBodyCbor.Values.Skip(3).FirstOrDefault().DecodeValueByCborType());
+                ttl = Convert.ToUInt32(transactionBodyCbor[3].DecodeValueByCborType());
             }
 
             //populate

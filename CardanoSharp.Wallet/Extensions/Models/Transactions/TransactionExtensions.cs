@@ -47,15 +47,15 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             //validation
             if (transactionCbor == null)
             {
-                throw new NullReferenceException("Transaction CBOR is null");
+                throw new ArgumentNullException(nameof(transactionCbor));
             }
             if (transactionCbor.Type != CBORType.Array)
             {
-                throw new InvalidOperationException("Transaction CBOR is not Array type");
+                throw new ArgumentException("transactionCbor is not expected type CBORType.Array");
             }
             if (transactionCbor.Count < 2)
             {
-                throw new InvalidOperationException("Transaction does not contain at least 2 elements (body & witness set)");
+                throw new ArgumentException("transactionCbor does not contain at least 2 elements (body & witness set)");
             }
 
             //get data

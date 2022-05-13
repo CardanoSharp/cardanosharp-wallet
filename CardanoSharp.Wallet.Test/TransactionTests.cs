@@ -42,6 +42,11 @@ namespace CardanoSharp.Wallet.Test
             var input1Addr = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
             var payment1Addr = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress();
             var payment2Addr = "addr_test1vqah2xrfp8qjp2tldu8wdq38q8c8tegnduae5zrqff3aeec7g467q".ToAddress();
+            var witnesses = TransactionWitnessSetBuilder.Create
+                .AddVKeyWitness(
+                    new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null),
+                    new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null)
+                );
             var expectedTrans = TransactionBuilder.Create
                 .SetBody(TransactionBodyBuilder.Create
                     .AddInput(input1Addr, 1)
@@ -50,7 +55,9 @@ namespace CardanoSharp.Wallet.Test
                     .SetFee(171397)
                     .SetTtl(57910820)
                 )
+                .SetWitnesses(witnesses)
                 .Build();
+
             var expected = expectedTrans.GetCBOR().EncodeToBytes().ToStringHex();
             
             //actual
