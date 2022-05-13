@@ -53,7 +53,6 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
 
             //get data
             var transactionWitnessSet = new TransactionWitnessSet();
-            var witnessSet = new TransactionWitnessSet();
             if (transactionWitnessSetCbor.ContainsKey(0))
             {
                 var vkeyWitnessesCbor = transactionWitnessSetCbor[0];
@@ -68,6 +67,15 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
                 }
 
                 transactionWitnessSet.VKeyWitnesses = vKeyWitnesses;
+            }
+
+            if (transactionWitnessSetCbor.ContainsKey(1))
+            {
+                var nativeScriptsCbor = transactionWitnessSetCbor[1];
+                foreach (var nativeScriptCbor in nativeScriptsCbor.Values)
+                {
+                    transactionWitnessSet.NativeScripts.Add(nativeScriptCbor.GetNativeScript());
+                }
             }
 
             //return

@@ -2,6 +2,7 @@
 using CardanoSharp.Wallet.Models.Transactions;
 using PeterO.Cbor2;
 using CardanoSharp.Wallet.Utilities;
+using System;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {
@@ -61,6 +62,54 @@ namespace CardanoSharp.Wallet.Extensions.Models
                 nativeScriptCbor.Add(nativeScript.InvalidBefore.GetCBOR());
 
             return nativeScriptCbor;
+        }
+
+        public static NativeScript GetNativeScript(this CBORObject nativeScriptCbor)
+        {
+            if (nativeScriptCbor == null)
+            {
+                throw new ArgumentException(nameof(nativeScriptCbor));
+            }
+            if (nativeScriptCbor.Type != CBORType.Array)
+            {
+                throw new ArgumentException("nativeScriptCbor is not expected type CBORType.Array");
+            }
+            if (nativeScriptCbor.Values.Count < 2)
+            {
+                throw new ArgumentException("nativeScriptCbor has unexpected number of elements (expected 2+)");
+            }
+
+            var nativeScript = new NativeScript();
+            var nativeScriptTypeIndex = Convert.ToInt32(nativeScriptCbor[0].DecodeValueByCborType());
+            if (nativeScriptTypeIndex < 0 || nativeScriptTypeIndex > 5)
+            {
+                throw new ArgumentException("nativeScriptCbor first element (index) has value outside expected range (expected 0..5)");
+            }
+
+            //var nativeScriptKey = ((string)nativeScriptCbor[1].DecodeValueByCborType()).HexToByteArray();
+            switch (nativeScriptTypeIndex)
+            {
+                case 0:
+                    nativeScript.ScriptPubKey = nativeScriptCbor.GetScriptPubKey();
+                    break;
+                case 1:
+                    nativeScript.ScriptAll = nativeScriptCbor.GetScriptAll();
+                    break;
+                case 2:
+                    nativeScript.ScriptAny = nativeScriptCbor.GetScriptAny();
+                    break;
+                case 3:
+                    nativeScript.ScriptNofK = nativeScriptCbor.GetScriptNofK();
+                    break;
+                case 4:
+                    nativeScript.InvalidBefore = nativeScriptCbor.GetScriptInvalidBefore();
+                    break;
+                case 5:
+                    nativeScript.InvalidAfter = nativeScriptCbor.GetScriptInvalidAfter();
+                    break;
+            }
+
+            return nativeScript;
         }
 
         public static byte[] Serialize(this NativeScript nativeScript)

@@ -55,7 +55,7 @@ namespace CardanoSharp.Wallet.Test
                     .SetFee(171397)
                     .SetTtl(57910820)
                 )
-                .SetWitnesses(witnesses)
+                //.SetWitnesses(witnesses)
                 .Build();
 
             var expected = expectedTrans.GetCBOR().EncodeToBytes().ToStringHex();

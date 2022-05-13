@@ -99,23 +99,15 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             {
                 throw new ArgumentException("transactionBodyCbor key 1 (Outputs) not present");
             }
+            if (!transactionBodyCbor.ContainsKey(2))
+            {
+                throw new ArgumentException("transactionBodyCbor key 2 (Fee/Coin) not present");
+            }
 
             //get data
-            var inputsCbor = transactionBodyCbor[0];
-            var outputsCbor = transactionBodyCbor[1];
-            UInt64 fee = 0;
-            if (transactionBodyCbor.ContainsKey(2))
-            { 
-                fee = Convert.ToUInt64(transactionBodyCbor[2].DecodeValueByCborType());
-            }
-            uint? ttl = null;
-            if (transactionBodyCbor.ContainsKey(3))
-            {
-                ttl = Convert.ToUInt32(transactionBodyCbor[3].DecodeValueByCborType());
-            }
-
-            //populate
             var transactionBody = new TransactionBody();
+            //0 : set<transaction_input>    ; inputs
+            var inputsCbor = transactionBodyCbor[0];
             foreach (var input in inputsCbor.Values)
             {
                 var inputAddress = ((string)input.Values.First().DecodeValueByCborType()).HexToByteArray();
@@ -126,6 +118,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                     TransactionId = inputAddress
                 });
             }
+
+            //1 : [* transaction_output]
+            var outputsCbor = transactionBodyCbor[1];
             foreach (var output in outputsCbor.Values)
             {
                 var outputAddress = ((string)output.Values.First().DecodeValueByCborType()).HexToByteArray();
@@ -136,8 +131,39 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                     Value = new TransactionOutputValue() { Coin = outputCoin }
                 });
             }
-            transactionBody.Fee = fee;
-            transactionBody.Ttl = ttl;
+
+            //2 : coin                      ; fee
+            transactionBody.Fee = Convert.ToUInt64(transactionBodyCbor[2].DecodeValueByCborType());
+
+            //? 3 : uint                    ; time to live
+            if (transactionBodyCbor.ContainsKey(3))
+            {
+                transactionBody.Ttl = Convert.ToUInt32(transactionBodyCbor[3].DecodeValueByCborType());
+            }
+
+            //? 4 : [* certificate]
+            if (transactionBodyCbor.ContainsKey(4))
+            {
+                transactionBody.Certificate = transactionBodyCbor[4].GetCertificate();
+            }
+
+            //? 5 : withdrawals
+            //? 6 : update
+            //? 7 : auxiliary_data_hash
+            if (transactionBodyCbor.ContainsKey(7))
+            {
+            }
+
+            //? 8 : uint                    ; validity interval start
+            //? 9 : mint
+            if (transactionBodyCbor.ContainsKey(9))
+            {
+            }
+
+            //? 11 : script_data_hash; New
+            //? 13 : set<transaction_input>; Collateral; new
+            //? 14 : required_signers; New
+            //? 15 : network_id; New
 
             //return
             return transactionBody;
