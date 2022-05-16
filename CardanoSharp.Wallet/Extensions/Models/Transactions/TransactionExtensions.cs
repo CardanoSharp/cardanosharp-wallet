@@ -30,7 +30,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
             else
             {
-                cborTransaction.Add(CBORObject.NewMap());
+                cborTransaction.Add(CBORObject.NewArray());
             }
 
             //add metadata
