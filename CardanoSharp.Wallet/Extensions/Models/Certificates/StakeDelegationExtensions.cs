@@ -43,11 +43,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Certificates
             {
                 throw new ArgumentException("credentialCbor is not expected type CBORType.Array");
             }
-            if (stakeDelegationCbor.Count != 2)
+            if (credentialCbor.Count != 2)
             {
                 throw new ArgumentException("credentialCbor has unexpected number of elements (expected 2)");
             }
-            if (Convert.ToInt16(stakeDelegationCbor[0].DecodeValueByCborType()) != 0)
+            if (Convert.ToInt16(credentialCbor[0].DecodeValueByCborType()) != 0)
             {
                 throw new ArgumentException("credentialCbor first element has unexpected value (expected 0)");
             }

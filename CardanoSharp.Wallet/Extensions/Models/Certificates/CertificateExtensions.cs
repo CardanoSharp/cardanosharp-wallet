@@ -113,14 +113,29 @@ namespace CardanoSharp.Wallet.Extensions.Models.Certificates
                 switch (index)
                 {
                     case 0: //stake registration
-                        var regCert = ((string)certItem.Values.Skip(1).First().DecodeValueByCborType()).HexToByteArray();
+                        var regCertIndex = Convert.ToInt32(certItem[1][0].DecodeValueByCborType());
+                        if (regCertIndex != 0)
+                        {
+                            throw new NotImplementedException("stake_registration accompanying cbor map index has unexpected value (expected 0)");
+                        }
+                        var regCert = ((string)certItem[1][1].DecodeValueByCborType()).HexToByteArray();
                         certificate.StakeRegistration = regCert;
                         break;
                     case 1: //stake deregistration
-                        var deregCert = ((string)certItem.Values.Skip(1).First().DecodeValueByCborType()).HexToByteArray();
+                        var deregCertIndex = Convert.ToInt32(certItem[1][0].DecodeValueByCborType());
+                        if (deregCertIndex != 0)
+                        {
+                            throw new NotImplementedException("stake_deregistration accompanying cbor map index has unexpected value (expected 0)");
+                        }
+                        var deregCert = ((string)certItem[1][1].DecodeValueByCborType()).HexToByteArray();
                         certificate.StakeDeregistration = deregCert;
                         break;
                     case 2: //stake delegation
+                        var delegationCertIndex = Convert.ToInt32(certItem[1][0].DecodeValueByCborType());
+                        if (delegationCertIndex != 0)
+                        {
+                            throw new NotImplementedException("stake_delegation accompanying cbor map index has unexpected value (expected 0)");
+                        }
                         certificate.StakeDelegation = certItem.GetStakeDelegation();
                         break;
                     default: throw new ArgumentException("certificateCbor array item had unexpected index value (expected 0 or 1)");

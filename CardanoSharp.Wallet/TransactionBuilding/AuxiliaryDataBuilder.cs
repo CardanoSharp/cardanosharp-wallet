@@ -8,6 +8,8 @@ namespace CardanoSharp.Wallet.TransactionBuilding
     public interface IAuxiliaryDataBuilder: IABuilder<AuxiliaryData>
     {
         IAuxiliaryDataBuilder AddMetadata(int index, object metadata);
+
+        IAuxiliaryDataBuilder AddList(object item);
     }
 
     public class AuxiliaryDataBuilder: ABuilder<AuxiliaryData>, IAuxiliaryDataBuilder
@@ -25,6 +27,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public IAuxiliaryDataBuilder AddMetadata(int index, object metadata)
         {
             _model.Metadata.Add(index, metadata);
+            return this;
+        }
+
+        public IAuxiliaryDataBuilder AddList(object item)
+        {
+            _model.List.Add(item);
             return this;
         }
     }

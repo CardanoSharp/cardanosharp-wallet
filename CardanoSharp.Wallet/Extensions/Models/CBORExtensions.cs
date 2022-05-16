@@ -14,7 +14,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             switch (cborObject.Type)
             {
                 case CBORType.Boolean:
-                    throw new NotImplementedException();
+                    result = cborObject.AsBoolean();
                     break;
                 case CBORType.SimpleValue:
                     throw new NotImplementedException();
@@ -23,13 +23,30 @@ namespace CardanoSharp.Wallet.Extensions.Models
                     result = cborObject.ToString().Replace("h", "").Replace("'", "");
                     break;
                 case CBORType.TextString:
-                    throw new NotImplementedException();
+                    var raw = cborObject.ToString();
+                    if (raw.Length > 1)
+                    {
+                        raw = raw.Substring(1);
+                        raw = raw.Substring(0, raw.Length - 1);
+                    }
+                    result = raw;
                     break;
                 case CBORType.Array:
-                    throw new NotImplementedException();
+                    var list = new List<object>();
+                    foreach (var item in cborObject.Values)
+                    {
+                        list.Add(DecodeValueByCborType(item));
+                    }
+                    result = list.ToArray();
                     break;
                 case CBORType.Map:
-                    throw new NotImplementedException();
+                    var map = new Dictionary<object, object>();
+                    foreach (var key in cborObject.Keys)
+                    {
+                        var decodedKey = key.DecodeValueByCborType();
+                        map[decodedKey] = DecodeValueByCborType(cborObject[key]);
+                    }
+                    result = map;
                     break;
                 case CBORType.Integer:
                     var number = cborObject.AsNumber();

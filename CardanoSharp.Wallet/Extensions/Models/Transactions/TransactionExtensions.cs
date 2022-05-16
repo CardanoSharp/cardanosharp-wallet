@@ -59,12 +59,12 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
 
             //get data
-            var transactionBodyCbor = transactionCbor.Values.First();
-            var transactionWitnessSetCbor = transactionCbor.Values.Skip(1).First();
+            var transactionBodyCbor = transactionCbor[0];
+            var transactionWitnessSetCbor = transactionCbor[1];
             CBORObject auxiliaryDataCbor = null;
             if (transactionCbor.Count > 2)
             {
-                auxiliaryDataCbor = transactionCbor.Values.Skip(2).FirstOrDefault();
+                auxiliaryDataCbor = transactionCbor[2];
             }
 
             //populate

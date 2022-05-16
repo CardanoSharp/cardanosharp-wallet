@@ -38,15 +38,28 @@ namespace CardanoSharp.Wallet.Test
         [Fact]
         public void DeserializeTransaction()
         {
-            //expected
+            //input & output
             var input1Addr = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
             var payment1Addr = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress();
             var payment2Addr = "addr_test1vqah2xrfp8qjp2tldu8wdq38q8c8tegnduae5zrqff3aeec7g467q".ToAddress();
+
+            //witnesses
             var witnesses = TransactionWitnessSetBuilder.Create
                 .AddVKeyWitness(
                     new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null),
                     new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null)
                 );
+
+            //cert
+            var rootKey = getBase15WordWallet();
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+            var stakeHash = HashUtility.Blake2b224(stakePub.Key);
+
+            //aux
+            var auxData = AuxiliaryDataBuilder.Create
+                .AddMetadata(1234, new { name = "simple message" })
+                .AddList("any object");
+
             var expectedTrans = TransactionBuilder.Create
                 .SetBody(TransactionBodyBuilder.Create
                     .AddInput(input1Addr, 1)
@@ -54,8 +67,13 @@ namespace CardanoSharp.Wallet.Test
                     .AddOutput(payment2Addr, 1674895157)
                     .SetFee(171397)
                     .SetTtl(57910820)
+                    .SetCertificate(CertificateBuilder.Create
+                        .SetStakeRegistration(stakeHash)
+                        .SetStakeDeregistration(stakeHash)
+                        .SetStakeDelegation(stakeHash, stakeHash))
                 )
-                //.SetWitnesses(witnesses)
+                .SetWitnesses(witnesses)
+                .SetAuxData(auxData)
                 .Build();
 
             var expected = expectedTrans.GetCBOR().EncodeToBytes().ToStringHex();

@@ -2,6 +2,7 @@
 using PeterO.Cbor2;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
@@ -18,11 +19,34 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         public static AuxiliaryData GetAuxiliaryData(this CBORObject auxiliaryDataCbor)
         {
             //validation
+            if (auxiliaryDataCbor == null)
+            {
+                throw new ArgumentNullException(nameof(auxiliaryDataCbor));
+            }
+            if (auxiliaryDataCbor.Type != CBORType.Array)
+            {
+                throw new ArgumentException("auxiliaryDataCbor is not expected type CBORType.Array");
+            }
 
             //get data
-
-            //populate
             var auxiliaryData = new AuxiliaryData();
+            var metadata = auxiliaryDataCbor[0];
+            if (metadata != null && metadata.Keys.Count > 0)
+            {
+                foreach (var key in metadata.Keys)
+                {
+                    var intKey = Convert.ToInt32(key.DecodeValueByCborType());
+                    auxiliaryData.Metadata[intKey] = metadata[key].DecodeValueByCborType();
+                }
+            }
+            var list = auxiliaryDataCbor[1];
+            if (list != null && list.Count > 0)
+            {
+                foreach (var item in list.Values)
+                {
+                    auxiliaryData.List.Add(item.DecodeValueByCborType());
+                }
+            }
 
             //return
             return auxiliaryData;
