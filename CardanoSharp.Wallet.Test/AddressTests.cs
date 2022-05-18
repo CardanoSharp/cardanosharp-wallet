@@ -5,6 +5,7 @@ using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Extensions;
 using Xunit;
 using CardanoSharp.Wallet.Models.Keys;
+using System;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -122,6 +123,33 @@ namespace CardanoSharp.Wallet.Test
         public void HasValidNetworkTest(string addr, bool isValidNetwork)
         {
             Assert.True(new Address(addr).HasValidNetwork() == isValidNetwork);
+        }
+
+        [Theory]
+        [InlineData("addr_test1qqg4gu4vfd3775glq8rjm85x2crmysc920hf5qjj8m7rxef8jemaq77p80ka87tm4vyem0sqnuerpmtw2awtu76dl4jsnk5zw2", "stake_test1uqneva7s00qnhmwnl9a6kzvahcqf7v3sa4h9wh970dxl6egft0emn")]
+        [InlineData("addr_test1qr3ls8ycdxgvlkqzsw2ysk9w2rpdstm208fnpnnsznst0lvalyteh6cvaz0cgqj7q2hprsvtxqp7w6gpf892vch6l5qs6ug90f", "stake_test1uzwlj9umavxw38uyqf0q9ts3cx9nqql8dyq5nj4xvta06qgqp7kfw")]
+        [InlineData("addr1q83ls8ycdxgvlkqzsw2ysk9w2rpdstm208fnpnnsznst0lvalyteh6cvaz0cgqj7q2hprsvtxqp7w6gpf892vch6l5qse249rk", "stake1uxwlj9umavxw38uyqf0q9ts3cx9nqql8dyq5nj4xvta06qg8t55dn")]
+        [InlineData("addr1qyg4gu4vfd3775glq8rjm85x2crmysc920hf5qjj8m7rxef8jemaq77p80ka87tm4vyem0sqnuerpmtw2awtu76dl4jssqfzz4", "stake1uyneva7s00qnhmwnl9a6kzvahcqf7v3sa4h9wh970dxl6egwp9mlw")]
+        [InlineData("addr1q88nszffkdktfcycgy6pvya42vtuemu2rxnfa5pgr5qf5r6kmsn4xczc49gggavkvgvsx96zl249yvk5r43t0q0ay9xq29tngn", "stake1u9tdcf6nvpv2j5yywktxyxgrzap042jjxt2p6c4hs87jznq3d0dug")]
+        public void ExtractRewardAddressTest(string baseAddressBech32, string expectedRewardAddressBech32)
+        {
+            var baseAddress = new Address(baseAddressBech32);
+
+            var rewardAddress = _addressService.ExtractRewardAddress(baseAddress);
+
+            Assert.Equal(expectedRewardAddressBech32, rewardAddress.ToString());
+        }
+
+        [Theory]
+        [InlineData("addr_test1vz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzerspjrlsz")]
+        [InlineData("addr1v9u5vlrf4xkxv2qpwngf6cjhtw542ayty80v8dyr49rf5eg0kvk0f")]
+        [InlineData("stake_test1uqevw2xnsc0pvn9t9r9c7qryfqfeerchgrlm3ea2nefr9hqp8n5xl")]
+        [InlineData("stake1uyevw2xnsc0pvn9t9r9c7qryfqfeerchgrlm3ea2nefr9hqxdekzz")]
+        public void ExtractRewardAddressInvalidTest(string invalidAddress)
+        {
+            var nonBaseAddress = new Address(invalidAddress);
+
+            Assert.Throws<ArgumentException>("basePaymentAddress", () => _addressService.ExtractRewardAddress(nonBaseAddress));
         }
 
         /// <summary>

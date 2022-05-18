@@ -1,6 +1,7 @@
 ﻿
 using System;
 using CardanoSharp.Wallet.Common;
+using CardanoSharp.Wallet.Encoding;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Keys;
@@ -15,6 +16,7 @@ namespace CardanoSharp.Wallet
         Address GetBaseAddress(PublicKey payment, PublicKey stake, NetworkType networkType);
         Address GetRewardAddress(PublicKey stake, NetworkType networkType);
         Address GetEnterpriseAddress(PublicKey payment, NetworkType networkType);
+        Address ExtractRewardAddress(Address basePaymentAddress);
     }
     public class AddressService : IAddressService
     {
@@ -119,6 +121,24 @@ namespace CardanoSharp.Wallet
             return new Address(prefix, addressArray);
         }
 
+        public Address ExtractRewardAddress(Address basePaymentAddress)
+        {
+            if (basePaymentAddress.AddressType != AddressType.Base)
+                throw new ArgumentException($"{nameof(basePaymentAddress)}:{basePaymentAddress} is not a base address", nameof(basePaymentAddress));
+
+            // The stake key digest is the second half of a base address's bytes (pre-bech32)
+            // and same value as the blake2b-224 hash digest of the stake key (blake2b-224=224bits=28bytes)
+            const int stakeKeyDigestByteLength = 28;
+            byte[] rewardAddressBytes = new byte[1 + stakeKeyDigestByteLength];
+            var rewardAddressPrefix = $"{getPrefixHeader(AddressType.Reward)}{getPrefixTail(basePaymentAddress.NetworkType)}";
+            var rewardAddressHeader = getAddressHeader(getNetworkInfo(basePaymentAddress.NetworkType), AddressType.Reward);
+            rewardAddressBytes[0] = rewardAddressHeader;
+            // Extract stake key hash from baseAddressBytes 
+            Buffer.BlockCopy(basePaymentAddress.GetBytes(), 29, rewardAddressBytes, 1, stakeKeyDigestByteLength);
+
+            return new Address(rewardAddressPrefix, rewardAddressBytes);
+        }
+
         private string getPrefixHeader(AddressType addressType) =>
             addressType switch
             {
@@ -152,6 +172,5 @@ namespace CardanoSharp.Wallet
                 AddressType.Reward => (byte)(0b1110_0000 | networkInfo.NetworkId & 0xF),
                 _ => throw new Exception("Unknown address type")
             };
-
     }
 }
