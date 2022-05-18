@@ -2,7 +2,6 @@
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Extensions.Models;
-using CardanoSharp.Wallet.Extensions;
 using Xunit;
 using CardanoSharp.Wallet.Models.Keys;
 using System;
