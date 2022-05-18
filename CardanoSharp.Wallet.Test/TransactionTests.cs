@@ -59,6 +59,22 @@ namespace CardanoSharp.Wallet.Test
             var auxData = AuxiliaryDataBuilder.Create
                 .AddMetadata(1234, new { name = "simple message", nestedObj = new { nestedName = "testing nesting object (de)serialization", nestedArr = new object[] { "first level", new object[] { "second level" } } } });
 
+            //policy info
+            var policyVkey = getGenesisTransaction();
+            var policyKeyHash = HashUtility.Blake2b224(policyVkey);
+
+            var scriptAllBuilder = ScriptAllBuilder.Create.SetScript(NativeScriptBuilder.Create.SetKeyHash(policyKeyHash));
+
+            var policyScript = scriptAllBuilder.Build();
+
+            var policyId = policyScript.GetPolicyId();
+
+            string mintAssetName = "token";
+            ulong assetAmount = 1;
+
+            var mintAsset = TokenBundleBuilder.Create
+                .AddToken(policyId, mintAssetName.ToBytes(), assetAmount);
+
             var expectedTrans = TransactionBuilder.Create
                 .SetBody(TransactionBodyBuilder.Create
                     .AddInput(input1Addr, 1)
@@ -66,6 +82,7 @@ namespace CardanoSharp.Wallet.Test
                     .AddOutput(payment2Addr, 1674895157)
                     .SetFee(171397)
                     .SetTtl(57910820)
+                    .SetMint(mintAsset)
                     .SetCertificate(CertificateBuilder.Create
                         .SetStakeRegistration(stakeHash)
                         .SetStakeDeregistration(stakeHash)
