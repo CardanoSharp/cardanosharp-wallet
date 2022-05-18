@@ -150,5 +150,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Certificates
         {
             return certificate.GetCBOR().EncodeToBytes();
         }
+
+        public static Certificate DeserializeCertificate(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetCertificate();
+        }
     }
 }

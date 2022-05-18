@@ -53,5 +53,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
         {
             return vKeyWitness.GetCBOR(transactionBody, auxiliaryData).EncodeToBytes();
         }
+
+        public static VKeyWitness DeserializeVKeyWitness(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetVKeyWitness();
+        }
     }
 }

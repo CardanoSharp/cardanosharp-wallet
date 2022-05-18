@@ -51,5 +51,10 @@ namespace CardanoSharp.Wallet.Extensions.Models
         {
             return scriptNofK.GetCBOR().EncodeToBytes();
         }
+
+        public static ScriptNofK DeserializeScriptNofK(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetScriptNofK();
+        }
     }
 }
