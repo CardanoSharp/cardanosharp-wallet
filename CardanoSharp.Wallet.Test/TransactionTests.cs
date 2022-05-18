@@ -57,7 +57,7 @@ namespace CardanoSharp.Wallet.Test
 
             //aux
             var auxData = AuxiliaryDataBuilder.Create
-                .AddMetadata(1234, new { name = "simple message" }); ;
+                .AddMetadata(1234, new { name = "simple message", nestedObj = new { nestedName = "testing nesting object (de)serialization", nestedArr = new object[] { "first level", new object[] { "second level" } } } });
 
             var expectedTrans = TransactionBuilder.Create
                 .SetBody(TransactionBodyBuilder.Create
