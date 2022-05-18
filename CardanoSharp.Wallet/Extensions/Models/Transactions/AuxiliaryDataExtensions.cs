@@ -56,5 +56,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         {
             return auxiliaryData.GetCBOR().EncodeToBytes();
         }
+
+        public static AuxiliaryData DeserializeAuxiliaryData(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetAuxiliaryData();
+        }
     }
 }

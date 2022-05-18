@@ -96,7 +96,6 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return transaction.GetCBOR().EncodeToBytes();
         }
 
-        //name includes Transaction to avoid ambiguity as byte[] could be serialized anything
         public static Transaction DeserializeTransaction(this byte[] bytes)
         {
             return CBORObject.DecodeFromBytes(bytes).GetTransaction();
