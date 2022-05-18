@@ -57,7 +57,7 @@ namespace CardanoSharp.Wallet.Test
             var utxo = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
             var payment1Addr = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress();
             var payment2Addr = "addr_test1vqah2xrfp8qjp2tldu8wdq38q8c8tegnduae5zrqff3aeec7g467q".ToAddress();
-            byte[] expectedCBOR = "83a3008182582098035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d12000018282581d60d0c43926a989c88d5049e61bdebf2a887aca10fa284b9067373ea28f0082581d603b75186909c120a97f6f0ee6822701f075e5136f3b9a08604a63dce70002009ffff6".HexToByteArray();
+            byte[] expectedCBOR = "83a3008182582098035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d12000018282581d60d0c43926a989c88d5049e61bdebf2a887aca10fa284b9067373ea28f0082581d603b75186909c120a97f6f0ee6822701f075e5136f3b9a08604a63dce7000200a0f6".HexToByteArray();
 
             // Arrange
 
@@ -71,6 +71,7 @@ namespace CardanoSharp.Wallet.Test
                 .Build();
 
             // Act
+            //var actualHex = tx.Serialize().ToStringHex();
             var actual = CBORObject.DecodeFromBytes(tx.Serialize());
             var expected = CBORObject.DecodeFromBytes(expectedCBOR);
             Assert.Equal(expected, actual);
