@@ -6,26 +6,45 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public class VKeyWitnessBuilder: ABuilder<VKeyWitness>
+    public interface IVKeyWitnessBuilder: IABuilder<VKeyWitness>
+    {
+        IVKeyWitnessBuilder WithVKey(PublicKey vKey);
+
+        IVKeyWitnessBuilder WithSKey(PrivateKey sKey);
+
+        IVKeyWitnessBuilder WithSignature(byte[] signature);
+    }
+
+    public class VKeyWitnessBuilder: ABuilder<VKeyWitness>, IVKeyWitnessBuilder
     {
         public VKeyWitnessBuilder()
         {
             _model = new VKeyWitness();
         }
 
-        public VKeyWitnessBuilder WithVKey(PublicKey vKey)
+        private VKeyWitnessBuilder(VKeyWitness model)
+        {
+            _model = model;
+        }
+
+        public static IVKeyWitnessBuilder GetBuilder(VKeyWitness model)
+        {
+            return new VKeyWitnessBuilder(model);
+        }
+
+        public IVKeyWitnessBuilder WithVKey(PublicKey vKey)
         {
             _model.VKey = vKey;
             return this;
         }
 
-        public VKeyWitnessBuilder WithSKey(PrivateKey sKey)
+        public IVKeyWitnessBuilder WithSKey(PrivateKey sKey)
         {
             _model.SKey = sKey;
             return this;
         }
 
-        public VKeyWitnessBuilder WithSignature(byte[] signature)
+        public IVKeyWitnessBuilder WithSignature(byte[] signature)
         {
             _model.Signature = signature;
             return this;

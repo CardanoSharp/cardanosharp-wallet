@@ -20,6 +20,16 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             _model = new TransactionWitnessSet();
         }
 
+        private TransactionWitnessSetBuilder(TransactionWitnessSet model)
+        {
+            _model = model;
+        }
+
+        public static ITransactionWitnessSetBuilder GetBuilder(TransactionWitnessSet model)
+        {
+            return new TransactionWitnessSetBuilder(model);
+        }
+
         public static ITransactionWitnessSetBuilder Create
         {
             get => new TransactionWitnessSetBuilder();
