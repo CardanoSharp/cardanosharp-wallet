@@ -31,19 +31,24 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
         public static VKeyWitness GetVKeyWitness(this CBORObject vKeyWitnessCbor)
         {
             //validation
+            if (vKeyWitnessCbor == null)
+            {
+                throw new ArgumentNullException(nameof(vKeyWitnessCbor));
+            }
+            if (vKeyWitnessCbor.Type != CBORType.Array)
+            {
+                throw new ArgumentException("vKeyWitnessCbor is not expected type CBORType.Array");
+            }
+            if (vKeyWitnessCbor.Count != 2)
+            {
+                throw new ArgumentException("vKeyWitnessCbor has unexpected number elements (expected 2)");
+            }
 
             //get data
-            var key = ((string)vKeyWitnessCbor.Values.First().DecodeValueByCborType()).HexToByteArray();
-            var vKey = new PublicKey(key, null);
-            vKey.Key = key;
-            var signature = ((string)vKeyWitnessCbor.Values.Skip(1).First().DecodeValueByCborType()).HexToByteArray();
-
-            //populate
-            var vkeyWitness = new VKeyWitness()
-            {
-                VKey = vKey,
-                Signature = signature
-            };
+            var vkeyWitness = new VKeyWitness();
+            var key = ((string)vKeyWitnessCbor[0].DecodeValueByCborType()).HexToByteArray();
+            vkeyWitness.VKey = new PublicKey(key, null);
+            vkeyWitness.Signature = ((string)vKeyWitnessCbor[1].DecodeValueByCborType()).HexToByteArray();
 
             //return
             return vkeyWitness;
