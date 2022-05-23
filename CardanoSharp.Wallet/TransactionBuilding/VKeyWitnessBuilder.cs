@@ -27,8 +27,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             _model = model;
         }
 
-        public static IVKeyWitnessBuilder GetBuilder(VKeyWitness model)
+        public static IVKeyWitnessBuilder GetBuilder(VKeyWitness model = null)
         {
+            if (model == null)
+            {
+                return new VKeyWitnessBuilder();
+            }
             return new VKeyWitnessBuilder(model);
         }
 

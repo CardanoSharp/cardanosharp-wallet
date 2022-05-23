@@ -26,6 +26,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public static ITransactionBuilder GetBuilder(Transaction model)
         {
+            if (model == null)
+            {
+                return new TransactionBuilder();
+            }
             return new TransactionBuilder(model);
         }
 

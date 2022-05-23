@@ -24,6 +24,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public static IScriptPubKeyBuilder GetBuilder(ScriptPubKey model)
         {
+            if (model == null)
+            {
+                return new ScriptPubKeyBuilder();
+            }
             return new ScriptPubKeyBuilder(model);
         }
 

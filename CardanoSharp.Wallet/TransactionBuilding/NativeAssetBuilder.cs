@@ -24,6 +24,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public static INativeAssetBuilder GetBuilder(NativeAsset model)
         {
+            if (model == null)
+            {
+                return new NativeAssetBuilder();
+            }
             return new NativeAssetBuilder(model);
         }
 

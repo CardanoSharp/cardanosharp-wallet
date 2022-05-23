@@ -24,6 +24,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public static IAuxiliaryDataBuilder GetBuilder(AuxiliaryData model)
         {
+            if (model == null)
+            {
+                return new AuxiliaryDataBuilder();
+            }
             return new AuxiliaryDataBuilder(model);
         }
 

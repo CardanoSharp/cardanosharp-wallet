@@ -28,6 +28,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public static IBootStrapWitnessBuilder GetBuilder(BootStrapWitness model)
         {
+            if (model == null)
+            {
+                return new BootStrapWitnessBuilder();
+            }
             return new BootStrapWitnessBuilder(model);
         }
 

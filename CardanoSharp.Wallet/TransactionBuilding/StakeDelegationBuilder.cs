@@ -26,6 +26,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public static IStakeDelegationBuilder GetBuilder(StakeDelegation model)
         {
+            if (model == null)
+            {
+                return new StakeDelegationBuilder();
+            }
             return new StakeDelegationBuilder(model);
         }
 

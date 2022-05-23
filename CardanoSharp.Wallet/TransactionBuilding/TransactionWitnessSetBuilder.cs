@@ -27,6 +27,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public static ITransactionWitnessSetBuilder GetBuilder(TransactionWitnessSet model)
         {
+            if (model == null)
+            {
+                return new TransactionWitnessSetBuilder();
+            }
             return new TransactionWitnessSetBuilder(model);
         }
 

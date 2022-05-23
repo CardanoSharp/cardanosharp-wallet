@@ -25,6 +25,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public static IScriptAllBuilder GetBuilder(ScriptAll model)
         {
+            if (model == null)
+            {
+                return new ScriptAllBuilder();
+            }
             return new ScriptAllBuilder(model);
         }
 

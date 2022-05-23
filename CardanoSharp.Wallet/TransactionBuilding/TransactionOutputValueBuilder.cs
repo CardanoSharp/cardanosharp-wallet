@@ -26,6 +26,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public static ITransactionOutputValueBuilder GetBuilder(TransactionOutputValue model)
         {
+            if (model == null)
+            {
+                return new TransactionOutputValueBuilder();
+            }
             return new TransactionOutputValueBuilder(model);
         }
 

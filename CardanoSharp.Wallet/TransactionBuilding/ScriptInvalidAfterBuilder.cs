@@ -24,6 +24,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public static IScriptInvalidAfterBuilder GetBuilder(ScriptInvalidAfter model)
         {
+            if (model == null)
+            {
+                return new ScriptInvalidAfterBuilder();
+            }
             return new ScriptInvalidAfterBuilder(model);
         }
 

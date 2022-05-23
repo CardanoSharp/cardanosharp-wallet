@@ -25,6 +25,10 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public static IScriptNofKBuilder GetBuilder(ScriptNofK model)
         {
+            if (model == null)
+            {
+                return new ScriptNofKBuilder();
+            }
             return new ScriptNofKBuilder(model);
         }
 
