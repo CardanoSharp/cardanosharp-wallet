@@ -9,20 +9,34 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
         
     }
 
-    public class LargestFirstStrategy: ILargestFirstStrategy
+    public class LargestFirstStrategy: BaseSelectionStrategy, ILargestFirstStrategy
     {
-        public List<TransactionUnspentOutput> SelectInputs(List<TransactionUnspentOutput> utxos, ulong amount, Asset asset = null)
+        public List<TransactionUnspentOutput> SelectInputs(List<TransactionUnspentOutput> utxos, ulong amount, Asset asset = null) =>
+            DetermineSelectedUtxos(amount, asset, OrderUTxOs(utxos, asset));
+        
+
+        private List<TransactionUnspentOutput> DetermineSelectedUtxos(ulong amount, Asset asset, List<TransactionUnspentOutput> orderedUtxos)
         {
-            if(asset is null)
-                return utxos.OrderByDescending(x => x.Output.Value.Coin).ToList();
-            else
+            var selectedUtxos = new List<TransactionUnspentOutput>();
+            ulong currentAmount = 0;
+            foreach (var ou in orderedUtxos)
             {
-                return utxos.OrderByDescending(x => x.Output.Value.MultiAsset
-                    .First(ma =>
-                        ma.Key.SequenceEqual(asset.PolicyId)
-                        && ma.Value.Token.ContainsKey(asset.Name))
-                    .Value.Token[asset.Name]).ToList();
+                // if we already have enough utxos to cover requested amount, break out
+                if (currentAmount >= amount) break;
+
+                // add current item to selected UTxOs
+                selectedUtxos.Add(ou);
+
+                // get quantity of UTxO
+                var quantity = (asset is null)
+                    ? ou.Output.Value.Coin
+                    : ou.Output.Value.MultiAsset[asset.PolicyId].Token[asset.Name];
+
+                // increment current amount by the UTxO quantity
+                currentAmount = currentAmount + quantity;
             }
+
+            return selectedUtxos;
         }
     }
 }
