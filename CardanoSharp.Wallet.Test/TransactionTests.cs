@@ -39,7 +39,7 @@ namespace CardanoSharp.Wallet.Test
         public void DeserializeTransaction()
         {
             //input & output
-            var input1Addr = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
+            var input1TxHash = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
             var payment1Addr = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress();
             var payment2Addr = "addr_test1vqah2xrfp8qjp2tldu8wdq38q8c8tegnduae5zrqff3aeec7g467q".ToAddress();
 
@@ -77,7 +77,7 @@ namespace CardanoSharp.Wallet.Test
 
             var expectedTrans = TransactionBuilder.Create
                 .SetBody(TransactionBodyBuilder.Create
-                    .AddInput(input1Addr, 1)
+                    .AddInput(input1TxHash, 1)
                     .AddOutput(payment1Addr, 7000000)
                     .AddOutput(payment2Addr, 1674895157)
                     .SetFee(171397)
@@ -106,9 +106,8 @@ namespace CardanoSharp.Wallet.Test
         public void DeserializeMultiAssetTransaction()
         {
             //input & output
-            var input1Addr = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
+            var input1TxHash = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
             var payment1Addr = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress();
-            var payment2Addr = "addr_test1vqah2xrfp8qjp2tldu8wdq38q8c8tegnduae5zrqff3aeec7g467q".ToAddress();
 
             //witnesses
             var witnesses = TransactionWitnessSetBuilder.Create
@@ -132,7 +131,7 @@ namespace CardanoSharp.Wallet.Test
 
             var expectedTrans = TransactionBuilder.Create
                 .SetBody(TransactionBodyBuilder.Create
-                    .AddInput(input1Addr, 1)
+                    .AddInput(input1TxHash, 1)
                     .AddOutput(payment1Addr, 1, tokenBundle1)
                     .SetFee(171397)
                     .SetTtl(57910820)
