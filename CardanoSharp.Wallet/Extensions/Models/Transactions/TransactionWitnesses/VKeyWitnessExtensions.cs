@@ -26,11 +26,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             {
                 throw new ArgumentException("vKeyWitness.VKey.Key not expected length (expected 32)");
             }
-
-            //sign body
-            var txBodyHash = HashUtility.Blake2b256(transactionBody.GetCBOR(auxiliaryData).EncodeToBytes());
-            vKeyWitness.Signature = vKeyWitness.SKey.Sign(txBodyHash);
-
+            
             //fill out cbor structure for vkey witnesses
             return CBORObject.NewArray()
                 .Add(vKeyWitness.VKey.Key)
