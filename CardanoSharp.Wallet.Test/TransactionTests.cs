@@ -38,7 +38,120 @@ namespace CardanoSharp.Wallet.Test
         [Fact]
         public void DeserializeTransaction()
         {
+            //input & output
+            var input1TxHash = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
+            var payment1Addr = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress();
+            var payment2Addr = "addr_test1vqah2xrfp8qjp2tldu8wdq38q8c8tegnduae5zrqff3aeec7g467q".ToAddress();
 
+            //witnesses
+            var witnesses = TransactionWitnessSetBuilder.Create
+                .AddVKeyWitness(
+                    new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null),
+                    new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null)
+                );
+
+            //cert
+            var rootKey = getBase15WordWallet();
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+            var stakeHash = HashUtility.Blake2b224(stakePub.Key);
+
+            //aux
+            var auxData = AuxiliaryDataBuilder.Create
+                .AddMetadata(1234, new { name = "simple message", nestedObj = new { nestedName = "testing nesting object (de)serialization", nestedArr = new object[] { "first level", new object[] { "second level" } } } });
+
+            //policy info
+            var policyVkey = getGenesisTransaction();
+            var policyKeyHash = HashUtility.Blake2b224(policyVkey);
+
+            var scriptAllBuilder = ScriptAllBuilder.Create.SetScript(NativeScriptBuilder.Create.SetKeyHash(policyKeyHash));
+
+            var policyScript = scriptAllBuilder.Build();
+
+            var policyId = policyScript.GetPolicyId();
+
+            string mintAssetName = "token";
+            ulong assetAmount = 1;
+
+            var mintAsset = TokenBundleBuilder.Create
+                .AddToken(policyId, mintAssetName.ToBytes(), assetAmount);
+
+            var expectedTrans = TransactionBuilder.Create
+                .SetBody(TransactionBodyBuilder.Create
+                    .AddInput(input1TxHash, 1)
+                    .AddOutput(payment1Addr, 7000000)
+                    .AddOutput(payment2Addr, 1674895157)
+                    .SetFee(171397)
+                    .SetTtl(57910820)
+                    .SetMint(mintAsset)
+                    .SetCertificate(CertificateBuilder.Create
+                        .SetStakeRegistration(stakeHash)
+                        .SetStakeDeregistration(stakeHash)
+                        .SetStakeDelegation(stakeHash, stakeHash))
+                )
+                .SetWitnesses(witnesses)
+                .SetAuxData(auxData)
+                .Build();
+
+            var expected = expectedTrans.GetCBOR().EncodeToBytes().ToStringHex();
+            
+            //actual
+            var bytes = expected.HexToByteArray();
+            var transaction = bytes.DeserializeTransaction();
+            var actual = transaction.Serialize().ToStringHex();
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void DeserializeMultiAssetTransaction()
+        {
+            //input & output
+            var input1TxHash = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
+            var payment1Addr = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress();
+
+            //witnesses
+            var witnesses = TransactionWitnessSetBuilder.Create
+                .AddVKeyWitness(
+                    new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null),
+                    new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null)
+                );
+
+            //cert
+            var rootKey = getBase15WordWallet();
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+            var stakeHash = HashUtility.Blake2b224(stakePub.Key);
+
+            //aux
+            var auxData = AuxiliaryDataBuilder.Create
+                .AddMetadata(1234, new { name = "simple message", nestedObj = new { nestedName = "testing nesting object (de)serialization", nestedArr = new object[] { "first level", new object[] { "second level" } } } });
+
+            var tokenBundle1 = TokenBundleBuilder.Create
+                .AddToken(getGenesisPolicyId(), "00010203".HexToByteArray(), 60)
+                .AddToken(getGenesisPolicyId(), "00010204".HexToByteArray(), 240);
+
+            var expectedTrans = TransactionBuilder.Create
+                .SetBody(TransactionBodyBuilder.Create
+                    .AddInput(input1TxHash, 1)
+                    .AddOutput(payment1Addr, 1, tokenBundle1)
+                    .SetFee(171397)
+                    .SetTtl(57910820)
+                    .SetCertificate(CertificateBuilder.Create
+                        .SetStakeRegistration(stakeHash)
+                        .SetStakeDeregistration(stakeHash)
+                        .SetStakeDelegation(stakeHash, stakeHash))
+                )
+                .SetWitnesses(witnesses)
+                .SetAuxData(auxData)
+                .Build();
+
+            var expected = expectedTrans.GetCBOR().EncodeToBytes().ToStringHex();
+
+            //actual
+            var bytes = expected.HexToByteArray();
+            var transaction = bytes.DeserializeTransaction();
+            var actual = transaction.Serialize().ToStringHex();
+
+            Assert.Equal(expected, actual);
         }
 
         [Fact]
