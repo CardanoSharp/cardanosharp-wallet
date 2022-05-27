@@ -14,7 +14,6 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
     {
         public static CBORObject GetCBOR(this VKeyWitness vKeyWitness, TransactionBody transactionBody, AuxiliaryData auxiliaryData)
         {
-            
             //validation
             if (vKeyWitness.VKey.Key.Length != 32)
             {
