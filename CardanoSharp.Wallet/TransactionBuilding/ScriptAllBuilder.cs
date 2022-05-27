@@ -18,6 +18,20 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             _model = new ScriptAll();
         }
 
+        private ScriptAllBuilder(ScriptAll model)
+        {
+            _model = model;
+        }
+
+        public static IScriptAllBuilder GetBuilder(ScriptAll model)
+        {
+            if (model == null)
+            {
+                return new ScriptAllBuilder();
+            }
+            return new ScriptAllBuilder(model);
+        }
+
         public static IScriptAllBuilder Create
         {
             get => new ScriptAllBuilder();

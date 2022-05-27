@@ -2,6 +2,7 @@
 using PeterO.Cbor2;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions.Models
@@ -22,9 +23,35 @@ namespace CardanoSharp.Wallet.Extensions.Models
             return scriptAnyCbor;
         }
 
+        public static ScriptAny GetScriptAny(this CBORObject scriptAnyCbor)
+        {
+            //validation
+            if (scriptAnyCbor == null)
+            {
+                throw new ArgumentNullException(nameof(scriptAnyCbor));
+            }
+            if (scriptAnyCbor.Count < 2)
+            {
+                throw new ArgumentException("scriptAllCbor has unexpected number of elements (expected 2+)");
+            }
+
+            //get data
+            var scriptAny = new ScriptAny();
+            foreach (var nativeScriptCbor in scriptAnyCbor.Values.Skip(1))
+            {
+                scriptAny.NativeScripts.Add(nativeScriptCbor.GetNativeScript());
+            }
+            return scriptAny;
+        }
+
         public static byte[] Serialize(this ScriptAny scriptAny)
         {
             return scriptAny.GetCBOR().EncodeToBytes();
+        }
+
+        public static ScriptAny DeserializeScriptAny(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetScriptAny();
         }
     }
 }

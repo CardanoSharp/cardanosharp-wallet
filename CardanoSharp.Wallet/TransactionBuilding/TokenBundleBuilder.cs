@@ -18,6 +18,20 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             _model = new Dictionary<byte[], NativeAsset>();
         }
 
+        private TokenBundleBuilder(Dictionary<byte[], NativeAsset> model)
+        {
+            _model = model;
+        }
+
+        public static ITokenBundleBuilder GetBuilder(Dictionary<byte[], NativeAsset> model)
+        {
+            if (model == null)
+            {
+                return new TokenBundleBuilder();
+            }
+            return new TokenBundleBuilder(model);
+        }
+
         public static ITokenBundleBuilder Create
         {
             get => new TokenBundleBuilder();
