@@ -2,6 +2,7 @@
 using PeterO.Cbor2;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Certificates
@@ -81,9 +82,78 @@ namespace CardanoSharp.Wallet.Extensions.Models.Certificates
             return cborCert;
         }
 
+        public static Certificate GetCertificate(this CBORObject certificateCbor)
+        {
+            //validation
+            if (certificateCbor == null)
+            {
+                throw new ArgumentNullException(nameof(certificateCbor));
+            }
+            if (certificateCbor.Type != CBORType.Array)
+            {
+                throw new ArgumentException("certificateCbor is not expected type CBORType.Array");
+            }
+
+            //get data
+            var certificate = new Certificate();
+
+            foreach (var certItem in certificateCbor.Values)
+            {
+                //should always be an array
+                if (certItem.Type != CBORType.Array)
+                {
+                    throw new ArgumentException("certificateCbor array item is not expected type CBORType.Array");
+                }
+
+                if (!certItem.Values.First().IsNumber)
+                {
+                    throw new ArgumentException("certificateCbor array item has invalid first element (expected number)");
+                }
+                var index = Convert.ToInt32(certItem.Values.First().DecodeValueByCborType());
+                switch (index)
+                {
+                    case 0: //stake registration
+                        var regCertIndex = Convert.ToInt32(certItem[1][0].DecodeValueByCborType());
+                        if (regCertIndex != 0)
+                        {
+                            throw new NotImplementedException("stake_registration accompanying cbor map index has unexpected value (expected 0)");
+                        }
+                        var regCert = ((string)certItem[1][1].DecodeValueByCborType()).HexToByteArray();
+                        certificate.StakeRegistration = regCert;
+                        break;
+                    case 1: //stake deregistration
+                        var deregCertIndex = Convert.ToInt32(certItem[1][0].DecodeValueByCborType());
+                        if (deregCertIndex != 0)
+                        {
+                            throw new NotImplementedException("stake_deregistration accompanying cbor map index has unexpected value (expected 0)");
+                        }
+                        var deregCert = ((string)certItem[1][1].DecodeValueByCborType()).HexToByteArray();
+                        certificate.StakeDeregistration = deregCert;
+                        break;
+                    case 2: //stake delegation
+                        var delegationCertIndex = Convert.ToInt32(certItem[1][0].DecodeValueByCborType());
+                        if (delegationCertIndex != 0)
+                        {
+                            throw new NotImplementedException("stake_delegation accompanying cbor map index has unexpected value (expected 0)");
+                        }
+                        certificate.StakeDelegation = certItem.GetStakeDelegation();
+                        break;
+                    default: throw new ArgumentException("certificateCbor array item had unexpected index value (expected 0 or 1)");
+                }
+            }
+
+            //return
+            return certificate;
+        }
+
         public static byte[] Serialize(this Certificate certificate)
         {
             return certificate.GetCBOR().EncodeToBytes();
+        }
+
+        public static Certificate DeserializeCertificate(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetCertificate();
         }
     }
 }

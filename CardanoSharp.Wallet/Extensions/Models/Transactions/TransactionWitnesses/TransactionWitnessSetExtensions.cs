@@ -39,9 +39,57 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             return cborWitnessSet;
         }
 
+        public static TransactionWitnessSet GetTransactionWitnessSet(this CBORObject transactionWitnessSetCbor)
+        {
+            //validation
+            if (transactionWitnessSetCbor == null)
+            {
+                throw new ArgumentNullException(nameof(transactionWitnessSetCbor));
+            }
+            if (transactionWitnessSetCbor.Type != CBORType.Map)
+            {
+                throw new ArgumentException("transactionWitnessSetCbor is not expected type CBORType.Map");
+            }
+
+            //get data
+            var transactionWitnessSet = new TransactionWitnessSet();
+            if (transactionWitnessSetCbor.ContainsKey(0))
+            {
+                var vkeyWitnessesCbor = transactionWitnessSetCbor[0];
+                if (vkeyWitnessesCbor.Type != CBORType.Array)
+                {
+                    throw new ArgumentException("vkeyWitnessesCbor is not expected type CBORType.Array");
+                }
+                var vKeyWitnesses = new HashSet<VKeyWitness>();
+                foreach (var vkeyWitnessCbor in vkeyWitnessesCbor.Values)
+                {
+                    vKeyWitnesses.Add(vkeyWitnessCbor.GetVKeyWitness());
+                }
+
+                transactionWitnessSet.VKeyWitnesses = vKeyWitnesses;
+            }
+
+            if (transactionWitnessSetCbor.ContainsKey(1))
+            {
+                var nativeScriptsCbor = transactionWitnessSetCbor[1];
+                foreach (var nativeScriptCbor in nativeScriptsCbor.Values)
+                {
+                    transactionWitnessSet.NativeScripts.Add(nativeScriptCbor.GetNativeScript());
+                }
+            }
+
+            //return
+            return transactionWitnessSet;
+        }
+
         public static byte[] Serialize(this TransactionWitnessSet transactionWitnessSet, TransactionBody transactionBody, AuxiliaryData auxiliaryData)
         {
             return transactionWitnessSet.GetCBOR(transactionBody, auxiliaryData).EncodeToBytes();
+        }
+
+        public static TransactionWitnessSet DeserializeTransactionWitnessSet(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetTransactionWitnessSet();
         }
     }
 }
