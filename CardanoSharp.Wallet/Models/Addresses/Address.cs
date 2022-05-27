@@ -66,10 +66,12 @@ namespace CardanoSharp.Wallet.Models.Addresses
         {
             return (_bytes[0] >> 4) switch
             {
-                0x01 => AddressType.Base, //@TODO: derive all AddressTypes
+                0x00 or 0x01 or 0x02 or 0x03 => AddressType.Base,
+                0x04 or 0x05 => AddressType.Ptr, 
                 0x06 => AddressType.Enterprise,
-                //0x07 => AddressType.SmartContract,
-                _ => AddressType.Base,
+                //0x07 => AddressType.Script,
+                0x0e or 0x0f => AddressType.Reward,
+                _ => AddressType.Base, //@TODO: derive all AddressTypes
             };
         }
 

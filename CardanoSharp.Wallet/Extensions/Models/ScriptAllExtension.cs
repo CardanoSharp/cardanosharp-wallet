@@ -2,6 +2,8 @@
 using CardanoSharp.Wallet.Models.Transactions.Scripts;
 using CardanoSharp.Wallet.Utilities;
 using PeterO.Cbor2;
+using System;
+using System.Linq;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {
@@ -14,7 +16,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             BigEndianBuffer buffer = new BigEndianBuffer();
             buffer.Write(new byte[] { 0x00 });
             buffer.Write(serializedCBOR);
-            return HashUtility.Blake2b244(buffer.ToArray());
+            return HashUtility.Blake2b224(buffer.ToArray());
         }
 
         public static CBORObject GetCBOR(this ScriptAll scriptAll)
@@ -31,9 +33,37 @@ namespace CardanoSharp.Wallet.Extensions.Models
             return scriptAllCbor;
         }
 
+        public static ScriptAll GetScriptAll(this CBORObject scriptAllCbor)
+        {
+            //validation
+            if (scriptAllCbor == null)
+            {
+                throw new ArgumentNullException(nameof(scriptAllCbor));
+            }
+            if (scriptAllCbor.Count < 2)
+            {
+                throw new ArgumentException("scriptAllCbor has unexpected number of elements (expected 2+)");
+            }
+
+            //get data
+            var scriptAll = new ScriptAll();
+            foreach (var nativeScriptCbor in scriptAllCbor.Values.Skip(1))
+            {
+                scriptAll.NativeScripts.Add(nativeScriptCbor.GetNativeScript());
+            }
+
+            //return
+            return scriptAll;
+        }
+
         public static byte[] Serialize(this ScriptAll scriptAll)
         {
             return scriptAll.GetCBOR().EncodeToBytes();
+        }
+
+        public static ScriptAll DeserializeScriptAll(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetScriptAll();
         }
     }
 }

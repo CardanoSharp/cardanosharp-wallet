@@ -7,7 +7,7 @@ namespace CardanoSharp.Wallet.Utilities
 {
     public static class HashUtility
     {
-        public static byte[] Blake2b244(byte[] data)
+        public static byte[] Blake2b224(byte[] data)
         {
             return Blake2b.ComputeHash(28, data);
         }

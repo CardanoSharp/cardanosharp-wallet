@@ -11,7 +11,6 @@ namespace CardanoSharp.Wallet.Encoding
         /// <summary>
         /// Maximum length of the whole Bech32 string (hrp + separator + data)
         /// </summary>
-        private const int TotalMaxLength = 108; //103 = mainnet length of a delegation address, 108 = testnet length
         private const int CheckSumSize = 6;
         private const int HrpMinLength = 1;
         private const int HrpMaxLength = 83;
@@ -51,7 +50,7 @@ namespace CardanoSharp.Wallet.Encoding
         /// <returns>True if input was a valid bech-32 encoded string (without verifying checksum).</returns>
         public static bool HasValidChars(string bech32EncodedString)
         {
-            if (string.IsNullOrEmpty(bech32EncodedString) || bech32EncodedString.Length > TotalMaxLength)
+            if (string.IsNullOrEmpty(bech32EncodedString))
             {
                 return false;
             }

@@ -10,17 +10,45 @@ namespace CardanoSharp.Wallet.Extensions.Models
     {
         public static CBORObject GetCBOR(this ScriptInvalidAfter scriptInvalidAfter)
         {
-            // invalid_before = (4, uint)
             var scriptInvalidAfterCbor = CBORObject.NewArray()
-                .Add(4)
+                .Add(5)
                 .Add(scriptInvalidAfter.After);
 
             return scriptInvalidAfterCbor;
         }
 
+        public static ScriptInvalidAfter GetScriptInvalidAfter(this CBORObject scriptInvalidAfterCbor)
+        {
+            //validation
+            if (scriptInvalidAfterCbor == null)
+            {
+                throw new ArgumentException(nameof(scriptInvalidAfterCbor));
+            }
+            if (scriptInvalidAfterCbor.Type != CBORType.Array)
+            {
+                throw new ArgumentException("scriptInvalidAfterCbor is not expected type CBORType.Array");
+            }
+            if (scriptInvalidAfterCbor.Values.Count == 2)
+            {
+                throw new ArgumentException("scriptInvalidAfterCbor has unexpected number of elements (expected 2)");
+            }
+
+            //get data
+            var scriptInvalidAfter = new ScriptInvalidAfter();
+            scriptInvalidAfter.After = (uint)scriptInvalidAfterCbor[1].DecodeValueByCborType();
+
+            //return
+            return scriptInvalidAfter;
+        }
+
         public static byte[] Serialize(this ScriptInvalidAfter scriptInvalidAfter)
         {
             return scriptInvalidAfter.GetCBOR().EncodeToBytes();
+        }
+
+        public static ScriptInvalidAfter DeserializeScriptInvalidAfter(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetScriptInvalidAfter();
         }
     }
 }

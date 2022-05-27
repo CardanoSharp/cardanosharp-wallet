@@ -6,14 +6,33 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public class ScriptNofKBuilder : ABuilder<ScriptNofK>
+    public interface IScriptNofKBuilder: IABuilder<ScriptNofK>
+    {
+        IScriptNofKBuilder WithNativeScripts(List<NativeScript> nativeScripts);
+    }
+
+    public class ScriptNofKBuilder : ABuilder<ScriptNofK>, IScriptNofKBuilder
     {
         public ScriptNofKBuilder()
         {
             _model = new ScriptNofK();
         }
 
-        public ScriptNofKBuilder WithNativeScripts(List<NativeScript> nativeScripts)
+        private ScriptNofKBuilder(ScriptNofK model)
+        {
+            _model = model;
+        }
+
+        public static IScriptNofKBuilder GetBuilder(ScriptNofK model)
+        {
+            if (model == null)
+            {
+                return new ScriptNofKBuilder();
+            }
+            return new ScriptNofKBuilder(model);
+        }
+
+        public IScriptNofKBuilder WithNativeScripts(List<NativeScript> nativeScripts)
         {
             _model.NativeScripts = nativeScripts;
             return this;
