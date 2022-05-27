@@ -4,6 +4,7 @@ using CardanoSharp.Wallet.Models.Transactions;
 using PeterO.Cbor2;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
@@ -41,6 +42,47 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return cborTransaction;
         }
 
+        public static Transaction GetTransaction(this CBORObject transactionCbor)
+        {
+            //validation
+            if (transactionCbor == null)
+            {
+                throw new ArgumentNullException(nameof(transactionCbor));
+            }
+            if (transactionCbor.Type != CBORType.Array)
+            {
+                throw new ArgumentException("transactionCbor is not expected type CBORType.Array");
+            }
+            if (transactionCbor.Count < 2)
+            {
+                throw new ArgumentException("transactionCbor does not contain at least 2 elements (body & witness set)");
+            }
+
+            //get data
+            var transactionBodyCbor = transactionCbor[0];
+            var transactionWitnessSetCbor = transactionCbor[1];
+            CBORObject auxiliaryDataCbor = null;
+            if (transactionCbor.Count > 2)
+            {
+                auxiliaryDataCbor = transactionCbor[2];
+            }
+
+            //populate
+            var transaction = new Transaction();
+            transaction.TransactionBody = transactionBodyCbor.GetTransactionBody();
+            if (transactionWitnessSetCbor != null && transactionWitnessSetCbor.Count > 0)
+            {
+                transaction.TransactionWitnessSet = transactionWitnessSetCbor.GetTransactionWitnessSet();
+            }
+            if (auxiliaryDataCbor != null && !auxiliaryDataCbor.IsNull)
+            {
+                transaction.AuxiliaryData = auxiliaryDataCbor.GetAuxiliaryData();
+            }
+
+            //return
+            return transaction;
+        }
+
         public static uint CalculateFee(this Transaction transaction, uint? a = null, uint? b = null)
         {
             if (!a.HasValue) a = FeeStructure.Coefficient;
@@ -52,6 +94,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         public static byte[] Serialize(this Transaction transaction)
         {
             return transaction.GetCBOR().EncodeToBytes();
+        }
+
+        public static Transaction DeserializeTransaction(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetTransaction();
         }
     }
 }
