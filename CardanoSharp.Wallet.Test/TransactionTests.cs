@@ -15,7 +15,6 @@ using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
 using PeterO.Cbor2;
 using System.Linq;
-using Xunit.Abstractions;
 
 namespace CardanoSharp.Wallet.Test
 {
