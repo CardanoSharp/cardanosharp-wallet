@@ -61,11 +61,8 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             //get data
             var transactionBodyCbor = transactionCbor[0];
             var transactionWitnessSetCbor = transactionCbor[1];
-            CBORObject auxiliaryDataCbor = null;
-            if (transactionCbor.Count > 2)
-            {
-                auxiliaryDataCbor = transactionCbor[2];
-            }
+            var isValid = transactionCbor.Count > 2 ? transactionCbor[2] : null;
+            var auxiliaryDataCbor = transactionCbor.Count > 3 ? transactionCbor[3] : null;
 
             //populate
             var transaction = new Transaction();
