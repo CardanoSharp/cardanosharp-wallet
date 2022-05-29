@@ -33,6 +33,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 cborTransaction.Add(CBORObject.NewMap());
             }
 
+            //add isValid
+            cborTransaction.Add(transaction.IsValid.GetCBOR());
+
             //add metadata
             cborTransaction.Add(transaction.AuxiliaryData != null
                 ? transaction.AuxiliaryData.GetCBOR()
