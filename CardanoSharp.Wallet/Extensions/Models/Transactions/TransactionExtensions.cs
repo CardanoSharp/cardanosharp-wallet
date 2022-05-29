@@ -61,7 +61,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             //get data
             var transactionBodyCbor = transactionCbor[0];
             var transactionWitnessSetCbor = transactionCbor[1];
-            var isValid = transactionCbor.Count > 2 ? transactionCbor[2] : null;
+            var isValidCbor = transactionCbor.Count > 2 ? transactionCbor[2] : null;
             var auxiliaryDataCbor = transactionCbor.Count > 3 ? transactionCbor[3] : null;
 
             //populate
@@ -70,6 +70,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (transactionWitnessSetCbor != null && transactionWitnessSetCbor.Count > 0)
             {
                 transaction.TransactionWitnessSet = transactionWitnessSetCbor.GetTransactionWitnessSet();
+            }
+            if (isValidCbor != null && !isValidCbor.IsNull)
+            {
+                transaction.IsValid = isValidCbor.GetIsValid();
             }
             if (auxiliaryDataCbor != null && !auxiliaryDataCbor.IsNull)
             {
