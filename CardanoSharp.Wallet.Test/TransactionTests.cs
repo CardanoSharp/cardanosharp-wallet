@@ -27,15 +27,13 @@ namespace CardanoSharp.Wallet.Test
         private static string __projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
         private static DirectoryInfo __dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
         private static JsonSerializerOptions __jsonSerializerOptions = new JsonSerializerOptions() { WriteIndented = true };
-        private readonly ITestOutputHelper _testOutputHelper;
 
-        public TransactionTests(ITestOutputHelper testOutputHelper)
+        public TransactionTests()
         {
             _keyService = new MnemonicService();
             _addressService = new AddressService();
             _transactionSerializer = new TransactionSerializer();
             DirectoryInfo dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
-            _testOutputHelper = testOutputHelper;
         }
 
         [Fact]
