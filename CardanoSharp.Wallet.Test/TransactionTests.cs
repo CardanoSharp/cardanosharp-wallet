@@ -15,7 +15,6 @@ using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
 using PeterO.Cbor2;
 using System.Linq;
-using Xunit.Abstractions;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -28,7 +27,7 @@ namespace CardanoSharp.Wallet.Test
         private static DirectoryInfo __dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
         private static JsonSerializerOptions __jsonSerializerOptions = new JsonSerializerOptions() { WriteIndented = true };
 
-        public TransactionTests(ITestOutputHelper testOutputHelper)
+        public TransactionTests()
         {
             _keyService = new MnemonicService();
             _addressService = new AddressService();
@@ -102,7 +101,6 @@ namespace CardanoSharp.Wallet.Test
 
             Assert.Equal(expected, actual);
         }
-
 
         [Fact]
         public void DeserializeMultiAssetTransaction()
@@ -188,7 +186,6 @@ namespace CardanoSharp.Wallet.Test
             // Act
             //var actualHex = tx.Serialize().ToStringHex();
             var actual = CBORObject.DecodeFromBytes(tx.Serialize());
-
             var expected = CBORObject.DecodeFromBytes(expectedCBOR);
             Assert.Equal(expected, actual);
 
@@ -396,7 +393,6 @@ namespace CardanoSharp.Wallet.Test
             Assert.Equal("a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d941a0039c702021a000341fe031903e8048282008200581ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d9483028200581ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94581ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94",
                 serialized.ToStringHex());
         }
-
 
         [Fact]
         public void OneAssetForEachOutputTest()
