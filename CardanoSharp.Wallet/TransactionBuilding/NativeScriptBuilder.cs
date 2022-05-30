@@ -23,6 +23,20 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             _model = new NativeScript();
         }
 
+        private NativeScriptBuilder(NativeScript model)
+        {
+            _model = model;
+        }
+
+        public static INativeScriptBuilder GetBuilder(NativeScript model)
+        {
+            if (model == null)
+            {
+                return new NativeScriptBuilder();
+            }
+            return new NativeScriptBuilder(model);
+        }
+
         public static INativeScriptBuilder Create
         {
             get => new NativeScriptBuilder();

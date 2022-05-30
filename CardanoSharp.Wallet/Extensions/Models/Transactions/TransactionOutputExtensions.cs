@@ -64,6 +64,74 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return cborTransactionOutput;
         }
 
+        public static TransactionOutput GetTransactionOutput(this CBORObject transactionOutputCbor)
+        {
+            //validation
+            if (transactionOutputCbor == null)
+            {
+                throw new ArgumentNullException(nameof(transactionOutputCbor));
+            }
+            if (transactionOutputCbor.Type != CBORType.Array)
+            {
+                throw new ArgumentException("transactionOutputCbor is not expected type CBORType.Map");
+            }
+            if (transactionOutputCbor.Count != 2)
+            {
+                throw new ArgumentException("transactionOutputCbor unexpected number elements (expected 2)");
+            }
+            if (transactionOutputCbor[0].Type != CBORType.ByteString)
+            {
+                throw new ArgumentException("transactionOutputCbor first element unexpected type (expected ByteString)");
+            }
+            if (transactionOutputCbor[1].Type != CBORType.Integer && transactionOutputCbor[1].Type != CBORType.Array)
+            {
+                throw new ArgumentException("transactionInputCbor second element unexpected type (expected Integer or Array)");
+            }
+
+            //get data
+            var transactionOutput = new TransactionOutput();
+            transactionOutput.Address = ((string)transactionOutputCbor[0].DecodeValueByCborType()).HexToByteArray();
+            if (transactionOutputCbor[1].Type == CBORType.Integer)
+            {
+                //coin
+                transactionOutput.Value = new TransactionOutputValue() 
+                { 
+                    Coin = Convert.ToUInt64(transactionOutputCbor[1].DecodeValueByCborType()) 
+                };
+            }
+            else
+            {
+                //multi asset
+                transactionOutput.Value = new TransactionOutputValue();
+                transactionOutput.Value.MultiAsset = new Dictionary<byte[], NativeAsset>();
+
+                var coinCbor = transactionOutputCbor[1][0];
+                transactionOutput.Value.Coin = Convert.ToUInt64(coinCbor.DecodeValueByCborType());
+
+                var multiAssetCbor = transactionOutputCbor[1][1];
+                foreach (var policyKeyCbor in multiAssetCbor.Keys)
+                {
+                    var nativeAsset = new NativeAsset();
+
+                    var assetMapCbor = multiAssetCbor[policyKeyCbor];
+                    var policyKeyBytes = ((string)policyKeyCbor.DecodeValueByCborType()).HexToByteArray();
+
+                    foreach (var assetKeyCbor in assetMapCbor.Keys)
+                    {
+                        var assetToken = Convert.ToUInt64(assetMapCbor[assetKeyCbor].DecodeValueByCborType());
+                        var assetKeyBytes = ((string)assetKeyCbor.DecodeValueByCborType()).HexToByteArray();
+
+                        nativeAsset.Token.Add(assetKeyBytes, assetToken);
+                    }
+
+                    transactionOutput.Value.MultiAsset.Add(policyKeyBytes, nativeAsset);
+                }
+            }
+
+            //return
+            return transactionOutput;
+        }
+
         public static byte[] Serialize(this TransactionOutput transactionOutput)
         {
             return transactionOutput.GetCBOR().EncodeToBytes();
@@ -112,6 +180,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
             
             return assets;
+        }
+
+        public static TransactionOutput DeserializeTransactionOutput(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetTransactionOutput();
         }
     }
 }

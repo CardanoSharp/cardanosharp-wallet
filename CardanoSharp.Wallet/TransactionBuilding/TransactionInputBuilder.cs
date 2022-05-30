@@ -5,20 +5,41 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public class TransactionInputBuilder: ABuilder<TransactionInput>
+    public interface ITransactionInputBuilder : IABuilder<TransactionInput>
+    {
+        ITransactionInputBuilder WithTransactionId(byte[] transactionId);
+
+        ITransactionInputBuilder WithTransactionIndex(uint transactionIndex);
+    }
+
+    public class TransactionInputBuilder: ABuilder<TransactionInput>, ITransactionInputBuilder
     {
         public TransactionInputBuilder()
         {
             _model = new TransactionInput();
         }
 
-        public TransactionInputBuilder WithTransactionId(byte[] transactionId)
+        private TransactionInputBuilder(TransactionInput model)
+        {
+            _model = model;
+        }
+
+        public static ITransactionInputBuilder GetBuilder(TransactionInput model)
+        {
+            if (model == null)
+            {
+                return new TransactionInputBuilder();
+            }
+            return new TransactionInputBuilder(model);
+        }
+
+        public ITransactionInputBuilder WithTransactionId(byte[] transactionId)
         {
             _model.TransactionId = transactionId;
             return this;
         }
 
-        public TransactionInputBuilder WithTransactionIndex(uint transactionIndex)
+        public ITransactionInputBuilder WithTransactionIndex(uint transactionIndex)
         {
             _model.TransactionIndex = transactionIndex;
             return this;

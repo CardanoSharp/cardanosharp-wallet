@@ -5,6 +5,7 @@ using CardanoSharp.Wallet.Extensions.Models;
 using Xunit;
 using CardanoSharp.Wallet.Models.Keys;
 using System;
+using CardanoSharp.Wallet.Extensions;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -152,7 +153,7 @@ namespace CardanoSharp.Wallet.Test
         }
 
         /// <summary>
-        /// Getting the key from path as descibed in https://github.com/cardano-foundation/CIPs/blob/master/CIP-1852/CIP-1852.md
+        /// Getting the key from path as described in https://github.com/cardano-foundation/CIPs/blob/master/CIP-1852/CIP-1852.md
         /// </summary>
         /// <param name="path"></param>
         /// <param name="rootKey"></param>
@@ -161,6 +162,25 @@ namespace CardanoSharp.Wallet.Test
         {
             var privateKey = rootKey.Derive(path);
             return (privateKey, privateKey.GetPublicKey(false));
+        }
+
+        [Fact]
+        public void EqualsWithByteArrayTest()
+        {
+            string strAddress = "addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp";
+            var address = new Address(strAddress);
+
+            //Converting to hex and back to make sure we have a new array
+            var byteAddress = address.GetBytes().ToStringHex().HexToByteArray();
+
+            Assert.True(address.Equals(byteAddress));
+        }
+
+        [Fact]
+        public void EqualsWithAddressTest()
+        {
+            string addr = "addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp";
+            Assert.True(new Address(addr).Equals(new Address(addr)));
         }
     }
 }
