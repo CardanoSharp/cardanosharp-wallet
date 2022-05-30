@@ -23,7 +23,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             foreach (var asset in outputs.AggregateAssets())
             {
                 if (!HasRequiredAsset(utxos, asset))
-                    throw new Exception("UTxOs do not have contain a required asset");
+                    throw new Exception("UTxOs do not contain a required asset");
 
                 var selectedUtxos = _coinSelection.SelectInputs(utxos, asset.Quantity, asset.PolicyId is null ? null : asset);
 
