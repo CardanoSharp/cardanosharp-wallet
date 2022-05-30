@@ -93,13 +93,162 @@ namespace CardanoSharp.Wallet.Test
                 .Build();
 
             var expected = expectedTrans.GetCBOR().EncodeToBytes().ToStringHex();
-            
+
             //actual
             var bytes = expected.HexToByteArray();
             var transaction = bytes.DeserializeTransaction();
             var actual = transaction.Serialize().ToStringHex();
 
             Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void DeserializeTransactionValues()
+        {
+            //input & output
+            var input1TxHash = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
+            var payment1Addr = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress();
+            var payment2Addr = "addr_test1vqah2xrfp8qjp2tldu8wdq38q8c8tegnduae5zrqff3aeec7g467q".ToAddress();
+
+            //witnesses
+            var witnesses = TransactionWitnessSetBuilder.Create
+                .AddVKeyWitness(
+                    new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null),
+                    new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null)
+                );
+
+            //cert
+            var rootKey = getBase15WordWallet();
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+            var stakeHash = HashUtility.Blake2b224(stakePub.Key);
+
+            //aux
+            var auxData = AuxiliaryDataBuilder.Create
+                .AddMetadata(1234, new { name = "simple message", nestedObj = new { nestedName = "testing nesting object (de)serialization", nestedArr = new object[] { "first level", new object[] { "second level" } } } });
+
+            //policy info
+            var policyVkey = getGenesisTransaction();
+            var policyKeyHash = HashUtility.Blake2b224(policyVkey);
+
+            var scriptAllBuilder = ScriptAllBuilder.Create.SetScript(NativeScriptBuilder.Create.SetKeyHash(policyKeyHash));
+
+            var policyScript = scriptAllBuilder.Build();
+
+            var policyId = policyScript.GetPolicyId();
+
+            string mintAssetName = "token";
+            ulong assetAmount = 1;
+
+            var mintAsset = TokenBundleBuilder.Create
+                .AddToken(policyId, mintAssetName.ToBytes(), assetAmount);
+
+            var expected = TransactionBuilder.Create
+                .SetBody(TransactionBodyBuilder.Create
+                    .AddInput(input1TxHash, 1)
+                    .AddOutput(payment1Addr, 7000000)
+                    .AddOutput(payment2Addr, 1674895157)
+                    .SetFee(171397)
+                    .SetTtl(57910820)
+                    .SetMint(mintAsset)
+                    .SetCertificate(CertificateBuilder.Create
+                        .SetStakeRegistration(stakeHash)
+                        .SetStakeDeregistration(stakeHash)
+                        .SetStakeDelegation(stakeHash, stakeHash))
+                )
+                .SetWitnesses(witnesses)
+                .SetAuxData(auxData)
+                .Build();
+
+            // Assert the TransactionBody values are expected
+            // Assert the TransactionBodyInputs values are expected
+            List<TransactionInput> actualTransactionInputs = new List<TransactionInput> {
+                new TransactionInput { TransactionId = input1TxHash, TransactionIndex = 1 }
+            };
+            Assert.Equal(expected.TransactionBody.TransactionInputs.Count, actualTransactionInputs.Count);
+
+            int index = 0;
+            foreach (TransactionInput expectedTransactionInput in expected.TransactionBody.TransactionInputs)
+            {
+                TransactionInput actualTransactionInput = actualTransactionInputs[index];
+                Assert.Equal(expectedTransactionInput.TransactionId, actualTransactionInput.TransactionId);
+                Assert.Equal(expectedTransactionInput.TransactionIndex, actualTransactionInput.TransactionIndex);
+                index += 1;
+            }
+
+            // Assert the TransactionBodyOutputs values are expected
+            List<TransactionOutput> actualTransactionOutputs = new List<TransactionOutput> {
+                new TransactionOutput { Address = payment1Addr.GetBytes(), Value = new TransactionOutputValue { Coin = 7000000, MultiAsset = null } },
+                new TransactionOutput { Address = payment2Addr.GetBytes(), Value = new TransactionOutputValue { Coin = 1674895157, MultiAsset = null } }
+            };
+            Assert.Equal(expected.TransactionBody.TransactionOutputs.Count, actualTransactionOutputs.Count);
+
+            index = 0;
+            foreach (TransactionOutput expectedTransactionOutput in expected.TransactionBody.TransactionOutputs)
+            {
+                TransactionOutput actualTransactionOutput = actualTransactionOutputs[index];
+                Assert.Equal(expectedTransactionOutput.Address, actualTransactionOutput.Address);
+                Assert.Equal(expectedTransactionOutput.Value.Coin, actualTransactionOutput.Value.Coin);
+                Assert.Equal(expectedTransactionOutput.Value.MultiAsset, actualTransactionOutput.Value.MultiAsset);
+                index += 1;
+            }
+
+            Assert.Equal(expected.TransactionBody.Fee.ToString(), 171397.ToString());
+            Assert.Equal(expected.TransactionBody.Ttl.ToString(), 57910820.ToString());
+            Assert.Equal(expected.TransactionBody.Certificate.GenesisKeyDelegation, null);
+            Assert.Equal(expected.TransactionBody.Certificate.MoveInstantaneousRewardsCert, null);
+            Assert.Equal(expected.TransactionBody.Certificate.PoolRegistration, null);
+            Assert.Equal(expected.TransactionBody.Certificate.PoolRetirement, null);
+            Assert.Equal(expected.TransactionBody.Certificate.StakeDelegation.PoolHash, stakeHash);
+            Assert.Equal(expected.TransactionBody.Certificate.StakeDelegation.StakeCredential, stakeHash);
+            Assert.Equal(expected.TransactionBody.Withdrawls, null);
+            Assert.Equal(expected.TransactionBody.Update, null);
+            Assert.Equal(expected.TransactionBody.MetadataHash, null);
+            Assert.Equal(expected.TransactionBody.TransactionStartInterval, null);
+            Assert.Equal(expected.TransactionBody.Mint, mintAsset.Build());
+
+            // Assert the TransactionWitnessSet values are expected
+            // Assert the TransactionWitnessSet VKeyWitness values are expected
+            List<VKeyWitness> actualVKeyWitnesses = new List<VKeyWitness> {
+                new VKeyWitness {
+                    VKey = new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null),
+                    SKey = new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null),
+                    Signature = null
+                }
+            };
+            Assert.Equal(expected.TransactionWitnessSet.VKeyWitnesses.Count, actualVKeyWitnesses.Count);
+
+            index = 0;
+            foreach (VKeyWitness vKeyWitness in expected.TransactionWitnessSet.VKeyWitnesses)
+            {
+                VKeyWitness actualVKeyWitness = actualVKeyWitnesses[index];
+                Assert.Equal(vKeyWitness.VKey.Key, actualVKeyWitness.VKey.Key);
+                Assert.Equal(vKeyWitness.VKey.Chaincode, actualVKeyWitness.VKey.Chaincode);
+                Assert.Equal(vKeyWitness.SKey.Key, actualVKeyWitness.SKey.Key);
+                Assert.Equal(vKeyWitness.SKey.Chaincode, actualVKeyWitness.SKey.Chaincode);
+                Assert.Equal(vKeyWitness.Signature, actualVKeyWitness.Signature);
+                index += 1;
+            }
+
+            // Assert the TransactionWitnessSet NativeScripts values are expected
+            Assert.Equal(expected.TransactionWitnessSet.NativeScripts, new HashSet<NativeScript>());
+
+            // Assert the TransactionWitnessSet BootStrapWitnesses values are expected
+            Assert.Equal(expected.TransactionWitnessSet.BootStrapWitnesses, null);
+
+            // Assert the IsValid value is expected
+            Assert.Equal(expected.IsValid, true);
+
+            // Assert the AuxiliaryData values are expected
+            Assert.Equal(expected.AuxiliaryData.List, new List<object>());
+            Assert.Equal(JsonSerializer.Serialize(expected.AuxiliaryData.Metadata),
+                         JsonSerializer.Serialize(new Dictionary<int, object>
+                         {
+                            { 1234, new {
+                                name = "simple message",
+                                nestedObj = new { nestedName = "testing nesting object (de)serialization", nestedArr = new object[] { "first level", new object[] { "second level" } } } }
+                            }
+                        }
+            ));
         }
 
         [Fact]
@@ -155,25 +304,173 @@ namespace CardanoSharp.Wallet.Test
         }
 
         [Fact]
+        public void DeserializeMultiAssetTransactionValues()
+        {
+            //input & output
+            var input1TxHash = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
+            var payment1Addr = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress();
+
+            //witnesses
+            var witnesses = TransactionWitnessSetBuilder.Create
+                .AddVKeyWitness(
+                    new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null),
+                    new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null)
+                );
+
+            //cert
+            var rootKey = getBase15WordWallet();
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+            var stakeHash = HashUtility.Blake2b224(stakePub.Key);
+
+            //aux
+            var auxData = AuxiliaryDataBuilder.Create
+                .AddMetadata(1234, new { name = "simple message", nestedObj = new { nestedName = "testing nesting object (de)serialization", nestedArr = new object[] { "first level", new object[] { "second level" } } } });
+
+            var tokenBundle1 = TokenBundleBuilder.Create
+                .AddToken(getGenesisPolicyId(), "00010203".HexToByteArray(), 60)
+                .AddToken(getGenesisPolicyId(), "00010204".HexToByteArray(), 240);
+
+            var expected = TransactionBuilder.Create
+                .SetBody(TransactionBodyBuilder.Create
+                    .AddInput(input1TxHash, 1)
+                    .AddOutput(payment1Addr, 1, tokenBundle1)
+                    .SetFee(171397)
+                    .SetTtl(57910820)
+                    .SetCertificate(CertificateBuilder.Create
+                        .SetStakeRegistration(stakeHash)
+                        .SetStakeDeregistration(stakeHash)
+                        .SetStakeDelegation(stakeHash, stakeHash))
+                )
+                .SetWitnesses(witnesses)
+                .SetAuxData(auxData)
+                .Build();
+
+            // Assert the TransactionBody values are expected
+            // Assert the TransactionBodyInputs values are expected
+            List<TransactionInput> actualTransactionInputs = new List<TransactionInput> {
+                new TransactionInput { TransactionId = input1TxHash, TransactionIndex = 1 }
+            };
+            Assert.Equal(expected.TransactionBody.TransactionInputs.Count, actualTransactionInputs.Count);
+
+            // There is only 1 transaction input in the expected transaction body
+            TransactionInput expectedTransactionInput = expected.TransactionBody.TransactionInputs.First();
+            TransactionInput actualTransactionInput = actualTransactionInputs.First();
+            Assert.Equal(expectedTransactionInput.TransactionId, actualTransactionInput.TransactionId);
+            Assert.Equal(expectedTransactionInput.TransactionIndex, actualTransactionInput.TransactionIndex);
+
+            // Assert the TransactionBodyOutputs values are expected
+            Dictionary<byte[], ulong> nativeAssetToken = new Dictionary<byte[], ulong> { { "00010203".HexToByteArray(), 60 }, { "00010204".HexToByteArray(), 240 } };
+            List<TransactionOutput> actualTransactionOutputs = new List<TransactionOutput> {
+                new TransactionOutput { Address = payment1Addr.GetBytes(),
+                                        Value = new TransactionOutputValue { Coin = 1, MultiAsset = new Dictionary<byte[], NativeAsset> { { getGenesisPolicyId(), new NativeAsset { Token = nativeAssetToken } } } }
+                }
+            };
+            Assert.Equal(expected.TransactionBody.TransactionOutputs.Count, actualTransactionOutputs.Count);
+
+            // There is only 1 transaction output in the expected transaction body
+            TransactionOutput expectedTransactionOutput = expected.TransactionBody.TransactionOutputs.First();
+            TransactionOutput actualTransactionOutput = actualTransactionOutputs.First();
+            Assert.Equal(expectedTransactionOutput.Address, actualTransactionOutput.Address);
+            Assert.Equal(expectedTransactionOutput.Value.Coin, actualTransactionOutput.Value.Coin);
+            Assert.Equal(expectedTransactionOutput.Value.MultiAsset.Count, actualTransactionOutput.Value.MultiAsset.Count);
+            Assert.Equal(expectedTransactionOutput.Value.MultiAsset.Keys.ToList(), new List<byte[]> { getGenesisPolicyId() });
+
+            // Dictionary keys byte[] are compared by reference not by value
+            var expectedKey = expectedTransactionOutput.Value.MultiAsset.Keys.ToList()[0];
+            var actualKey = actualTransactionOutput.Value.MultiAsset.Keys.ToList()[0];
+            Assert.Equal(expectedKey, getGenesisPolicyId());
+            Assert.Equal(actualKey, getGenesisPolicyId());
+            Assert.Equal(expectedTransactionOutput.Value.MultiAsset[expectedKey].Token.Count,
+                         actualTransactionOutput.Value.MultiAsset[actualKey].Token.Count);
+
+            var expectedTokenKeys = expectedTransactionOutput.Value.MultiAsset[expectedKey].Token.Keys.ToList();
+            var token0ExpectedKey = expectedTokenKeys[0];
+            var token1ExpectedKey = expectedTokenKeys[1];
+
+            var actualTokenKeys = actualTransactionOutput.Value.MultiAsset[actualKey].Token.Keys.ToList();
+            var token0ActualKey = actualTokenKeys[0];
+            var token1ActualKey = actualTokenKeys[1];
+
+            Assert.Equal(token0ExpectedKey, "00010203".HexToByteArray());
+            Assert.Equal(token0ActualKey, "00010203".HexToByteArray());
+            Assert.Equal(token1ExpectedKey, "00010204".HexToByteArray());
+            Assert.Equal(token1ActualKey, "00010204".HexToByteArray());
+            Assert.Equal(expectedTransactionOutput.Value.MultiAsset[expectedKey].Token[token0ExpectedKey],
+                         actualTransactionOutput.Value.MultiAsset[actualKey].Token[token0ActualKey]);
+            Assert.Equal(expectedTransactionOutput.Value.MultiAsset[expectedKey].Token[token1ExpectedKey],
+                         actualTransactionOutput.Value.MultiAsset[actualKey].Token[token1ActualKey]);
+
+            // Assert the rest of the TransactionBody values are expected
+            Assert.Equal(expected.TransactionBody.Fee.ToString(), 171397.ToString());
+            Assert.Equal(expected.TransactionBody.Ttl.ToString(), 57910820.ToString());
+            Assert.Equal(expected.TransactionBody.Certificate.GenesisKeyDelegation, null);
+            Assert.Equal(expected.TransactionBody.Certificate.MoveInstantaneousRewardsCert, null);
+            Assert.Equal(expected.TransactionBody.Certificate.PoolRegistration, null);
+            Assert.Equal(expected.TransactionBody.Certificate.PoolRetirement, null);
+            Assert.Equal(expected.TransactionBody.Certificate.StakeDelegation.PoolHash, stakeHash);
+            Assert.Equal(expected.TransactionBody.Certificate.StakeDelegation.StakeCredential, stakeHash);
+            Assert.Equal(expected.TransactionBody.Withdrawls, null);
+            Assert.Equal(expected.TransactionBody.Update, null);
+            Assert.Equal(expected.TransactionBody.MetadataHash, null);
+            Assert.Equal(expected.TransactionBody.TransactionStartInterval, null);
+            Assert.Equal(expected.TransactionBody.Mint, new Dictionary<byte[], NativeAsset>());
+
+            // Assert the TransactionWitnessSet values are expected
+            // Assert the TransactionWitnessSet VKeyWitness values are expected
+            List<VKeyWitness> actualVKeyWitnesses = new List<VKeyWitness> {
+                new VKeyWitness {
+                    VKey = new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null),
+                    SKey = new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null),
+                    Signature = null
+                }
+            };
+            Assert.Equal(expected.TransactionWitnessSet.VKeyWitnesses.Count, actualVKeyWitnesses.Count);
+
+            int index = 0;
+            foreach (VKeyWitness vKeyWitness in expected.TransactionWitnessSet.VKeyWitnesses)
+            {
+                VKeyWitness actualVKeyWitness = actualVKeyWitnesses[index];
+                Assert.Equal(vKeyWitness.VKey.Key, actualVKeyWitness.VKey.Key);
+                Assert.Equal(vKeyWitness.VKey.Chaincode, actualVKeyWitness.VKey.Chaincode);
+                Assert.Equal(vKeyWitness.SKey.Key, actualVKeyWitness.SKey.Key);
+                Assert.Equal(vKeyWitness.SKey.Chaincode, actualVKeyWitness.SKey.Chaincode);
+                Assert.Equal(vKeyWitness.Signature, actualVKeyWitness.Signature);
+                index += 1;
+            }
+
+            // Assert the TransactionWitnessSet NativeScripts values are expected
+            Assert.Equal(expected.TransactionWitnessSet.NativeScripts, new HashSet<NativeScript>());
+
+            // Assert the TransactionWitnessSet BootStrapWitnesses values are expected
+            Assert.Equal(expected.TransactionWitnessSet.BootStrapWitnesses, null);
+
+            // Assert the IsValid value is expected
+            Assert.Equal(expected.IsValid, true);
+
+            // Assert the AuxiliaryData values are expected
+            Assert.Equal(expected.AuxiliaryData.List, new List<object>());
+            Assert.Equal(JsonSerializer.Serialize(expected.AuxiliaryData.Metadata),
+                         JsonSerializer.Serialize(new Dictionary<int, object>
+                         {
+                            { 1234, new {
+                                name = "simple message",
+                                nestedObj = new { nestedName = "testing nesting object (de)serialization", nestedArr = new object[] { "first level", new object[] { "second level" } } } }
+                            }
+                        }
+            ));
+        }
+
+        [Fact]
         public void SerializeTransaction()
         {
-            var vectorId = "01";
-            var vectorReference = "reference.draft";
-            var outputFileName = "tx.draft";
-
-            // we might define a TestVector class that holds these values
-            // and can be deserialized from dat/{vectorId}/vector.json
             uint fee = 0;
             uint amount = 0;
-            var type = "TxBodyMary";
-            var description = "";
             var utxo = "98035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d120".HexToByteArray();
             var payment1Addr = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress();
             var payment2Addr = "addr_test1vqah2xrfp8qjp2tldu8wdq38q8c8tegnduae5zrqff3aeec7g467q".ToAddress();
-            byte[] expectedCBOR = "83a3008182582098035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d12000018282581d60d0c43926a989c88d5049e61bdebf2a887aca10fa284b9067373ea28f0082581d603b75186909c120a97f6f0ee6822701f075e5136f3b9a08604a63dce7000200a0f6".HexToByteArray();
+            byte[] expectedCBOR = "84a3008182582098035740ab68cad12cb4d8281d10ce1112ef0933dc84920b8937c3e80d78d12000018282581d60d0c43926a989c88d5049e61bdebf2a887aca10fa284b9067373ea28f0082581d603b75186909c120a97f6f0ee6822701f075e5136f3b9a08604a63dce7000200a0f5f6".HexToByteArray();
 
             // Arrange
-
             var tx = TransactionBuilder.Create
                 .SetBody(TransactionBodyBuilder.Create
                     .AddInput(utxo, 0)
@@ -184,31 +481,9 @@ namespace CardanoSharp.Wallet.Test
                 .Build();
 
             // Act
-            //var actualHex = tx.Serialize().ToStringHex();
             var actual = CBORObject.DecodeFromBytes(tx.Serialize());
             var expected = CBORObject.DecodeFromBytes(expectedCBOR);
             Assert.Equal(expected, actual);
-
-
-
-            //var cbor = tx.Serialize();
-            //var cborHex = cbor.ToStringHex();
-            //var draftTx = new { type, description, cborHex };
-            //var json = JsonSerializer.Serialize(draftTx, __jsonSerializerOptions);
-
-            //WriteVectorFile(vectorId, json, outputFileName);
-            //string referenceTx = ReadVectorFile(vectorId, vectorReference);
-
-            //// Assert
-            //// ok when i use http://cbor.me/ + https://text-compare.com/ = identical...
-            //// unsure exactly whats going on
-            //// the serialization string/bytes are off a little but i think its a newline or something
-            //Assert.Equal(referenceTx, json);
-            //Assert.Equal(expectedCBOR, cbor);
-
-            //var expected = _transactionSerializer.DeserializeTransaction(expectedCBOR);
-            //var deserialized = _transactionSerializer.DeserializeTransaction(cbor);
-            //Assert.Equal(expected, deserialized);
         }
 
         private static string ReadVectorFile(string vectorId, string fileName)
@@ -355,7 +630,7 @@ namespace CardanoSharp.Wallet.Test
             var serializedTx = transaction.Serialize();
 
             //assert
-            Assert.Equal("83a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70001818258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94010200030aa10081825820489ef28ea97f719ee7768645fc74b811c271e5d7ef06c2310854db30158e945d5840e6489d8cdc11ac139158b878251819a31f01644310fa4a4b9c72c2319aa8887f4e299054346c2ad08016e4b8f55684ccae8bddcc5e2137af730acbed5642ff09f6",
+            Assert.Equal("84a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b70001818258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94010200030aa10081825820489ef28ea97f719ee7768645fc74b811c271e5d7ef06c2310854db30158e945d5840e6489d8cdc11ac139158b878251819a31f01644310fa4a4b9c72c2319aa8887f4e299054346c2ad08016e4b8f55684ccae8bddcc5e2137af730acbed5642ff09f5f6",
                 serializedTx.ToStringHex());
         }
 
@@ -394,7 +669,6 @@ namespace CardanoSharp.Wallet.Test
                 serialized.ToStringHex());
         }
 
-        
         [Fact]
         public void OneAssetForEachOutputTest()
         {
@@ -570,11 +844,13 @@ namespace CardanoSharp.Wallet.Test
             //act
             var serialized = transaction.Serialize();
             var fee = transaction.CalculateFee();
+            var isValid = transaction.IsValid;
 
             //assert
-            Assert.Equal("83a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182581d611c616f1acb460668a9b2f123c80372c2adad3583b9c6cd2b1deeed1c01021a00016f32030aa10081825820f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee5840fae5de40c94d759ce13bf9886262159c4f26a289fd192e165995b785259e503f6887bf39dfa23a47cf163784c6eee23f61440e749bc1df3c73975f5231aeda0ff6",
+            Assert.Equal("84a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182581d611c616f1acb460668a9b2f123c80372c2adad3583b9c6cd2b1deeed1c01021a00016f32030aa10081825820f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee5840fae5de40c94d759ce13bf9886262159c4f26a289fd192e165995b785259e503f6887bf39dfa23a47cf163784c6eee23f61440e749bc1df3c73975f5231aeda0ff5f6",
                 serialized.ToStringHex());
-            Assert.Equal((uint)188002, fee);
+            Assert.Equal((uint)189002, fee);
+            Assert.Equal(true, isValid);
         }
 
         [Fact]
@@ -605,7 +881,7 @@ namespace CardanoSharp.Wallet.Test
             var serialized = transaction.Serialize();
 
             //assert
-            Assert.Equal("83a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900477367d9134e384a25edd3e23c72735ee6de6490d39c537a247e1b65d9e5a6498b927f664a2c82343aa6a50cdde47de0a2b8c54ecd9c99c21a000f42400200030a0758208dc8a798a1da0e2a6df17e66b10a49b5047133dd4daae2686ef1f73369d3fa16a100818258200f8ad2c7def332bca2f897ef2a1608ee655341227efe7d2284eeb3f94d08d5fa584074a7a181addbda26d7974119ac6e3fe35286fb4a6f7a9db573a5e5836808613097256fa2f0284e255cadc566cef96bde750a3ca5cb79a0726349d3424148e00082a11904d2a1646e616d656e73696d706c65206d65737361676580",
+            Assert.Equal("84a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900477367d9134e384a25edd3e23c72735ee6de6490d39c537a247e1b65d9e5a6498b927f664a2c82343aa6a50cdde47de0a2b8c54ecd9c99c21a000f42400200030a0758208dc8a798a1da0e2a6df17e66b10a49b5047133dd4daae2686ef1f73369d3fa16a100818258200f8ad2c7def332bca2f897ef2a1608ee655341227efe7d2284eeb3f94d08d5fa584074a7a181addbda26d7974119ac6e3fe35286fb4a6f7a9db573a5e5836808613097256fa2f0284e255cadc566cef96bde750a3ca5cb79a0726349d3424148e000f582a11904d2a1646e616d656e73696d706c65206d65737361676580",
                 serialized.ToStringHex());
         }
 
@@ -668,7 +944,7 @@ namespace CardanoSharp.Wallet.Test
 
             //not the best test but logic was derived from creating this mint
             //  https://explorer.cardano-testnet.iohkdev.io/en/transaction?id=1aff3b12c5b9fb96f0cdcd975b58f6ed273a5680f2ff42a02d82fe0041cf8e3d
-            Assert.Equal("83a6008182582000000000000000000000000000000000000000000000000000000000000000000001818258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948201a1581c7b45f5a5758a8880b4a6fb0da6d6ad3b11963d217658c7d23ebc62b4a145746f6b656e010200031903e8075820e0850084789cdd38358caaa60f7c0326e9fa3d7bd9acf53c95e348389740da4809a1581c7b45f5a5758a8880b4a6fb0da6d6ad3b11963d217658c7d23ebc62b4a145746f6b656e01a20082825820489ef28ea97f719ee7768645fc74b811c271e5d7ef06c2310854db30158e945d58402cbcd64d35f229665e0de915da5eed37f5a69c937804f3957c534f7fc405dcd3abe9b308e9e743797c749c1aa8ff26c8298bdfea8a9078617039b1b0edab820682582000000000000000000000000000000000000000000000000000000000000000005840e3818414929fbb7cabda04358ba51076bf9e888339efa2fb0783314fcafa01b5d57840ef2e00b6fb3fa7432fcaaaf4c06581c68b8e0d3df3f6dc27b6474c9e0201818201818200581cf9dca21a6c826ec8acb4cf395cbc24351937bfe6560b2683ab8b415f82a1190539a1676d657373616765727368617270206d696e74696e67207465737480",
+            Assert.Equal("84a6008182582000000000000000000000000000000000000000000000000000000000000000000001818258390079467c69a9ac66280174d09d62575ba955748b21dec3b483a9469a65cc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d948201a1581c7b45f5a5758a8880b4a6fb0da6d6ad3b11963d217658c7d23ebc62b4a145746f6b656e010200031903e8075820e0850084789cdd38358caaa60f7c0326e9fa3d7bd9acf53c95e348389740da4809a1581c7b45f5a5758a8880b4a6fb0da6d6ad3b11963d217658c7d23ebc62b4a145746f6b656e01a20082825820489ef28ea97f719ee7768645fc74b811c271e5d7ef06c2310854db30158e945d58402cbcd64d35f229665e0de915da5eed37f5a69c937804f3957c534f7fc405dcd3abe9b308e9e743797c749c1aa8ff26c8298bdfea8a9078617039b1b0edab820682582000000000000000000000000000000000000000000000000000000000000000005840e3818414929fbb7cabda04358ba51076bf9e888339efa2fb0783314fcafa01b5d57840ef2e00b6fb3fa7432fcaaaf4c06581c68b8e0d3df3f6dc27b6474c9e0201818201818200581cf9dca21a6c826ec8acb4cf395cbc24351937bfe6560b2683ab8b415ff582a1190539a1676d657373616765727368617270206d696e74696e67207465737480",
                 signedTxStr);
         }
 
