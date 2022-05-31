@@ -148,45 +148,16 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             int policyIdSizeBytes = 28, // 224 bit policyID (won't change in forseeable future)
             bool hasDataHash = false) // for UTxOs with a smart contract datum
         {
-            const int fixedUtxoPrefixWords = 6;
             const int fixedUtxoEntryWithoutValueSizeWords = 27; // The static parts of a UTxO: 6 + 7 + 14 words
             const int coinSizeWords = 2; // since updated from 0 in docs.cardano.org/native-tokens/minimum-ada-value-requirement
             const int adaOnlyUtxoSizeWords = fixedUtxoEntryWithoutValueSizeWords + coinSizeWords;
-            const int fixedPerTokenCost = 12;
-            const int byteRoundUpAddition = 7;
-            const int bytesPerWord = 8; // One "word" is 8 bytes (64-bit)
-            const int fixedDataHashSizeWords = 10;
 
             var nativeAssets = (output.Value.MultiAsset != null && output.Value.MultiAsset.Count > 0);
 
             if (!nativeAssets)
                 return (ulong)lovelacePerUtxoWord * adaOnlyUtxoSizeWords; // 999978 lovelaces or 0.999978 ADA
 
-            // Get distinct policyIDs and assetNames
-            var policyIds = new HashSet<string>();
-            var assetNameHexadecimals = new HashSet<string>();
-
-            foreach (var asset in output.Value.MultiAsset)
-            {
-                policyIds.Add(asset.Key.ToStringHex());
-                foreach (var token in asset.Value.Token)
-                {
-                    assetNameHexadecimals.Add(token.Key.ToStringHex());
-                }
-            }
-
-            // Calculate (prefix + (numDistinctPids * 28(policyIdSizeBytes) + numTokens * 12(fixedPerTokenCost) + tokensNameLen + 7) ~/8)
-            var tokensNameLen = assetNameHexadecimals.Sum(an => an.Length) / 2; // 2 hexadecimal chars = 1 Byte
-            var valueSizeWords = fixedUtxoPrefixWords + (
-                (policyIds.Count * policyIdSizeBytes)
-                + (assetNameHexadecimals.Count * fixedPerTokenCost)
-                + tokensNameLen + byteRoundUpAddition) / bytesPerWord;
-            var dataHashSizeWords = hasDataHash ? fixedDataHashSizeWords : 0;
-
-            var minUtxoLovelace = Convert.ToUInt64(lovelacePerUtxoWord
-                * (fixedUtxoEntryWithoutValueSizeWords + valueSizeWords + dataHashSizeWords));
-
-            return minUtxoLovelace;
+            return output.Value.MultiAsset.CalculateMinUtxoLovelace(lovelacePerUtxoWord, policyIdSizeBytes, hasDataHash);
         }
     }
 }
