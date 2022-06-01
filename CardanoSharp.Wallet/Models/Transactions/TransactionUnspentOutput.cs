@@ -1,8 +1,10 @@
-﻿namespace CardanoSharp.Wallet.Models.Transactions
+﻿using System.Collections.Generic;
+
+namespace CardanoSharp.Wallet.Models.Transactions
 {
     public class TransactionUnspentOutput
     {
-        public TransactionInput Input { get; set; }
-        public TransactionOutput Output { get; set; }
+        public List<TransactionInput> Inputs { get; set; }
+        public List<TransactionOutput> Outputs { get; set; }
     }
 }
