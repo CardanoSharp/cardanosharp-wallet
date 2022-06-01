@@ -18,7 +18,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             //1. Randomly select UTxOs
             var rand = new Random();
             ulong currentAmount = 0;
-            var availableUTxOs = OrderUTxOs(new List<TransactionUnspentOutput>(utxos), asset);
+            var availableUTxOs = OrderUTxOsByDescending(new List<TransactionUnspentOutput>(utxos), asset);
             while (currentAmount < amount && availableUTxOs.Any())
             {
                 var availableLength = availableUTxOs.Count();
@@ -46,13 +46,34 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             }
 
             //2. Improve by expanding selection
+            // https://cips.cardano.org/cips/cip2/#random-improve
             var min = amount;
             var ideal = min * 2;
             var max = min * 3;
-            while ()
+            ulong idealAmountTOCalculate = 0;
+            bool[] arrayToMatchConditions = { false, false, false,};
+            var previousOutput = new TransactionUnspentOutput(); 
+            selectedUTxOs = OrderUTxOsByAscending(selectedUTxOs, asset);
+            var idealUtxoSet = new List<TransactionUnspentOutput>();
+            while (selectedUTxOs.Count > 0)
             {
+                var utxoToEvaluate = selectedUTxOs[rand.Next(selectedUTxOs.Count)];
+
+                arrayToMatchConditions[0] = Math.Abs((long) (ideal - utxoToEvaluate.Output.Value.Coin)) < Math.Abs((long) (ideal -  previousOutput.Output.Value.Coin));
+
+                arrayToMatchConditions[1] = utxoToEvaluate.Output.Value.Coin <= max;
+
+                arrayToMatchConditions[2] = idealUtxoSet.Count <= utxos.Count;
                 
+                if(!arrayToMatchConditions[0] && !arrayToMatchConditions[1] && !arrayToMatchConditions[2]) continue;
+
+                var changeValue = (idealUtxoSet.Sum(x => (long)x.Output.Value.Coin)) - (long)utxoToEvaluate.Output.Value.Coin;
+                
+                idealUtxoSet.Add(utxoToEvaluate);
+
+                previousOutput = utxoToEvaluate;
             }
+            
 
             return selectedUTxOs;
         }
