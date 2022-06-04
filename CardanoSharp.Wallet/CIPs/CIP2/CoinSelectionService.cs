@@ -16,38 +16,46 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             _coinSelection = coinSelection;
         }
 
-        public List<TransactionUnspentOutput> GetInputs(List<TransactionOutput> outputs, List<TransactionUnspentOutput> utxos)
+        public CoinSelectionResponse GetInputs(List<TransactionOutput> outputs, List<Utxo> utxos)
         {
-            List<TransactionUnspentOutput> totalSelectedUtxos = new List<TransactionUnspentOutput>();
+            var totalSelectedUtxos = new CoinSelectionResponse()
+            {
+                Inputs = new List<TransactionInput>(),
+                ChangeOutputs = new List<TransactionOutput>()
+            };
 
             foreach (var asset in outputs.AggregateAssets())
             {
                 if (!HasRequiredAsset(utxos, asset))
                     throw new Exception("UTxOs do not contain a required asset");
 
-                var selectedUtxos = _coinSelection.SelectInputs(utxos, asset.Quantity, asset.PolicyId is null ? null : asset);
+                var selectedInputs =
+                    _coinSelection.SelectInputs(utxos, asset.Quantity, asset.PolicyId is null ? null : asset);
 
-                if (!HasSufficientBalance(selectedUtxos, asset.Quantity, asset.PolicyId is null ? null : asset))
+                if (!HasSufficientBalance(selectedInputs, asset.Quantity, asset.PolicyId is null ? null : asset))
                     throw new Exception("UTxOs have insufficient balance");
-                
-                totalSelectedUtxos.AddRange(selectedUtxos);
+
+                var changeOutputs =
+                    _coinSelection.CreateChange(utxos, asset.Quantity, asset.PolicyId is null ? null : asset);
+                totalSelectedUtxos.Inputs.AddRange(selectedInputs.GetTransactionInputs());
+                totalSelectedUtxos.ChangeOutputs.AddRange(changeOutputs);
             }
 
-            return totalSelectedUtxos.ToList();
+            return totalSelectedUtxos;
         }
 
-        private bool HasRequiredAsset(IEnumerable<TransactionUnspentOutput> utxos, Asset asset = null)
+        private bool HasRequiredAsset(IEnumerable<Utxo> utxos, Asset asset = null)
         {
             if (asset is not null)
                 return utxos.Any(x =>
-                    x.Output.Value.MultiAsset.Any(ma =>
-                        ma.Key.SequenceEqual(asset.PolicyId)
-                        && ma.Value.Token.ContainsKey(asset.Name)));
-            
+                    x.AssetList.Any(ma =>
+                        ma.PolicyId.SequenceEqual(asset.PolicyId)
+                        && ma.Name.Equals(asset.Name)));
+
             return true;
         }
 
-        private bool HasSufficientBalance(IEnumerable<TransactionUnspentOutput> selectedUtxos, ulong amount, Asset asset = null)
+        private bool HasSufficientBalance(IEnumerable<Utxo> selectedUtxos, ulong amount, Asset asset = null)
         {
             ulong totalInput = 0;
             foreach (var su in selectedUtxos)
@@ -55,16 +63,17 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 ulong quantity = 0;
                 if (asset is null)
                 {
-                    quantity = su.Output.Value.Coin;
-                }else
-                {
-                    quantity = su.Output.Value.MultiAsset
-                        .First(ma =>
-                            ma.Key.SequenceEqual(asset.PolicyId)
-                            && ma.Value.Token.ContainsKey(asset.Name))
-                        .Value.Token[asset.Name];
+                    quantity = su.Value;
                 }
-                
+                else
+                {
+                    quantity = su.AssetList
+                        .First(ma =>
+                            ma.PolicyId.SequenceEqual(asset.PolicyId)
+                            && ma.Name.Equals(asset.Name))
+                        .Quantity;
+                }
+
                 totalInput = totalInput + quantity;
             }
 

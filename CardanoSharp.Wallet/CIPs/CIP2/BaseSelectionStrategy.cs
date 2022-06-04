@@ -7,35 +7,35 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 {
     public abstract class BaseSelectionStrategy
     {
-        protected List<TransactionUnspentOutput> OrderUTxOsByDescending(List<TransactionUnspentOutput> utxos, Asset asset = null)
+        protected List<Utxo> OrderUTxOsByDescending(List<Utxo> utxos, Asset asset = null)
         {
-            var orderedUtxos = new List<TransactionUnspentOutput>();
+            var orderedUtxos = new List<Utxo>();
             if (asset is null)
-                orderedUtxos = utxos.OrderByDescending(x => x.Output.Value.Coin).ToList();
+                orderedUtxos = utxos.OrderByDescending(x => x.Value).ToList();
             else
             {
-                orderedUtxos = utxos.OrderByDescending(x => x.Output.Value.MultiAsset
+                orderedUtxos = utxos.OrderByDescending(x => x.AssetList
                     .First(ma =>
-                        ma.Key.SequenceEqual(asset.PolicyId)
-                        && ma.Value.Token.ContainsKey(asset.Name))
-                    .Value.Token[asset.Name]).ToList();
+                        ma.PolicyId.SequenceEqual(asset.PolicyId)
+                        && ma.Name.Equals(asset.Name))
+                    .Quantity).ToList();
             }
 
             return orderedUtxos;
         }
         
-        protected List<TransactionUnspentOutput> OrderUTxOsByAscending (List<TransactionUnspentOutput> utxos, Asset asset = null)
+        protected List<Utxo> OrderUTxOsByAscending (List<Utxo> utxos, Asset asset = null)
         {
-            var orderedUtxos = new List<TransactionUnspentOutput>();
+            var orderedUtxos = new List<Utxo>();
             if (asset is null)
-                orderedUtxos = utxos.OrderBy(x => x.Output.Value.Coin).ToList();
+                orderedUtxos = utxos.OrderBy(x => x.Value).ToList();
             else
             {
-                orderedUtxos = utxos.OrderBy(x => x.Output.Value.MultiAsset
+                orderedUtxos = utxos.OrderBy(x => x.AssetList
                     .First(ma =>
-                        ma.Key.SequenceEqual(asset.PolicyId)
-                        && ma.Value.Token.ContainsKey(asset.Name))
-                    .Value.Token[asset.Name]).ToList();
+                        ma.PolicyId.SequenceEqual(asset.PolicyId)
+                        && ma.Name.Equals(asset.Name))
+                    .Quantity).ToList();
             }
 
             return orderedUtxos;

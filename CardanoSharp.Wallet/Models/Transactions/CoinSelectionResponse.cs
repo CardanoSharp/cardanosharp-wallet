@@ -2,9 +2,9 @@
 
 namespace CardanoSharp.Wallet.Models.Transactions
 {
-    public class TransactionUnspentOutput
+    public class CoinSelectionResponse
     {
         public List<TransactionInput> Inputs { get; set; }
-        public List<TransactionOutput> Outputs { get; set; }
+        public List<TransactionOutput> ChangeOutputs { get; set; }
     }
 }

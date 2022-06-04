@@ -5,6 +5,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 {
     public interface ICoinSelectionStrategy
     {
-        public List<TransactionUnspentOutput> SelectInputs(List<TransactionUnspentOutput> utxos, ulong amount, Asset asset = null);
+        public List<Utxo> SelectInputs(List<Utxo> utxos, ulong amount, Asset asset = null);
+        public List<TransactionOutput> CreateChange(List<Utxo> utxos, ulong amount, Asset asset = null);
     }
 }
