@@ -18,7 +18,6 @@ namespace CardanoSharp.Wallet.Extensions.Models
                     break;
                 case CBORType.SimpleValue:
                     throw new NotImplementedException();
-                    break;
                 case CBORType.ByteString:
                     result = cborObject.ToString().Replace("h", "").Replace("'", "");
                     break;
@@ -65,7 +64,6 @@ namespace CardanoSharp.Wallet.Extensions.Models
                     break;
                 case CBORType.FloatingPoint:
                     throw new NotImplementedException();
-                    break;
                 default:
                     break;
             }
