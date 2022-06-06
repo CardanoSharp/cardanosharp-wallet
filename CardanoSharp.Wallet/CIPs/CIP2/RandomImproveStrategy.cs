@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
@@ -52,27 +53,25 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             var ideal = min * 2;
             var max = min * 3;
             ulong idealAmountTOCalculate = 0;
-            bool[] arrayToMatchConditions = { false, false, false,};
+            ulong accumulatedCoinSelection = 0;
+
             var previousOutput = new Utxo();
             var idealUtxoSet = new List<Utxo>();
 
 
-            foreach (var utxoToEvaluate in OrderUTxOsByAscending(utxos, asset))
+            foreach (var utxoToEvaluate in OrderUTxOsByAscending(availableUTxOs, asset))
             {
                 //The next 3 conditions establish whether the utxo is an "improvement" and should be added to the change
-                arrayToMatchConditions[0] = Math.Abs((long) (ideal - utxoToEvaluate.Value)) < Math.Abs((long) (ideal -  previousOutput.Value));
-
-                arrayToMatchConditions[1] = utxoToEvaluate.Value <= max;
-
-                arrayToMatchConditions[2] = idealUtxoSet.Count <= utxos.Count;
                 
-                if(!arrayToMatchConditions[0] && !arrayToMatchConditions[1] && !arrayToMatchConditions[2]) continue;
+                if(!CalculateCondition(utxoToEvaluate, ideal, max, previousOutput, idealUtxoSet, utxos, asset)) continue;
 
-                var changeValue = (idealUtxoSet.Sum(x => (long)x.Value)) - (long)utxoToEvaluate.Value;
-                
-                idealUtxoSet.Add(utxoToEvaluate);
+                var changeValue = asset is null ? utxoToEvaluate.Value - min :  
+                    utxoToEvaluate.AssetList.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name)).Quantity - min;
 
-                previousOutput = utxoToEvaluate;
+                //TODO need to return the accumulated CoinSelection as an output to the outputs field
+                accumulatedCoinSelection += changeValue;
+
+                selectedUTxOs.Add(utxoToEvaluate);
             }
 
             return selectedUTxOs;
@@ -80,9 +79,25 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
         public List<TransactionOutput> CreateChange(List<Utxo> utxos, ulong amount, Asset asset = null)
         {
+            throw new NotImplementedException();
+        }
 
-            return new List<TransactionOutput>();
+        private static bool CalculateCondition(Utxo utxoToEvaluate, ulong ideal, ulong max, Utxo previousOutput,  ICollection idealUtxoSet, ICollection utxos, Asset asset)
+        {
+            bool[] arrayToMatchConditions = { false, false, false,};
+            arrayToMatchConditions[0] =  asset is null ? Math.Abs((long) (ideal - utxoToEvaluate.Value)) < Math.Abs((long) (ideal -  previousOutput.Value)) 
+                : Math.Abs((long) (ideal - utxoToEvaluate.AssetList.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name)).Quantity)) < 
+                  Math.Abs((long) (ideal - previousOutput.AssetList.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name)).Quantity)) ;
+
+            arrayToMatchConditions[1] = asset is null ? utxoToEvaluate.Value <= max : utxoToEvaluate.AssetList.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name)).Quantity <= max;
+
+            //TODO how do we define the maximum input count as listed below
+            //Condition 3: when counting cumulatively across all outputs considered so far, we have not selected more than the maximum number of UTxO entries specified by Maximum Input Count.
+            arrayToMatchConditions[2] = idealUtxoSet.Count <= utxos.Count;
+            
+            return arrayToMatchConditions[0] || arrayToMatchConditions[1] || arrayToMatchConditions[2];
         }
         
     }
+    
 }
