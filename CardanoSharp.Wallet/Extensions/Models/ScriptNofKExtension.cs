@@ -15,10 +15,12 @@ namespace CardanoSharp.Wallet.Extensions.Models
                 .Add(3)
                 .Add(scriptNofK.N);
 
+            var nativeScriptCbor = CBORObject.NewArray();
             foreach (var nativeScript in scriptNofK.NativeScripts)
             {
-                scriptNofKCbor.Add(nativeScript.GetCBOR());
+                nativeScriptCbor.Add(nativeScript.GetCBOR2());
             }
+            scriptNofKCbor.Add(nativeScriptCbor);
 
             return scriptNofKCbor;
         }
