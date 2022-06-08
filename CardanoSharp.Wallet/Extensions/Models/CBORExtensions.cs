@@ -52,7 +52,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
                     var number = cborObject.AsNumber();
                     if (number.CanFitInInt32())
                     {
-                        result = number.ToInt32Checked();
+                        result = number.ToUInt32Checked();
                     }
                     else if (number.CanFitInInt64())
                     {

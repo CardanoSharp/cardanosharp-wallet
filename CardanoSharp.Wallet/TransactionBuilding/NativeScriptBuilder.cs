@@ -12,6 +12,9 @@ namespace CardanoSharp.Wallet.TransactionBuilding
     {
         INativeScriptBuilder SetKeyHash(byte[] keyHash);
         INativeScriptBuilder SetScript(NativeScriptType type, INativeScriptBuilder nativeScriptBuilder);
+        INativeScriptBuilder SetScriptAll(IEnumerable<INativeScriptBuilder> nativeScriptBuilders);
+        INativeScriptBuilder SetScriptAny(IEnumerable<INativeScriptBuilder> nativeScriptBuilders);
+        INativeScriptBuilder SetScriptNofK(uint n, IEnumerable<INativeScriptBuilder> nativeScriptBuilders);
         INativeScriptBuilder SetInvalidAfter(uint after);
         INativeScriptBuilder SetInvalidBefore(uint before);
     }
@@ -69,6 +72,37 @@ namespace CardanoSharp.Wallet.TransactionBuilding
                     break;
             }
 
+            return this;
+        }
+
+        public INativeScriptBuilder SetScriptAll(IEnumerable<INativeScriptBuilder> nativeScriptBuilders)
+        {
+            if (_model.ScriptAll == null) _model.ScriptAll = new ScriptAll();
+            foreach (var nativeScriptBuilder in nativeScriptBuilders)
+            {
+                _model.ScriptAll.NativeScripts.Add(nativeScriptBuilder.Build());
+            }
+            return this;
+        }
+
+        public INativeScriptBuilder SetScriptAny(IEnumerable<INativeScriptBuilder> nativeScriptBuilders)
+        {
+            if (_model.ScriptAny == null) _model.ScriptAny = new ScriptAny();
+            foreach (var nativeScriptBuilder in nativeScriptBuilders)
+            {
+                _model.ScriptAny.NativeScripts.Add(nativeScriptBuilder.Build());
+            }
+            return this;
+        }
+
+        public INativeScriptBuilder SetScriptNofK(uint n, IEnumerable<INativeScriptBuilder> nativeScriptBuilders)
+        {
+            if (_model.ScriptNofK == null) _model.ScriptNofK = new ScriptNofK();
+            _model.ScriptNofK.N = n;
+            foreach (var nativeScriptBuilder in nativeScriptBuilders)
+            {
+                _model.ScriptNofK.NativeScripts.Add(nativeScriptBuilder.Build());
+            }
             return this;
         }
 
