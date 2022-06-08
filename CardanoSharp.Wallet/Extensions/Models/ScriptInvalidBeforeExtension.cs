@@ -35,7 +35,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
             //get data
             var scriptInvalidBefore = new ScriptInvalidBefore();
-            scriptInvalidBefore.Before = (uint)scriptInvalidBeforeCbor[1].DecodeValueByCborType();
+            scriptInvalidBefore.Before = scriptInvalidBeforeCbor[1].DecodeValueToUInt32();
 
             //return
             return scriptInvalidBefore;

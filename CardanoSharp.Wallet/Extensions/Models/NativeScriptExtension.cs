@@ -39,6 +39,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             return null;
         }
 
+        [Obsolete("Will be deprecated. Please use GetCBOR2() instead")]
         public static CBORObject GetCBOR(this NativeScript nativeScript)
         {
             var nativeScriptCbor = CBORObject.NewArray();
@@ -80,7 +81,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             }
 
             var nativeScript = new NativeScript();
-            var nativeScriptTypeIndex = Convert.ToInt32(nativeScriptCbor[0].DecodeValueByCborType());
+            var nativeScriptTypeIndex = nativeScriptCbor[0].DecodeValueToInt32();
             if (nativeScriptTypeIndex < 0 || nativeScriptTypeIndex > 5)
             {
                 throw new ArgumentException("nativeScriptCbor first element (index) has value outside expected range (expected 0..5)");
@@ -114,7 +115,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
         public static byte[] Serialize(this NativeScript nativeScript)
         {
-            return nativeScript.GetCBOR().EncodeToBytes();
+            return nativeScript.GetCBOR2().EncodeToBytes();
         }
 
         public static NativeScript DeserializeNativeScript(this byte[] bytes)

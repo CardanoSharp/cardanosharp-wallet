@@ -43,7 +43,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
             //get data
             var scriptNofK = new ScriptNofK();
-            scriptNofK.N = (uint)scriptNofKCbor[1].DecodeValueByCborType();
+            scriptNofK.N = scriptNofKCbor[1].DecodeValueToUInt32();
             foreach (var nativeScriptCbor in scriptNofKCbor[2].Values)
             {
                 scriptNofK.NativeScripts.Add(nativeScriptCbor.GetNativeScript());

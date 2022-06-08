@@ -35,7 +35,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             {
                 foreach (var key in metadata.Keys)
                 {
-                    var intKey = Convert.ToInt32(key.DecodeValueByCborType());
+                    var intKey = key.DecodeValueToInt32();
                     auxiliaryData.Metadata[intKey] = metadata[key].DecodeValueByCborType();
                 }
             }
