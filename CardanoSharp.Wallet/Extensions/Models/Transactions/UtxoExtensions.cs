@@ -33,7 +33,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                     {
                         policyMap.Add(asset.Name, asset.Quantity);
                     }
-                    multiAssetMap.Add(policyMap);
+                    multiAssetMap.Add(policy.Key, policyMap);
                 }
 
                 assetArr.Add(multiAssetMap);
