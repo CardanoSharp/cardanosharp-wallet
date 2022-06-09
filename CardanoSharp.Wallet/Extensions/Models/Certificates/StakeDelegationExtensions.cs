@@ -34,7 +34,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Certificates
             {
                 throw new ArgumentException("stakeDelegationCbor has unexpected number of elements (expected 3)");
             }
-            if (Convert.ToInt16(stakeDelegationCbor[0].DecodeValueByCborType()) != 2)
+            if (stakeDelegationCbor[0].DecodeValueToInt16() != 2)
             {
                 throw new ArgumentException("stakeDelegationCbor first element has unexpected value (expected 2)");
             }
@@ -47,7 +47,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Certificates
             {
                 throw new ArgumentException("credentialCbor has unexpected number of elements (expected 2)");
             }
-            if (Convert.ToInt16(credentialCbor[0].DecodeValueByCborType()) != 0)
+            if (credentialCbor[0].DecodeValueToInt16() != 0)
             {
                 throw new ArgumentException("credentialCbor first element has unexpected value (expected 0)");
             }

@@ -133,10 +133,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
 
             //2 : coin                      ; fee
-            transactionBody.Fee = Convert.ToUInt64(transactionBodyCbor[2].DecodeValueByCborType());
+            transactionBody.Fee = transactionBodyCbor[2].DecodeValueToUInt64();
 
             //? 3 : uint                    ; time to live
-            transactionBody.Ttl = Convert.ToUInt32(transactionBodyCbor[3].DecodeValueByCborType());
+            transactionBody.Ttl = transactionBodyCbor[3].DecodeValueToUInt32();
 
             //? 4 : [* certificate]
             if (transactionBodyCbor.ContainsKey(4))
@@ -165,7 +165,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                     foreach (var assetKey in assetCbor.Keys)
                     {
                         var byteAssetKey = ((string)assetKey.DecodeValueByCborType()).HexToByteArray();
-                        var token = Convert.ToUInt64(assetCbor[assetKey].DecodeValueByCborType());
+                        var token = assetCbor[assetKey].DecodeValueToUInt64();
                         nativeAsset.Token.Add(byteAssetKey, token);
                     }
 

@@ -28,14 +28,14 @@ namespace CardanoSharp.Wallet.Extensions.Models
             {
                 throw new ArgumentException("scriptInvalidAfterCbor is not expected type CBORType.Array");
             }
-            if (scriptInvalidAfterCbor.Values.Count == 2)
+            if (scriptInvalidAfterCbor.Values.Count != 2)
             {
                 throw new ArgumentException("scriptInvalidAfterCbor has unexpected number of elements (expected 2)");
             }
 
             //get data
             var scriptInvalidAfter = new ScriptInvalidAfter();
-            scriptInvalidAfter.After = (uint)scriptInvalidAfterCbor[1].DecodeValueByCborType();
+            scriptInvalidAfter.After = scriptInvalidAfterCbor[1].DecodeValueToUInt32();
 
             //return
             return scriptInvalidAfter;

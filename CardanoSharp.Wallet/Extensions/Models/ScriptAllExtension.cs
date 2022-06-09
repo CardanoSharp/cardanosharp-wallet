@@ -25,10 +25,12 @@ namespace CardanoSharp.Wallet.Extensions.Models
             var scriptAllCbor = CBORObject.NewArray()
                 .Add(1);
 
-            foreach(var nativeScript in scriptAll.NativeScripts)
+            var nativeScriptCbor = CBORObject.NewArray();
+            foreach (var nativeScript in scriptAll.NativeScripts)
             {
-                scriptAllCbor.Add(nativeScript.GetCBOR());
+                nativeScriptCbor.Add(nativeScript.GetCBOR2());
             }
+            scriptAllCbor.Add(nativeScriptCbor);
 
             return scriptAllCbor;
         }
@@ -40,14 +42,14 @@ namespace CardanoSharp.Wallet.Extensions.Models
             {
                 throw new ArgumentNullException(nameof(scriptAllCbor));
             }
-            if (scriptAllCbor.Count < 2)
+            if (scriptAllCbor.Count != 2)
             {
-                throw new ArgumentException("scriptAllCbor has unexpected number of elements (expected 2+)");
+                throw new ArgumentException("scriptAllCbor has unexpected number of elements (expected 2)");
             }
 
             //get data
             var scriptAll = new ScriptAll();
-            foreach (var nativeScriptCbor in scriptAllCbor.Values.Skip(1))
+            foreach (var nativeScriptCbor in scriptAllCbor[1].Values)
             {
                 scriptAll.NativeScripts.Add(nativeScriptCbor.GetNativeScript());
             }

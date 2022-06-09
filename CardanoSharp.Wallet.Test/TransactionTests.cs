@@ -44,11 +44,14 @@ namespace CardanoSharp.Wallet.Test
             var payment2Addr = "addr_test1vqah2xrfp8qjp2tldu8wdq38q8c8tegnduae5zrqff3aeec7g467q".ToAddress();
 
             //witnesses
+            var pubKey = new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null);
+            var prvKey = new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null);
+            var pubKeyHash = HashUtility.Blake2b224(pubKey.Key);
             var witnesses = TransactionWitnessSetBuilder.Create
-                .AddVKeyWitness(
-                    new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null),
-                    new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null)
-                );
+                .AddVKeyWitness(pubKey ,prvKey)
+                .SetNativeScript(ScriptAllBuilder.Create
+                    .SetScript(NativeScriptBuilder.Create.SetKeyHash(pubKeyHash))
+                    .SetScript(NativeScriptBuilder.Create.SetInvalidAfter(90000000U)));
 
             //cert
             var rootKey = getBase15WordWallet();
@@ -111,11 +114,20 @@ namespace CardanoSharp.Wallet.Test
             var payment2Addr = "addr_test1vqah2xrfp8qjp2tldu8wdq38q8c8tegnduae5zrqff3aeec7g467q".ToAddress();
 
             //witnesses
+            var pubKey = new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null);
+            var prvKey = new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null);
+            var pubKeyHash = HashUtility.Blake2b224(pubKey.Key);
             var witnesses = TransactionWitnessSetBuilder.Create
-                .AddVKeyWitness(
-                    new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null),
-                    new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null)
-                );
+                .AddVKeyWitness(pubKey, prvKey)
+                .AddNativeScript(NativeScriptBuilder.Create.SetScriptNofK(
+                    3, new[]
+                    {
+                        NativeScriptBuilder.Create.SetKeyHash(pubKeyHash),
+                        NativeScriptBuilder.Create.SetKeyHash(pubKeyHash),
+                        NativeScriptBuilder.Create.SetKeyHash(pubKeyHash),
+                        NativeScriptBuilder.Create.SetKeyHash(pubKeyHash),
+                        NativeScriptBuilder.Create.SetKeyHash(pubKeyHash),
+                    }));
 
             //cert
             var rootKey = getBase15WordWallet();
@@ -158,6 +170,10 @@ namespace CardanoSharp.Wallet.Test
                 .SetWitnesses(witnesses)
                 .SetAuxData(auxData)
                 .Build();
+
+            
+            var txBytes = expected.Serialize();
+            var actualDeserialisedTx = txBytes.DeserializeTransaction();
 
             // Assert the TransactionBody values are expected
             // Assert the TransactionBodyInputs values are expected
@@ -212,7 +228,7 @@ namespace CardanoSharp.Wallet.Test
                 new VKeyWitness {
                     VKey = new PublicKey("f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee".HexToByteArray(), null),
                     SKey = new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null),
-                    Signature = null
+                    Signature = "1f64eb3258b2df07f9c31d026643790b094df75857e56055675732e1e80b2e06d4a304c2d40fb3ecc51d5983ba49bf18a5c32237038559668c6f60655b376507".HexToByteArray()
                 }
             };
             Assert.Equal(expected.TransactionWitnessSet.VKeyWitnesses.Count, actualVKeyWitnesses.Count);
@@ -230,7 +246,14 @@ namespace CardanoSharp.Wallet.Test
             }
 
             // Assert the TransactionWitnessSet NativeScripts values are expected
-            Assert.Equal(expected.TransactionWitnessSet.NativeScripts, new HashSet<NativeScript>());
+            Assert.Equal(1, actualDeserialisedTx.TransactionWitnessSet.NativeScripts.Count);
+            var expectedScriptNofK = expected.TransactionWitnessSet.NativeScripts.First().ScriptNofK;
+            var actualScriptNofK = actualDeserialisedTx.TransactionWitnessSet.NativeScripts.First().ScriptNofK;
+            Assert.Equal(expectedScriptNofK.N, actualScriptNofK.N); 
+            foreach (var actualNativeScript in actualScriptNofK.NativeScripts)
+            {
+                Assert.Equal(pubKeyHash.ToStringHex(), actualNativeScript.ScriptPubKey.KeyHash.ToStringHex());
+            }
 
             // Assert the TransactionWitnessSet BootStrapWitnesses values are expected
             Assert.Equal(expected.TransactionWitnessSet.BootStrapWitnesses, null);
