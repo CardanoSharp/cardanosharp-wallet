@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions;
@@ -10,41 +11,31 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
     public class CoinSelectionService
     {
         private readonly ICoinSelectionStrategy _coinSelection;
+        private readonly IChangeCreationStrategy _changeCreation;
 
-        public CoinSelectionService(ICoinSelectionStrategy coinSelection)
+        public CoinSelectionService(ICoinSelectionStrategy coinSelection, IChangeCreationStrategy changeCreation)
         {
             _coinSelection = coinSelection;
+            _changeCreation = changeCreation;
         }
 
-        public CoinSelectionResponse GetInputs(List<TransactionOutput> outputs, List<Utxo> utxos)
+        public CoinSelection GetCoinSelection(List<TransactionOutput> outputs, List<Utxo> utxos, int limit = 20)
         {
-            //this seems like an odd exception the more i see it.
-            // if (!HasRequiredAsset(utxos, asset))
-            //     throw new Exception("UTxOs do not contain a required asset");
-
-            (var selectedInputs, var changeOutputs) =
-                _coinSelection.SelectInputs(outputs, utxos);
-
-            //good but needs to move to the strategies
-            // if (!HasSufficientBalance(selectedInputs, asset.Quantity, asset.PolicyId is null ? null : asset))
-            //     throw new Exception("UTxOs have insufficient balance");
+            var coinSelection = new CoinSelection();
+            var availableUTxOs = new List<Utxo>(utxos);
             
-            return new CoinSelectionResponse()
+            foreach (var asset in outputs.AggregateAssets())
             {
-                Inputs = selectedInputs.GetTransactionInputs(),
-                ChangeOutputs = changeOutputs
-            };
-        }
+                _coinSelection.SelectInputs(coinSelection, availableUTxOs, asset.Quantity, asset.PolicyId is null ? null : asset, limit);
 
-        private bool HasRequiredAsset(IEnumerable<Utxo> utxos, Asset asset = null)
-        {
-            if (asset is not null)
-                return utxos.Any(x =>
-                    x.AssetList.Any(ma =>
-                        ma.PolicyId.SequenceEqual(asset.PolicyId)
-                        && ma.Name.Equals(asset.Name)));
+                //good but needs to move to the strategies
+                if (!HasSufficientBalance(coinSelection.SelectedUtxos, asset.Quantity, asset.PolicyId is null ? null : asset))
+                    throw new Exception("UTxOs have insufficient balance");
+            }
+            
+            if(_changeCreation is not null) _changeCreation.CalculateChange(coinSelection, outputs.AggregateAssets());
 
-            return true;
+            return coinSelection;
         }
 
         private bool HasSufficientBalance(IEnumerable<Utxo> selectedUtxos, ulong amount, Asset asset = null)

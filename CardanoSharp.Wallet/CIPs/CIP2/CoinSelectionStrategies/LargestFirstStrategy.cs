@@ -12,17 +12,27 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
     public class LargestFirstStrategy: BaseSelectionStrategy, ILargestFirstStrategy
     {
-        public (List<Utxo> inputs, List<TransactionOutput> changes) SelectInputs(List<TransactionOutput> outputs, List<Utxo> availableUtxos)
+        public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUtxos, ulong amount, Asset asset = null, int limit = 20)
         {
-            var selectedUtxos = new List<Utxo>();
+            //determine
             ulong currentAmount = 0;
-            foreach (var ou in OrderUTxOsByDescending(availableUtxos))
+            
+            //reorder the available utxos
+            availableUtxos = OrderUTxOsByDescending(availableUtxos);
+            
+            //indices to remove
+            var removeIndices = new List<int>();
+            
+            for(var x = 0; x < availableUtxos.Count(); x++)
             {
+                var ou = availableUtxos[x];
+                
                 // if we already have enough utxos to cover requested amount, break out
                 if (currentAmount >= amount) break;
 
                 // add current item to selected UTxOs
-                selectedUtxos.Add(ou);
+                coinSelection.SelectedUtxos.Add(ou);
+                removeIndices.Add(x);
 
                 // get quantity of UTxO
                 var quantity = (asset is null)
@@ -32,8 +42,14 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 // increment current amount by the UTxO quantity
                 currentAmount = currentAmount + quantity;
             }
+            
+            //remove the utxos we used
+            removeIndices.ForEach(x => availableUtxos.RemoveAt(x));
+        }
 
-            return (selectedUtxos, new List<TransactionOutput>());
+        public void CalculateChange(CoinSelection coinSelection, List<Utxo> currentSelections, Asset asset, ulong requestedAmount)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
