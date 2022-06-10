@@ -42,7 +42,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             //get data
             var transactionInput = new TransactionInput();
             transactionInput.TransactionId = ((string)transactionInputCbor[0].DecodeValueByCborType()).HexToByteArray();
-            transactionInput.TransactionIndex = Convert.ToUInt32(transactionInputCbor[1].DecodeValueByCborType());
+            transactionInput.TransactionIndex = transactionInputCbor[1].DecodeValueToUInt32();
 
             //return
             return transactionInput;

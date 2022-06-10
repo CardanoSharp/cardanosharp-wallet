@@ -33,6 +33,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 cborTransaction.Add(CBORObject.NewMap());
             }
 
+            //add isValid
+            cborTransaction.Add(transaction.IsValid.GetCBOR());
+
             //add metadata
             cborTransaction.Add(transaction.AuxiliaryData != null
                 ? transaction.AuxiliaryData.GetCBOR()
@@ -61,11 +64,8 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             //get data
             var transactionBodyCbor = transactionCbor[0];
             var transactionWitnessSetCbor = transactionCbor[1];
-            CBORObject auxiliaryDataCbor = null;
-            if (transactionCbor.Count > 2)
-            {
-                auxiliaryDataCbor = transactionCbor[2];
-            }
+            var isValidCbor = transactionCbor.Count > 2 ? transactionCbor[2] : null;
+            var auxiliaryDataCbor = transactionCbor.Count > 3 ? transactionCbor[3] : null;
 
             //populate
             var transaction = new Transaction();
@@ -73,6 +73,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (transactionWitnessSetCbor != null && transactionWitnessSetCbor.Count > 0)
             {
                 transaction.TransactionWitnessSet = transactionWitnessSetCbor.GetTransactionWitnessSet();
+            }
+            if (isValidCbor != null && !isValidCbor.IsNull)
+            {
+                transaction.IsValid = isValidCbor.GetIsValid();
             }
             if (auxiliaryDataCbor != null && !auxiliaryDataCbor.IsNull)
             {

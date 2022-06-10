@@ -1,7 +1,6 @@
 ﻿using PeterO.Cbor2;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {
@@ -18,7 +17,6 @@ namespace CardanoSharp.Wallet.Extensions.Models
                     break;
                 case CBORType.SimpleValue:
                     throw new NotImplementedException();
-                    break;
                 case CBORType.ByteString:
                     result = cborObject.ToString().Replace("h", "").Replace("'", "");
                     break;
@@ -52,7 +50,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
                     var number = cborObject.AsNumber();
                     if (number.CanFitInInt32())
                     {
-                        result = number.ToInt32Checked();
+                        result = number.ToUInt32Checked();
                     }
                     else if (number.CanFitInInt64())
                     {
@@ -65,12 +63,58 @@ namespace CardanoSharp.Wallet.Extensions.Models
                     break;
                 case CBORType.FloatingPoint:
                     throw new NotImplementedException();
-                    break;
                 default:
                     break;
             }
 
             return result;
+        }
+
+        public static short DecodeValueToInt16(this CBORObject cborObject)
+        {
+            if (cborObject.Type != CBORType.Integer)
+                throw new ArgumentException("CBORObject must be of type integer", nameof(cborObject));
+            var number = cborObject.AsNumber();
+            return number.ToInt16Checked();
+        }
+
+        public static ushort DecodeValueToUInt16(this CBORObject cborObject)
+        {
+            if (cborObject.Type != CBORType.Integer)
+                throw new ArgumentException("CBORObject must be of type integer", nameof(cborObject));
+            var number = cborObject.AsNumber();
+            return number.ToUInt16Checked();
+        }
+        public static int DecodeValueToInt32(this CBORObject cborObject)
+        {
+            if (cborObject.Type != CBORType.Integer)
+                throw new ArgumentException("CBORObject must be of type integer", nameof(cborObject));
+            var number = cborObject.AsNumber();
+            return number.ToInt32Checked();
+        }
+
+        public static uint DecodeValueToUInt32(this CBORObject cborObject)
+        {
+            if (cborObject.Type != CBORType.Integer)
+                throw new ArgumentException("CBORObject must be of type integer", nameof(cborObject));
+            var number = cborObject.AsNumber();
+            return number.ToUInt32Checked();
+        }
+
+        public static long DecodeValueToInt64(this CBORObject cborObject)
+        {
+            if (cborObject.Type != CBORType.Integer)
+                throw new ArgumentException("CBORObject must be of type integer", nameof(cborObject));
+            var number = cborObject.AsNumber();
+            return number.ToInt64Checked();
+        }
+
+        public static ulong DecodeValueToUInt64(this CBORObject cborObject)
+        {
+            if (cborObject.Type != CBORType.Integer)
+                throw new ArgumentException("CBORObject must be of type integer", nameof(cborObject));
+            var number = cborObject.AsNumber();
+            return number.ToUInt64Checked();
         }
     }
 }

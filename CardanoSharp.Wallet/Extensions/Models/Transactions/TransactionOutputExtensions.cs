@@ -96,7 +96,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 //coin
                 transactionOutput.Value = new TransactionOutputValue() 
                 { 
-                    Coin = Convert.ToUInt64(transactionOutputCbor[1].DecodeValueByCborType()) 
+                    Coin = transactionOutputCbor[1].DecodeValueToUInt64()
                 };
             }
             else
@@ -106,7 +106,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 transactionOutput.Value.MultiAsset = new Dictionary<byte[], NativeAsset>();
 
                 var coinCbor = transactionOutputCbor[1][0];
-                transactionOutput.Value.Coin = Convert.ToUInt64(coinCbor.DecodeValueByCborType());
+                transactionOutput.Value.Coin = coinCbor.DecodeValueToUInt64();
 
                 var multiAssetCbor = transactionOutputCbor[1][1];
                 foreach (var policyKeyCbor in multiAssetCbor.Keys)
@@ -118,7 +118,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
                     foreach (var assetKeyCbor in assetMapCbor.Keys)
                     {
-                        var assetToken = Convert.ToUInt64(assetMapCbor[assetKeyCbor].DecodeValueByCborType());
+                        var assetToken = assetMapCbor[assetKeyCbor].DecodeValueToUInt64();
                         var assetKeyBytes = ((string)assetKeyCbor.DecodeValueByCborType()).HexToByteArray();
 
                         nativeAsset.Token.Add(assetKeyBytes, assetToken);
@@ -185,6 +185,24 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         public static TransactionOutput DeserializeTransactionOutput(this byte[] bytes)
         {
             return CBORObject.DecodeFromBytes(bytes).GetTransactionOutput();
+        }
+
+        public static ulong CalculateMinUtxoLovelace(
+            this TransactionOutput output,
+            int lovelacePerUtxoWord = 34482, // utxoCostPerWord in protocol params (could change in the future)
+            int policyIdSizeBytes = 28, // 224 bit policyID (won't change in forseeable future)
+            bool hasDataHash = false) // for UTxOs with a smart contract datum
+        {
+            const int fixedUtxoEntryWithoutValueSizeWords = 27; // The static parts of a UTxO: 6 + 7 + 14 words
+            const int coinSizeWords = 2; // since updated from 0 in docs.cardano.org/native-tokens/minimum-ada-value-requirement
+            const int adaOnlyUtxoSizeWords = fixedUtxoEntryWithoutValueSizeWords + coinSizeWords;
+
+            var nativeAssets = (output.Value.MultiAsset != null && output.Value.MultiAsset.Count > 0);
+
+            if (!nativeAssets)
+                return (ulong)lovelacePerUtxoWord * adaOnlyUtxoSizeWords; // 999978 lovelaces or 0.999978 ADA
+
+            return output.Value.MultiAsset.CalculateMinUtxoLovelace(lovelacePerUtxoWord, policyIdSizeBytes, hasDataHash);
         }
     }
 }

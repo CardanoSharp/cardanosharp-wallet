@@ -109,11 +109,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Certificates
                 {
                     throw new ArgumentException("certificateCbor array item has invalid first element (expected number)");
                 }
-                var index = Convert.ToInt32(certItem.Values.First().DecodeValueByCborType());
+                var index = certItem.Values.First().DecodeValueToInt32();
                 switch (index)
                 {
                     case 0: //stake registration
-                        var regCertIndex = Convert.ToInt32(certItem[1][0].DecodeValueByCborType());
+                        var regCertIndex = certItem[1][0].DecodeValueToInt32();
                         if (regCertIndex != 0)
                         {
                             throw new NotImplementedException("stake_registration accompanying cbor map index has unexpected value (expected 0)");
@@ -122,7 +122,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Certificates
                         certificate.StakeRegistration = regCert;
                         break;
                     case 1: //stake deregistration
-                        var deregCertIndex = Convert.ToInt32(certItem[1][0].DecodeValueByCborType());
+                        var deregCertIndex = certItem[1][0].DecodeValueToInt32();
                         if (deregCertIndex != 0)
                         {
                             throw new NotImplementedException("stake_deregistration accompanying cbor map index has unexpected value (expected 0)");
@@ -131,7 +131,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Certificates
                         certificate.StakeDeregistration = deregCert;
                         break;
                     case 2: //stake delegation
-                        var delegationCertIndex = Convert.ToInt32(certItem[1][0].DecodeValueByCborType());
+                        var delegationCertIndex = certItem[1][0].DecodeValueToInt32();
                         if (delegationCertIndex != 0)
                         {
                             throw new NotImplementedException("stake_delegation accompanying cbor map index has unexpected value (expected 0)");
