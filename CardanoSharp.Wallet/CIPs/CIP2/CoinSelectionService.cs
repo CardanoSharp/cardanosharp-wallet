@@ -29,14 +29,12 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 if (!HasRequiredAsset(utxos, asset))
                     throw new Exception("UTxOs do not contain a required asset");
 
-                var selectedInputs =
+                (var selectedInputs, var changeOutputs) =
                     _coinSelection.SelectInputs(utxos, asset.Quantity, asset.PolicyId is null ? null : asset);
 
                 if (!HasSufficientBalance(selectedInputs, asset.Quantity, asset.PolicyId is null ? null : asset))
                     throw new Exception("UTxOs have insufficient balance");
-
-                var changeOutputs =
-                    _coinSelection.CreateChange(utxos, asset.Quantity, asset.PolicyId is null ? null : asset);
+                
                 totalSelectedUtxos.Inputs.AddRange(selectedInputs.GetTransactionInputs());
                 totalSelectedUtxos.ChangeOutputs.AddRange(changeOutputs);
             }

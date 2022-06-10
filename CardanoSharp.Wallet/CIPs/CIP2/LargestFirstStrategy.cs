@@ -12,12 +12,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
     public class LargestFirstStrategy: BaseSelectionStrategy, ILargestFirstStrategy
     {
-        public List<TransactionOutput> CreateChange(List<Utxo> utxos, ulong amount, Asset asset = null)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public List<Utxo> SelectInputs(List<Utxo> utxos, ulong amount, Asset asset)
+        public (List<Utxo> inputs, List<TransactionOutput> changes) SelectInputs(List<Utxo> utxos, ulong amount, Asset asset)
         {
             var selectedUtxos = new List<Utxo>();
             ulong currentAmount = 0;
@@ -38,7 +33,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 currentAmount = currentAmount + quantity;
             }
 
-            return selectedUtxos;
+            return (selectedUtxos, new List<TransactionOutput>());
         }
     }
 }

@@ -14,7 +14,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
     
     public class RandomImproveStrategy: BaseSelectionStrategy, IRandomImproveStrategy
     {
-        public List<Utxo> SelectInputs(List<Utxo> utxos, ulong amount, Asset asset = null)
+        public (List<Utxo> inputs, List<TransactionOutput> changes) SelectInputs(List<Utxo> utxos, ulong amount, Asset asset = null)
         {
             var selectedUTxOs = new List<Utxo>();
             //1. Randomly select UTxOs
@@ -74,12 +74,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 selectedUTxOs.Add(utxoToEvaluate);
             }
 
-            return selectedUTxOs;
-        }
-
-        public List<TransactionOutput> CreateChange(List<Utxo> utxos, ulong amount, Asset asset = null)
-        {
-            throw new NotImplementedException();
+            return (selectedUTxOs, new List<TransactionOutput>());
         }
 
         private static bool CalculateCondition(Utxo utxoToEvaluate, ulong ideal, ulong max, Utxo previousOutput,  ICollection idealUtxoSet, ICollection utxos, Asset asset)
