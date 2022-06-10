@@ -18,28 +18,22 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
         public CoinSelectionResponse GetInputs(List<TransactionOutput> outputs, List<Utxo> utxos)
         {
-            var totalSelectedUtxos = new CoinSelectionResponse()
+            //this seems like an odd exception the more i see it.
+            // if (!HasRequiredAsset(utxos, asset))
+            //     throw new Exception("UTxOs do not contain a required asset");
+
+            (var selectedInputs, var changeOutputs) =
+                _coinSelection.SelectInputs(outputs, utxos);
+
+            //good but needs to move to the strategies
+            // if (!HasSufficientBalance(selectedInputs, asset.Quantity, asset.PolicyId is null ? null : asset))
+            //     throw new Exception("UTxOs have insufficient balance");
+            
+            return new CoinSelectionResponse()
             {
-                Inputs = new List<TransactionInput>(),
-                ChangeOutputs = new List<TransactionOutput>()
+                Inputs = selectedInputs.GetTransactionInputs(),
+                ChangeOutputs = changeOutputs
             };
-
-            foreach (var asset in outputs.AggregateAssets())
-            {
-                if (!HasRequiredAsset(utxos, asset))
-                    throw new Exception("UTxOs do not contain a required asset");
-
-                (var selectedInputs, var changeOutputs) =
-                    _coinSelection.SelectInputs(utxos, asset.Quantity, asset.PolicyId is null ? null : asset);
-
-                if (!HasSufficientBalance(selectedInputs, asset.Quantity, asset.PolicyId is null ? null : asset))
-                    throw new Exception("UTxOs have insufficient balance");
-                
-                totalSelectedUtxos.Inputs.AddRange(selectedInputs.GetTransactionInputs());
-                totalSelectedUtxos.ChangeOutputs.AddRange(changeOutputs);
-            }
-
-            return totalSelectedUtxos;
         }
 
         private bool HasRequiredAsset(IEnumerable<Utxo> utxos, Asset asset = null)

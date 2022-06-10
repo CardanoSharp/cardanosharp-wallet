@@ -14,7 +14,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
     
     public class RandomImproveStrategy: BaseSelectionStrategy, IRandomImproveStrategy
     {
-        public (List<Utxo> inputs, List<TransactionOutput> changes) SelectInputs(List<Utxo> utxos, ulong amount, Asset asset = null)
+        public (List<Utxo> inputs, List<TransactionOutput> changes) SelectInputs(List<TransactionOutput> outputs, List<Utxo> availableUtxos)
         {
             var selectedUTxOs = new List<Utxo>();
             //1. Randomly select UTxOs

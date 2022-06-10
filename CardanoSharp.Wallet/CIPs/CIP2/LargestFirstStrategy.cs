@@ -12,11 +12,11 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
     public class LargestFirstStrategy: BaseSelectionStrategy, ILargestFirstStrategy
     {
-        public (List<Utxo> inputs, List<TransactionOutput> changes) SelectInputs(List<Utxo> utxos, ulong amount, Asset asset)
+        public (List<Utxo> inputs, List<TransactionOutput> changes) SelectInputs(List<TransactionOutput> outputs, List<Utxo> availableUtxos)
         {
             var selectedUtxos = new List<Utxo>();
             ulong currentAmount = 0;
-            foreach (var ou in OrderUTxOsByDescending(utxos))
+            foreach (var ou in OrderUTxOsByDescending(availableUtxos))
             {
                 // if we already have enough utxos to cover requested amount, break out
                 if (currentAmount >= amount) break;
