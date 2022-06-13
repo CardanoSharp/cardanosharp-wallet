@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2

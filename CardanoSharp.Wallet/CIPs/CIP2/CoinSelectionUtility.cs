@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
+using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
 

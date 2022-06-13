@@ -4,6 +4,7 @@ using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
+using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2
