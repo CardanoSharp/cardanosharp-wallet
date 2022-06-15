@@ -8,6 +8,8 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 {
     public interface IScriptNofKBuilder: IABuilder<ScriptNofK>
     {
+        IScriptNofKBuilder SetN(uint n);
+        IScriptNofKBuilder SetScript(INativeScriptBuilder nativeScriptBuilder);
         IScriptNofKBuilder WithNativeScripts(List<NativeScript> nativeScripts);
     }
 
@@ -30,6 +32,23 @@ namespace CardanoSharp.Wallet.TransactionBuilding
                 return new ScriptNofKBuilder();
             }
             return new ScriptNofKBuilder(model);
+        }
+
+        public static IScriptNofKBuilder Create
+        {
+            get => new ScriptNofKBuilder();
+        }
+
+        public IScriptNofKBuilder SetN(uint n)
+        {
+            _model.N = n;
+            return this;
+        }
+
+        public IScriptNofKBuilder SetScript(INativeScriptBuilder nativeScriptBuilder)
+        {
+            _model.NativeScripts.Add(nativeScriptBuilder.Build());
+            return this;
         }
 
         public IScriptNofKBuilder WithNativeScripts(List<NativeScript> nativeScripts)

@@ -42,7 +42,7 @@ namespace CardanoSharp.Wallet.Models.Derivations
 
     public abstract class AChildKeyDerivation : AKeyDerivation, IPathDerivation
     {
-        static uint MinHardIndex = 0x80000000;
+        const uint MinHardIndex = 0x80000000;
 
 
         protected AChildKeyDerivation(PrivateKey key, ISegment segment) : base(segment)

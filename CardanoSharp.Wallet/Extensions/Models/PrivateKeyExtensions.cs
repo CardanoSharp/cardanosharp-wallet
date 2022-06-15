@@ -13,7 +13,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
 {
     public static class PrivateKeyExtensions
     {
-        static UInt32 MinHardIndex = 0x80000000;
+        const uint MinHardIndex = 0x80000000;
 
         /// <summary>
         /// Master node derivation

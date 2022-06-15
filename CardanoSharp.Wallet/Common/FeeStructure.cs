@@ -2,7 +2,8 @@
 {
     public static class FeeStructure
     {
-        public static uint Coefficient = 500;
-        public static uint Constant = 2;
+        // Constants taken from protocol params as of mainnet epoch 345
+        public const uint Coefficient = 44;
+        public const uint Constant = 155381;
     }
 }
