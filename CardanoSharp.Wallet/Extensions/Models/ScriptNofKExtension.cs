@@ -1,4 +1,6 @@
-﻿using CardanoSharp.Wallet.Models.Transactions.Scripts;
+﻿using CardanoSharp.Wallet.Common;
+using CardanoSharp.Wallet.Models.Transactions.Scripts;
+using CardanoSharp.Wallet.Utilities;
 using PeterO.Cbor2;
 using System;
 using System.Collections.Generic;
@@ -8,6 +10,14 @@ namespace CardanoSharp.Wallet.Extensions.Models
 {
     public static class ScriptNofKExtension
     {
+        public static byte[] GetPolicyId(this ScriptNofK scriptNofK)
+        {
+            BigEndianBuffer buffer = new BigEndianBuffer();
+            buffer.Write(new byte[] { 0x00 });
+            buffer.Write(scriptNofK.GetCBOR().EncodeToBytes());
+            return HashUtility.Blake2b224(buffer.ToArray());
+        }
+
         public static CBORObject GetCBOR(this ScriptNofK scriptNofK)
         {
             //script_n_of_k = (3, n: uint, [ * native_script ])
