@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
+using CardanoSharp.Wallet.CIPs.CIP2.Extensions;
+using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models;
@@ -24,17 +26,21 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
         {
             var coinSelection = new CoinSelection();
             var availableUTxOs = new List<Utxo>(utxos);
+
+            var balance = outputs.AggregateAssets();
             
-            foreach (var asset in outputs.AggregateAssets())
+            foreach (var asset in balance.Assets)
             {
-                _coinSelection.SelectInputs(coinSelection, availableUTxOs, asset.Quantity, asset.PolicyId is null ? null : asset, limit);
+                _coinSelection.SelectInputs(coinSelection, availableUTxOs, asset.Quantity, asset, limit);
 
                 //good but needs to move to the strategies
-                if (!HasSufficientBalance(coinSelection.SelectedUtxos, asset.Quantity, asset.PolicyId is null ? null : asset))
+                if (!HasSufficientBalance(coinSelection.SelectedUtxos, asset.Quantity, asset))
                     throw new Exception("UTxOs have insufficient balance");
             }
             
-            if(_changeCreation is not null) _changeCreation.CalculateChange(coinSelection, outputs.AggregateAssets());
+            _coinSelection.SelectInputs(coinSelection, availableUTxOs, balance.Lovelaces, null, limit);
+            
+            if(_changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance);
 
             return coinSelection;
         }

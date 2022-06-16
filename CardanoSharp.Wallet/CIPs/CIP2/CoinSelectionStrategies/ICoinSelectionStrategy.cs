@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
 

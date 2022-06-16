@@ -7,7 +7,7 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {
-    public static class TransactionOutputExtensions
+    public static partial class TransactionOutputExtensions
     {
         public static CBORObject GetCBOR(this TransactionOutput transactionOutput)
         {
@@ -135,51 +135,6 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         public static byte[] Serialize(this TransactionOutput transactionOutput)
         {
             return transactionOutput.GetCBOR().EncodeToBytes();
-        }
-
-        public static List<Asset> AggregateAssets(this IEnumerable<TransactionOutput> transactionOutputs)
-        {
-            List<Asset> assets = new List<Asset>();
-
-            foreach (var o in transactionOutputs)
-            {
-                //aggregate lovelaces
-                var assetLovelace = assets.FirstOrDefault(x => x.Name is null);
-                if (assetLovelace is null)
-                {
-                    assetLovelace = new Asset()
-                    {
-                        Quantity = 0
-                    };
-                    assets.Add(assetLovelace);
-                }
-
-                assetLovelace.Quantity = assetLovelace.Quantity + o.Value.Coin;
-
-                //aggregate native assets
-                foreach (var ma in o.Value.MultiAsset)
-                {
-                    foreach (var na in ma.Value.Token)
-                    {
-                        var nativeAsset = assets.FirstOrDefault(x =>
-                            x.PolicyId.SequenceEqual(ma.Key) && x.Name.SequenceEqual(na.Key));
-                        if (nativeAsset is null)
-                        {
-                            nativeAsset = new Asset()
-                            {
-                                PolicyId = ma.Key,
-                                Name = na.Key,
-                                Quantity = 0
-                            };
-                            assets.Add(nativeAsset);
-                        }
-
-                        nativeAsset.Quantity = nativeAsset.Quantity + na.Value;
-                    }
-                }
-            }
-            
-            return assets;
         }
 
         public static TransactionOutput DeserializeTransactionOutput(this byte[] bytes)

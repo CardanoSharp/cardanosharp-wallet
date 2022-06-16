@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
@@ -46,11 +47,6 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             
             //remove the utxos we used
             removeIndices.ForEach(x => availableUtxos.RemoveAt(x));
-        }
-
-        public void CalculateChange(CoinSelection coinSelection, List<Utxo> currentSelections, Asset asset, ulong requestedAmount)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

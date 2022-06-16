@@ -1,22 +1,24 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CardanoSharp.Wallet.CIPs.CIP2.Models;
+using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
+using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
 {
     public class SingleTokenBundleStrategy: IChangeCreationStrategy
     {
-        public void CalculateChange(CoinSelection coinSelection, List<Asset> assets)
+        public void CalculateChange(CoinSelection coinSelection, Balance balance)
         {
             //clear our change output list
             coinSelection.ChangeOutputs.Clear();
             
             //calculate change for token bundle
-            foreach (var asset in assets)
+            foreach (var asset in balance.Assets)
             {
-                if (asset.PolicyId is not null)
-                    CalculateTokenBundleUtxo(coinSelection, asset);
+                CalculateTokenBundleUtxo(coinSelection, asset);
             }
 
             //determine/calculate the min lovelaces required for the token bundle
@@ -28,7 +30,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             }
 
             //calculate ada utxo accounting for selected, requested, and token bundle min 
-            CalculateAdaUtxo(coinSelection, assets.FirstOrDefault(x => x.PolicyId is null), minLovelaces);
+            CalculateAdaUtxo(coinSelection, balance.Lovelaces, minLovelaces);
         }
 
         public void CalculateTokenBundleUtxo(CoinSelection coinSelection, Asset asset)
@@ -62,15 +64,15 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             }
 
             //determine if we already have an asset added with the same policy id
-            var multiAsset = changeUtxo.Value.MultiAsset.Where(x => x.Key.SequenceEqual(asset.PolicyId));
+            var multiAsset = changeUtxo.Value.MultiAsset.Where(x => x.Key.SequenceEqual(asset.PolicyId.HexToByteArray()));
             if (!multiAsset.Any())
             {
                 //add policy and asset to token bundle
-                changeUtxo.Value.MultiAsset.Add(asset.PolicyId, new NativeAsset()
+                changeUtxo.Value.MultiAsset.Add(asset.PolicyId.HexToByteArray(), new NativeAsset()
                 {
                     Token = new Dictionary<byte[], ulong>()
                     {
-                        {asset.Name, (ulong)changeValue}
+                        {asset.Name.HexToByteArray(), (ulong)changeValue}
                     }
                 });
             }
@@ -78,11 +80,11 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             {
                 //policy already exists in token bundle, just add the asset
                 var policyAsset = multiAsset.FirstOrDefault();
-                policyAsset.Value.Token.Add(asset.Name, (ulong)changeValue);
+                policyAsset.Value.Token.Add(asset.Name.HexToByteArray(), (ulong)changeValue);
             }
         }
 
-        public void CalculateAdaUtxo(CoinSelection coinSelection, Asset asset, ulong tokenBundleMin)
+        public void CalculateAdaUtxo(CoinSelection coinSelection, ulong ada, ulong tokenBundleMin)
         {
             // get quantity of UTxO for current asset
             long currentQuantity = coinSelection.SelectedUtxos
@@ -90,7 +92,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                     .Sum();
 
             // determine change value for current asset based on requested and how much is selected
-            var changeValue = currentQuantity - (long)asset.Quantity;
+            var changeValue = currentQuantity - (long)ada;
 
             //this is for lovelaces
             coinSelection.ChangeOutputs.Add(new TransactionOutput()
