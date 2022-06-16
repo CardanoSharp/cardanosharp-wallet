@@ -1,8 +1,6 @@
 ﻿using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.Scripts;
 using PeterO.Cbor2;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {

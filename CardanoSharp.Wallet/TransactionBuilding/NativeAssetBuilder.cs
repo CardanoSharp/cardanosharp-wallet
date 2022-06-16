@@ -1,7 +1,5 @@
 ﻿using CardanoSharp.Wallet.Models.Transactions;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {

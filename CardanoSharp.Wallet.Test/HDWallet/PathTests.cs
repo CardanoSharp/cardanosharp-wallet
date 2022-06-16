@@ -1,11 +1,6 @@
 ﻿using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Models;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace CardanoSharp.Wallet.Test

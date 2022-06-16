@@ -1,10 +1,6 @@
-﻿using CardanoSharp.Wallet.Models;
-using CardanoSharp.Wallet.Models.Derivations;
+﻿using CardanoSharp.Wallet.Models.Derivations;
 using CardanoSharp.Wallet.Models.Keys;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {

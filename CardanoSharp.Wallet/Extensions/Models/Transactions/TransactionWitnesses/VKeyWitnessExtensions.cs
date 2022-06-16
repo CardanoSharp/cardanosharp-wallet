@@ -1,12 +1,8 @@
 ﻿using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Utilities;
-using Chaos.NaCl;
 using PeterO.Cbor2;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses
 {

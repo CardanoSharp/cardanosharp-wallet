@@ -1,9 +1,5 @@
 ﻿using CardanoSharp.Wallet.Enums;
-using CardanoSharp.Wallet.Models.Keys;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 
 namespace CardanoSharp.Wallet.Models
 {

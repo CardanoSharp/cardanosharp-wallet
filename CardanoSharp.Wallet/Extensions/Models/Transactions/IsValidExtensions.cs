@@ -1,9 +1,5 @@
-using CardanoSharp.Wallet.Models.Transactions;
 using PeterO.Cbor2;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CardanoSharp.Wallet.Models.Transactions
+﻿namespace CardanoSharp.Wallet.Models.Transactions
 {
     /// <summary>
     /// Parent class to create transactions. If a child class does not have

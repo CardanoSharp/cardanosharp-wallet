@@ -2,9 +2,7 @@
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.Scripts;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.Scripts;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
