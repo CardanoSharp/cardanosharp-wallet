@@ -137,7 +137,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return transactionOutput.GetCBOR().EncodeToBytes();
         }
 
-        public static List<Asset> AggregateAssets(this List<TransactionOutput> transactionOutputs)
+        public static List<Asset> AggregateAssets(this IEnumerable<TransactionOutput> transactionOutputs)
         {
             List<Asset> assets = new List<Asset>();
 

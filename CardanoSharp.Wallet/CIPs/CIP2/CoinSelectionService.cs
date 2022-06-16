@@ -20,7 +20,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             _changeCreation = changeCreation;
         }
 
-        public CoinSelection GetCoinSelection(List<TransactionOutput> outputs, List<Utxo> utxos, int limit = 20)
+        public CoinSelection GetCoinSelection(IEnumerable<TransactionOutput> outputs, IEnumerable<Utxo> utxos, int limit = 20)
         {
             var coinSelection = new CoinSelection();
             var availableUTxOs = new List<Utxo>(utxos);
