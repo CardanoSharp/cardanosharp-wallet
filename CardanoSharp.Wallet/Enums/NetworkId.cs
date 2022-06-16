@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CardanoSharp.Wallet.Enums
+﻿namespace CardanoSharp.Wallet.Enums
 {
     /// <summary>
     /// https://github.com/cardano-foundation/CIPs/blob/master/CIP-0019/CIP-0019.md#network-tag

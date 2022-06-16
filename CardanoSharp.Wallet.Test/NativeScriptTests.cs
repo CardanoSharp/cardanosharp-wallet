@@ -3,11 +3,6 @@ using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.Scripts;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.Scripts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace CardanoSharp.Wallet.Test;

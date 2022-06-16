@@ -3,7 +3,6 @@ using CardanoSharp.Wallet.Models.Transactions.Scripts;
 using CardanoSharp.Wallet.Utilities;
 using PeterO.Cbor2;
 using System;
-using System.Linq;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {

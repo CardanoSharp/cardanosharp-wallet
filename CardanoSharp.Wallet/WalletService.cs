@@ -1,8 +1,5 @@
-﻿using CardanoSharp.Wallet.Extensions.Models;
-using CardanoSharp.Wallet.Models.Keys;
+﻿using CardanoSharp.Wallet.Models.Keys;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CardanoSharp.Wallet
 {

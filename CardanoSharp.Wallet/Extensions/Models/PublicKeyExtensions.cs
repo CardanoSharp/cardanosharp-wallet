@@ -1,13 +1,9 @@
-﻿using CardanoSharp.Wallet.Common;
-using CardanoSharp.Wallet.Enums;
+﻿using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Models.Derivations;
 using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Utilities;
 using Chaos.NaCl;
 using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {

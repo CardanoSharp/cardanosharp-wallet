@@ -1,11 +1,6 @@
 ﻿using CardanoSharp.Wallet.Models.Keys;
-using System;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace CardanoSharp.Wallet.Test

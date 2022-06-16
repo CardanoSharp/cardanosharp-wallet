@@ -1,7 +1,6 @@
 ﻿
 using System;
 using CardanoSharp.Wallet.Common;
-using CardanoSharp.Wallet.Encoding;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Keys;

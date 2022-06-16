@@ -3,7 +3,6 @@ using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace CardanoSharp.Wallet.Models.Addresses
 {
