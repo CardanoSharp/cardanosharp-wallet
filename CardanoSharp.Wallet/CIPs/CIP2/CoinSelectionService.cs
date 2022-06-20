@@ -38,12 +38,14 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             {
                 _coinSelection.SelectInputs(coinSelection, availableUTxOs, asset.Quantity, asset, limit);
 
-                //good but needs to move to the strategies
                 if (!HasSufficientBalance(coinSelection.SelectedUtxos, asset.Quantity, asset))
                     throw new Exception("UTxOs have insufficient balance");
             }
             
             _coinSelection.SelectInputs(coinSelection, availableUTxOs, balance.Lovelaces, null, limit);
+            
+            if (!HasSufficientBalance(coinSelection.SelectedUtxos, balance.Lovelaces, null))
+                throw new Exception("UTxOs have insufficient balance");
             
             if(_changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance);
 
