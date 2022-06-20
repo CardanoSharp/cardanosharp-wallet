@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CardanoSharp.Wallet.CIPs.CIP2;
+using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models;
@@ -15,10 +16,15 @@ public class CIP2Tests
     private TransactionOutput input_100_ada_no_assets;
     
     private Utxo utxo_10_ada_no_assets;
-    private Utxo utxo_30_ada_no_assets;
     private Utxo utxo_20_ada_no_assets;
+    private Utxo utxo_30_ada_no_assets;
     private Utxo utxo_40_ada_no_assets;
     private Utxo utxo_50_ada_no_assets;
+    private Utxo utxo_60_ada_no_assets;
+    private Utxo utxo_70_ada_no_assets;
+    private Utxo utxo_80_ada_no_assets;
+    private Utxo utxo_90_ada_no_assets;
+    private Utxo utxo_100_ada_no_assets;
 
     public CIP2Tests()
     {
@@ -53,6 +59,37 @@ public class CIP2Tests
             TxIndex = 0,
             Value = 50 * lovelace
         };
+        utxo_60_ada_no_assets = new Utxo()
+        {
+            TxHash = getRandomTransactionHash(),
+            TxIndex = 0,
+            Value = 60 * lovelace
+        };
+        utxo_70_ada_no_assets = new Utxo()
+        {
+            TxHash = getRandomTransactionHash(),
+            TxIndex = 0,
+            Value = 70 * lovelace
+        };
+        utxo_80_ada_no_assets = new Utxo()
+        {
+            TxHash = getRandomTransactionHash(),
+            TxIndex = 0,
+            Value = 80 * lovelace
+        };
+        utxo_90_ada_no_assets = new Utxo()
+        {
+            TxHash = getRandomTransactionHash(),
+            TxIndex = 0,
+            Value = 90 * lovelace
+        };
+        utxo_100_ada_no_assets = new Utxo()
+        {
+            TxHash = getRandomTransactionHash(),
+            TxIndex = 0,
+            Value = 100 * lovelace
+        };
+        
         input_100_ada_no_assets = new TransactionOutput()
         {
             Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
@@ -113,13 +150,29 @@ public class CIP2Tests
         }
     }
 
+    [Fact]
     public void RandomImprove_Simple_Test()
     {
         //arrange
-        
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { input_100_ada_no_assets };
+        var utxos = new List<Utxo>()
+        {
+            utxo_10_ada_no_assets, utxo_20_ada_no_assets, utxo_30_ada_no_assets, utxo_40_ada_no_assets,
+            utxo_50_ada_no_assets,
+            utxo_60_ada_no_assets, utxo_70_ada_no_assets, utxo_80_ada_no_assets, utxo_90_ada_no_assets,
+            utxo_100_ada_no_assets
+        };
+
         //act
-        
+        var response = coinSelection.GetCoinSelection(outputs, utxos);
+
         //assert
+        ulong totalSelected = 0;
+        response.SelectedUtxos.ForEach(s => totalSelected = totalSelected + s.Value);
+        ulong totalChange = 0;
+        response.ChangeOutputs.ForEach(s => totalChange = totalChange + s.Value.Coin);
+        Assert.True(totalSelected == totalChange + input_100_ada_no_assets.Value.Coin);
     }
     
     private string getRandomTransactionHash()

@@ -71,12 +71,14 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             {
                 //The next 3 conditions establish whether the utxo is an "improvement" and should be added to the change
                 if(!CalculateCondition(v1, ideal, max, v0, limit, currentSelectedUtxo, asset)) continue;
-                
-                v0 = v1;
 
                 currentSelectedUtxo.Add(v1);
-                currentSelectedUtxo.Remove(v0);
+                if(v0 is not null) currentSelectedUtxo.Remove(v0);
+                
+                v0 = v1;
             }
+
+            coinSelection.SelectedUtxos = currentSelectedUtxo;
         }
 
         //why is this static
