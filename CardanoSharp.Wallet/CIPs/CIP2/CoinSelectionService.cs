@@ -11,7 +11,12 @@ using CardanoSharp.Wallet.Models.Transactions;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2
 {
-    public class CoinSelectionService
+    public interface ICoinSelectionService
+    {
+        CoinSelection GetCoinSelection(IEnumerable<TransactionOutput> outputs, IEnumerable<Utxo> utxos, int limit = 20);
+    }
+    
+    public class CoinSelectionService: ICoinSelectionService
     {
         private readonly ICoinSelectionStrategy _coinSelection;
         private readonly IChangeCreationStrategy _changeCreation;
@@ -42,6 +47,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             
             if(_changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance);
 
+            PopulateInputList(coinSelection);
+
             return coinSelection;
         }
 
@@ -68,6 +75,18 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             }
 
             return totalInput >= amount;
+        }
+
+        private void PopulateInputList(CoinSelection coinSelection)
+        {
+            foreach (var su in coinSelection.SelectedUtxos)
+            {
+                coinSelection.Inputs.Add(new TransactionInput()
+                {
+                    TransactionId = su.TxHash.HexToByteArray(),
+                    TransactionIndex = su.TxIndex
+                });
+            }
         }
     }
 }

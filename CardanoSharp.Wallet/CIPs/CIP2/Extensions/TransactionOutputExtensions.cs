@@ -21,6 +21,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
                 balance.Lovelaces = balance.Lovelaces + o.Value.Coin;
 
                 //aggregate native assets
+                if(o.Value.MultiAsset is null) continue;
+                
                 foreach (var ma in o.Value.MultiAsset)
                 {
                     foreach (var na in ma.Value.Token)

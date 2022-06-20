@@ -23,7 +23,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             availableUtxos = OrderUTxOsByDescending(availableUtxos);
             
             //indices to remove
-            var removeIndices = new List<int>();
+            var removeIndices = new List<Utxo>();
             
             for(var x = 0; x < availableUtxos.Count(); x++)
             {
@@ -34,7 +34,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
                 // add current item to selected UTxOs
                 coinSelection.SelectedUtxos.Add(ou);
-                removeIndices.Add(x);
+                removeIndices.Add(ou);
 
                 // get quantity of UTxO
                 var quantity = (asset is null)
@@ -46,7 +46,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             }
             
             //remove the utxos we used
-            removeIndices.ForEach(x => availableUtxos.RemoveAt(x));
+            removeIndices.ForEach(x => availableUtxos.Remove(x));
         }
     }
 }
