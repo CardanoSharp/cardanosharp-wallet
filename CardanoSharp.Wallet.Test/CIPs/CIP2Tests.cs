@@ -14,8 +14,8 @@ namespace CardanoSharp.Wallet.Test.CIPs;
 
 public class CIP2Tests
 {
-    private TransactionOutput input_100_ada_no_assets;
-    private TransactionOutput input_10_ada_50_tokens;
+    private TransactionOutput output_100_ada_no_assets;
+    private TransactionOutput output_10_ada_50_tokens;
 
     private Asset asset_10_tokens;
     private Asset asset_20_tokens;
@@ -107,7 +107,7 @@ public class CIP2Tests
             Value = 100 * lovelace
         };
         
-        input_100_ada_no_assets = new TransactionOutput()
+        output_100_ada_no_assets = new TransactionOutput()
         {
             Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
@@ -116,7 +116,7 @@ public class CIP2Tests
             }
         };
         
-        input_10_ada_50_tokens = new TransactionOutput()
+        output_10_ada_50_tokens = new TransactionOutput()
         {
             Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
@@ -219,7 +219,7 @@ public class CIP2Tests
     {
         //arrange
         var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), null);
-        var outputs = new List<TransactionOutput>() { input_100_ada_no_assets };
+        var outputs = new List<TransactionOutput>() { output_100_ada_no_assets };
         var utxos = new List<Utxo>()
         {
             utxo_40_ada_no_assets, 
@@ -245,7 +245,7 @@ public class CIP2Tests
     {
         //arrange
         var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), null);
-        var outputs = new List<TransactionOutput>() { input_100_ada_no_assets };
+        var outputs = new List<TransactionOutput>() { output_100_ada_no_assets };
         var utxos = new List<Utxo>();
         for (var x = 0; x < 10; x++)
         {
@@ -269,7 +269,7 @@ public class CIP2Tests
     {
         //arrange
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
-        var outputs = new List<TransactionOutput>() { input_100_ada_no_assets };
+        var outputs = new List<TransactionOutput>() { output_100_ada_no_assets };
         var utxos = new List<Utxo>()
         {
             utxo_10_ada_no_assets, utxo_20_ada_no_assets, utxo_30_ada_no_assets, utxo_40_ada_no_assets,
@@ -286,7 +286,7 @@ public class CIP2Tests
         response.SelectedUtxos.ForEach(s => totalSelected = totalSelected + s.Value);
         ulong totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + s.Value.Coin);
-        Assert.True(totalSelected == totalChange + input_100_ada_no_assets.Value.Coin);
+        Assert.True(totalSelected == totalChange + output_100_ada_no_assets.Value.Coin);
     }
     
     [Fact]
@@ -294,7 +294,7 @@ public class CIP2Tests
     {
         //arrange
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
-        var outputs = new List<TransactionOutput>() { input_100_ada_no_assets };
+        var outputs = new List<TransactionOutput>() { output_100_ada_no_assets };
         var utxos = new List<Utxo>();
         for (var x = 0; x < 10; x++)
         {
@@ -318,7 +318,7 @@ public class CIP2Tests
     {
         //arrange 
         var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
-        var outputs = new List<TransactionOutput>() { input_10_ada_50_tokens };
+        var outputs = new List<TransactionOutput>() { output_10_ada_50_tokens };
         var utxos = new List<Utxo>()
         {
             utxo_10_ada_40_tokens, 
@@ -361,7 +361,89 @@ public class CIP2Tests
     {
         //arrange 
         var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
-        var outputs = new List<TransactionOutput>() { input_10_ada_50_tokens };
+        var outputs = new List<TransactionOutput>() { output_10_ada_50_tokens };
+        var utxos = new List<Utxo>();
+        for (var x = 0; x < 10; x++)
+        {
+            utxos.Add(utxo_10_ada_20_tokens);
+        }
+        
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        
+        //assert
+        //assert that selected utxo ada value is greater than the requested outputs' ada value
+        Assert.True(response.SelectedUtxos.Sum(x => (long)x.Value) > outputs.Sum(x => (long)x.Value.Coin));
+        
+        //assert that selected utxo assets equal output + change asset values
+        Assert.Equal(
+            response.SelectedUtxos.Sum(x => 
+                x.AssetList.Where(y => 
+                    y.PolicyId.Equals(utxo_10_ada_50_tokens.AssetList.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0), 
+            (response.ChangeOutputs.Sum(x => 
+                x.Value.MultiAsset?.Sum(y => 
+                    y.Value.Token.Sum(z => (long)z.Value)) ?? 0)
+                    +
+                    outputs.Sum(x =>
+                        x.Value.MultiAsset?.Sum(y => 
+                            y.Value.Token.Sum(z => (long)z.Value)) ?? 0))
+            );
+        
+        //assert that selected utxo ada value equal output + change utxo ada value
+        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Value), 
+            (response.ChangeOutputs.Sum(x => (long)x.Value.Coin) 
+                    +
+                    outputs.Sum(x => (long)x.Value.Coin)));
+    }
+
+    [Fact]
+    public void LargestFirst_WithTokensAndAda_Test()
+    {
+        //arrange 
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { output_10_ada_50_tokens, output_100_ada_no_assets };
+        var utxos = new List<Utxo>();
+        for (var x = 0; x < 10; x++)
+        {
+            utxos.Add(utxo_10_ada_20_tokens);
+        }
+        
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        
+        //assert
+        //assert that selected utxo ada value is greater than the requested outputs' ada value
+        Assert.True(response.SelectedUtxos.Sum(x => (long)x.Value) > outputs.Sum(x => (long)x.Value.Coin));
+        
+        //assert that selected utxo assets equal output + change asset values
+        Assert.Equal(
+            response.SelectedUtxos.Sum(x => 
+                x.AssetList.Where(y => 
+                    y.PolicyId.Equals(utxo_10_ada_50_tokens.AssetList.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0), 
+            (response.ChangeOutputs.Sum(x => 
+                x.Value.MultiAsset?.Sum(y => 
+                    y.Value.Token.Sum(z => (long)z.Value)) ?? 0)
+                    +
+                    outputs.Sum(x =>
+                        x.Value.MultiAsset?.Sum(y => 
+                            y.Value.Token.Sum(z => (long)z.Value)) ?? 0))
+            );
+        
+        //assert that selected utxo ada value equal output + change utxo ada value
+        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Value), 
+            (response.ChangeOutputs.Sum(x => (long)x.Value.Coin) 
+                    +
+                    outputs.Sum(x => (long)x.Value.Coin)));
+    }
+
+    [Fact]
+    public void RandomImprove_WithTokensAndAda_Test()
+    {
+        //arrange 
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { output_10_ada_50_tokens, output_100_ada_no_assets };
         var utxos = new List<Utxo>();
         for (var x = 0; x < 10; x++)
         {

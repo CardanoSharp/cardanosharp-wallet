@@ -17,7 +17,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
         public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUtxos, ulong amount, Asset asset = null, int limit = 20)
         {
             //determine
-            ulong currentAmount = GetCurrentBalance(coinSelection.SelectedUtxos, asset);
+            ulong currentAmount = GetCurrentBalance(coinSelection, asset);
             
             //reorder the available utxos
             availableUtxos = OrderUTxOsByDescending(availableUtxos, asset);

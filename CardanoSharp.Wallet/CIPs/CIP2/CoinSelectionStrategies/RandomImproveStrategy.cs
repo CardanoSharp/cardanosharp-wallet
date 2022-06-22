@@ -22,7 +22,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             var rand = new Random();
             
             //determine
-            ulong currentAmount = GetCurrentBalance(coinSelection.SelectedUtxos, asset);
+            ulong currentAmount = GetCurrentBalance(coinSelection, asset);
             
             //reorder list
             availableUTxOs = OrderUTxOsByDescending(availableUTxOs, asset);
