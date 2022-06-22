@@ -331,7 +331,10 @@ public class CIP2Tests
         var response = coinSelection.GetCoinSelection(outputs, utxos);
         
         //assert
+        //assert that selected utxo ada value is greater than the requested outputs' ada value
         Assert.True(response.SelectedUtxos.Sum(x => (long)x.Value) > outputs.Sum(x => (long)x.Value.Coin));
+        
+        //assert that selected utxo assets equal output + change asset values
         Assert.Equal(
             response.SelectedUtxos.Sum(x => 
                 x.AssetList.Where(y => 
@@ -345,6 +348,8 @@ public class CIP2Tests
                         x.Value.MultiAsset?.Sum(y => 
                             y.Value.Token.Sum(z => (long)z.Value)) ?? 0))
             );
+        
+        //assert that selected utxo ada value equal output + change utxo ada value
         Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Value), 
             (response.ChangeOutputs.Sum(x => (long)x.Value.Coin) 
                     +
@@ -355,11 +360,41 @@ public class CIP2Tests
     public void RandomImprove_WithTokens_Test()
     {
         //arrange 
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { input_10_ada_50_tokens };
+        var utxos = new List<Utxo>();
+        for (var x = 0; x < 10; x++)
+        {
+            utxos.Add(utxo_10_ada_20_tokens);
+        }
         
         //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos);
         
         //assert
+        //assert that selected utxo ada value is greater than the requested outputs' ada value
+        Assert.True(response.SelectedUtxos.Sum(x => (long)x.Value) > outputs.Sum(x => (long)x.Value.Coin));
         
+        //assert that selected utxo assets equal output + change asset values
+        Assert.Equal(
+            response.SelectedUtxos.Sum(x => 
+                x.AssetList.Where(y => 
+                    y.PolicyId.Equals(utxo_10_ada_50_tokens.AssetList.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0), 
+            (response.ChangeOutputs.Sum(x => 
+                x.Value.MultiAsset?.Sum(y => 
+                    y.Value.Token.Sum(z => (long)z.Value)) ?? 0)
+                    +
+                    outputs.Sum(x =>
+                        x.Value.MultiAsset?.Sum(y => 
+                            y.Value.Token.Sum(z => (long)z.Value)) ?? 0))
+            );
+        
+        //assert that selected utxo ada value equal output + change utxo ada value
+        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Value), 
+            (response.ChangeOutputs.Sum(x => (long)x.Value.Coin) 
+                    +
+                    outputs.Sum(x => (long)x.Value.Coin)));
     }
     
     private string getRandomTransactionHash()

@@ -82,7 +82,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 v0 = v1;
             }
 
-            coinSelection.SelectedUtxos = currentSelectedUtxo;
+            coinSelection.SelectedUtxos.AddRange(currentSelectedUtxo);
         }
 
         //why is this static
@@ -91,7 +91,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             bool[] arrayToMatchConditions = { false, false, false,};
             arrayToMatchConditions[0] =  asset is null ? Math.Abs((long) (ideal - v1.Value)) < Math.Abs((long) (ideal -  v0.Value)) 
                 : Math.Abs((long) (ideal - v1.AssetList.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name)).Quantity)) < 
-                  Math.Abs((long) (ideal - v0.AssetList.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name)).Quantity)) ;
+                  Math.Abs((long) (ideal - (v0.AssetList?.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name))?.Quantity ?? 0))) ;
 
             arrayToMatchConditions[1] = asset is null ? v1.Value <= max : v1.AssetList.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name)).Quantity <= max;
 
