@@ -87,12 +87,12 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
         public void CalculateAdaUtxo(CoinSelection coinSelection, ulong ada, ulong tokenBundleMin)
         {
             // get quantity of UTxO for current asset
-            long currentQuantity = coinSelection.SelectedUtxos
+            ulong currentQuantity = (ulong)coinSelection.SelectedUtxos
                     .Select(x => (long) x.Value)
                     .Sum();
 
             // determine change value for current asset based on requested and how much is selected
-            var changeValue = currentQuantity - (long)ada;
+            var changeValue = currentQuantity - tokenBundleMin - ada;
 
             //this is for lovelaces
             coinSelection.ChangeOutputs.Add(new TransactionOutput()

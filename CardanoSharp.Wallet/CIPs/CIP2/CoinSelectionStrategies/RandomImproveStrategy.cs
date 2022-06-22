@@ -22,7 +22,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             var rand = new Random();
             
             //determine
-            ulong currentAmount = 0;
+            ulong currentAmount = GetCurrentBalance(coinSelection.SelectedUtxos, asset);
             
             //reorder list
             availableUTxOs = OrderUTxOsByDescending(availableUTxOs, asset);
@@ -32,6 +32,10 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             
             while (currentAmount < amount && availableUTxOs.Any())
             {
+                // make sure we havent added too many utxos
+                // we minus 1 here because we will improve which will add an additional utxo
+                if (currentSelectedUtxo.Count() == limit-1) break;
+            
                 var availableLength = availableUTxOs.Count();
                 var randomIndex = rand.Next(availableLength - 1);
                 var randomUTxO = availableUTxOs[randomIndex];

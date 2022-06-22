@@ -8,6 +8,21 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 {
     public abstract class BaseSelectionStrategy
     {
+        protected ulong GetCurrentBalance(List<Utxo> selectedUtxos, Asset asset = null)
+        {
+            if (asset is null)
+            {
+                return (ulong)selectedUtxos.Sum(x => (long)x.Value);
+            }
+            else
+            {
+                return (ulong)selectedUtxos.Sum(x => (long)(x.AssetList
+                    .FirstOrDefault(ma =>
+                        ma.PolicyId.SequenceEqual(asset.PolicyId)
+                        && ma.Name.Equals(asset.Name))?.Quantity ?? 0));
+            }
+        }
+        
         protected List<Utxo> OrderUTxOsByDescending(List<Utxo> utxos, Asset asset = null)
         {
             var orderedUtxos = new List<Utxo>();

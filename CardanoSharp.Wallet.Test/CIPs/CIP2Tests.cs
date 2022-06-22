@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2;
 using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
 using CardanoSharp.Wallet.Extensions;
@@ -14,6 +15,13 @@ namespace CardanoSharp.Wallet.Test.CIPs;
 public class CIP2Tests
 {
     private TransactionOutput input_100_ada_no_assets;
+    private TransactionOutput input_10_ada_50_tokens;
+
+    private Asset asset_10_tokens;
+    private Asset asset_20_tokens;
+    private Asset asset_30_tokens;
+    private Asset asset_40_tokens;
+    private Asset asset_50_tokens;
     
     private Utxo utxo_10_ada_no_assets;
     private Utxo utxo_20_ada_no_assets;
@@ -25,10 +33,19 @@ public class CIP2Tests
     private Utxo utxo_80_ada_no_assets;
     private Utxo utxo_90_ada_no_assets;
     private Utxo utxo_100_ada_no_assets;
+    
+    private Utxo utxo_10_ada_10_tokens;
+    private Utxo utxo_10_ada_20_tokens;
+    private Utxo utxo_10_ada_30_tokens;
+    private Utxo utxo_10_ada_40_tokens;
+    private Utxo utxo_10_ada_50_tokens;
 
     public CIP2Tests()
     {
         ulong lovelace = 1000000;
+        string policyId = getRandomAssetPolicyIdHash();
+        string assetName = getRandomAssetNameHash();
+        
         utxo_10_ada_no_assets = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
@@ -95,8 +112,105 @@ public class CIP2Tests
             Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
-                Coin = 100000000
+                Coin = 100 * lovelace
             }
+        };
+        
+        input_10_ada_50_tokens = new TransactionOutput()
+        {
+            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Value = new TransactionOutputValue()
+            {
+                Coin = 10 * lovelace,
+                MultiAsset = new Dictionary<byte[], NativeAsset>()
+                {
+                    {
+                        policyId.HexToByteArray(), 
+                        new NativeAsset()
+                        {
+                            Token = new Dictionary<byte[], ulong>()
+                            {
+                                { assetName.HexToByteArray(), 50 }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        asset_10_tokens = new Asset()
+        {
+            PolicyId = policyId,
+            Name = assetName,
+            Quantity = 10
+        };
+
+        asset_20_tokens = new Asset()
+        {
+            PolicyId = policyId,
+            Name = assetName,
+            Quantity = 20
+        };
+
+        asset_30_tokens = new Asset()
+        {
+            PolicyId = policyId,
+            Name = assetName,
+            Quantity = 30
+        };
+
+        asset_40_tokens = new Asset()
+        {
+            PolicyId = policyId,
+            Name = assetName,
+            Quantity = 40
+        };
+
+        asset_50_tokens = new Asset()
+        {
+            PolicyId = policyId,
+            Name = assetName,
+            Quantity = 50
+        };
+        
+        utxo_10_ada_10_tokens = new Utxo()
+        {
+            TxHash = getRandomTransactionHash(),
+            TxIndex = 0,
+            Value = 10 * lovelace,
+            AssetList = new List<Asset>() { asset_10_tokens }
+        };
+        
+        utxo_10_ada_20_tokens = new Utxo()
+        {
+            TxHash = getRandomTransactionHash(),
+            TxIndex = 0,
+            Value = 10 * lovelace,
+            AssetList = new List<Asset>() { asset_20_tokens }
+        };
+        
+        utxo_10_ada_30_tokens = new Utxo()
+        {
+            TxHash = getRandomTransactionHash(),
+            TxIndex = 0,
+            Value = 10 * lovelace,
+            AssetList = new List<Asset>() { asset_30_tokens }
+        };
+        
+        utxo_10_ada_40_tokens = new Utxo()
+        {
+            TxHash = getRandomTransactionHash(),
+            TxIndex = 0,
+            Value = 10 * lovelace,
+            AssetList = new List<Asset>() { asset_40_tokens }
+        };
+        
+        utxo_10_ada_50_tokens = new Utxo()
+        {
+            TxHash = getRandomTransactionHash(),
+            TxIndex = 0,
+            Value = 10 * lovelace,
+            AssetList = new List<Asset>() { asset_50_tokens }
         };
     }
     
@@ -175,10 +289,99 @@ public class CIP2Tests
         Assert.True(totalSelected == totalChange + input_100_ada_no_assets.Value.Coin);
     }
     
+    [Fact]
+    public void RandomImprove_LimitFail_Test()
+    {
+        //arrange
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { input_100_ada_no_assets };
+        var utxos = new List<Utxo>();
+        for (var x = 0; x < 10; x++)
+        {
+            utxos.Add(utxo_10_ada_no_assets);
+        }
+
+        try
+        {
+            //act
+            var response = coinSelection.GetCoinSelection(outputs, utxos, 5);
+        }
+        catch (Exception e)
+        {
+            //assert
+            Assert.Equal("UTxOs have insufficient balance", e.Message);
+        }
+    }
+
+    [Fact]
+    public void LargestFirst_WithTokens_Test()
+    {
+        //arrange 
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { input_10_ada_50_tokens };
+        var utxos = new List<Utxo>()
+        {
+            utxo_10_ada_40_tokens, 
+            utxo_10_ada_10_tokens, 
+            utxo_10_ada_30_tokens, 
+            utxo_10_ada_50_tokens
+        };
+        
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        
+        //assert
+        Assert.True(response.SelectedUtxos.Sum(x => (long)x.Value) > outputs.Sum(x => (long)x.Value.Coin));
+        Assert.Equal(
+            response.SelectedUtxos.Sum(x => 
+                x.AssetList.Where(y => 
+                    y.PolicyId.Equals(utxo_10_ada_50_tokens.AssetList.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0), 
+            (response.ChangeOutputs.Sum(x => 
+                x.Value.MultiAsset?.Sum(y => 
+                    y.Value.Token.Sum(z => (long)z.Value)) ?? 0)
+                    +
+                    outputs.Sum(x =>
+                        x.Value.MultiAsset?.Sum(y => 
+                            y.Value.Token.Sum(z => (long)z.Value)) ?? 0))
+            );
+        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Value), 
+            (response.ChangeOutputs.Sum(x => (long)x.Value.Coin) 
+                    +
+                    outputs.Sum(x => (long)x.Value.Coin)));
+    }
+
+    [Fact]
+    public void RandomImprove_WithTokens_Test()
+    {
+        //arrange 
+        
+        //act
+        
+        //assert
+        
+    }
+    
     private string getRandomTransactionHash()
     {
         Random rnd = new Random();
         var hash = new byte[32];
+        rnd.NextBytes(hash);
+        return hash.ToStringHex();
+    }
+    
+    private string getRandomAssetPolicyIdHash()
+    {
+        Random rnd = new Random();
+        var hash = new byte[28];
+        rnd.NextBytes(hash);
+        return hash.ToStringHex();
+    }
+    
+    private string getRandomAssetNameHash()
+    {
+        Random rnd = new Random();
+        var hash = new byte[8];
         rnd.NextBytes(hash);
         return hash.ToStringHex();
     }

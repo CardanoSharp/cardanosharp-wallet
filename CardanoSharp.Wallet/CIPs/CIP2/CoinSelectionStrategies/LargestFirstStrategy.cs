@@ -17,10 +17,10 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
         public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUtxos, ulong amount, Asset asset = null, int limit = 20)
         {
             //determine
-            ulong currentAmount = 0;
+            ulong currentAmount = GetCurrentBalance(coinSelection.SelectedUtxos, asset);
             
             //reorder the available utxos
-            availableUtxos = OrderUTxOsByDescending(availableUtxos);
+            availableUtxos = OrderUTxOsByDescending(availableUtxos, asset);
             
             //indices to remove
             var removeIndices = new List<Utxo>();
@@ -30,7 +30,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 var ou = availableUtxos[x];
                 
                 // if we already have enough utxos to cover requested amount, break out
-                if (currentAmount >= amount) break;
+                if (currentAmount > amount) break;
                 
                 // make sure we havent added too many utxos
                 if (coinSelection.SelectedUtxos.Count() == limit) break;
