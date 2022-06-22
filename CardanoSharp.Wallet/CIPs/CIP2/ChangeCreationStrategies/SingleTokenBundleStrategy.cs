@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Extensions;
@@ -92,7 +93,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                     .Sum();
 
             // determine change value for current asset based on requested and how much is selected
-            var changeValue = currentQuantity - tokenBundleMin - ada;
+            var changeValue = Math.Abs((long)(currentQuantity - tokenBundleMin - ada));
 
             //this is for lovelaces
             coinSelection.ChangeOutputs.Add(new TransactionOutput()
