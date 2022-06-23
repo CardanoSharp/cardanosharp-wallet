@@ -1,9 +1,5 @@
 ﻿using CardanoSharp.Wallet.Encoding;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 using CardanoSharp.Wallet.Extensions;
 

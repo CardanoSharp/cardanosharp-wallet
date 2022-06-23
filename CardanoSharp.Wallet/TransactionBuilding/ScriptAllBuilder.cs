@@ -1,14 +1,13 @@
 ﻿using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.Scripts;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
     public interface IScriptAllBuilder: IABuilder<ScriptAll>
     {
         IScriptAllBuilder SetScript(INativeScriptBuilder nativeScriptBuilder);
+        IScriptAllBuilder WithNativeScripts(List<NativeScript> nativeScripts);
     }
 
     public class ScriptAllBuilder: ABuilder<ScriptAll>, IScriptAllBuilder
@@ -40,6 +39,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public IScriptAllBuilder SetScript(INativeScriptBuilder nativeScriptBuilder)
         {
             _model.NativeScripts.Add(nativeScriptBuilder.Build());
+            return this;
+        }
+
+        public IScriptAllBuilder WithNativeScripts(List<NativeScript> nativeScripts)
+        {
+            _model.NativeScripts = nativeScripts;
             return this;
         }
     }

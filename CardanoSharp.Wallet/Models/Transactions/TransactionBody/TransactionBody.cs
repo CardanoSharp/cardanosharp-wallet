@@ -1,23 +1,22 @@
 ﻿using System.Collections.Generic;
-using System.Collections;
 
 namespace CardanoSharp.Wallet.Models.Transactions
 {
 
-// transaction_body =
-//  { 0 : set<transaction_input>
-//  , 1 : [* transaction_output]
-//  , 2 : coin ; fee
-//  , ? 3 : uint ; ttl
-//  , ? 4 : [* certificate]
-//  , ? 5 : withdrawals
-//  , ? 6 : update
-//  , ? 7 : metadata_hash
-//  , ? 8 : uint ; validity interval start
-//  , ? 9 : mint
-//}
+    // transaction_body =
+    //  { 0 : set<transaction_input>
+    //  , 1 : [* transaction_output]
+    //  , 2 : coin ; fee
+    //  , ? 3 : uint ; ttl
+    //  , ? 4 : [* certificate]
+    //  , ? 5 : withdrawals
+    //  , ? 6 : update
+    //  , ? 7 : metadata_hash
+    //  , ? 8 : uint ; validity interval start
+    //  , ? 9 : mint
+    //}
 
-public partial class TransactionBody
+    public partial class TransactionBody
     {
         public TransactionBody()
         {

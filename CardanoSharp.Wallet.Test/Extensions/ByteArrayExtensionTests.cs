@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CardanoSharp.Wallet.Extensions;
+﻿using CardanoSharp.Wallet.Extensions;
 using Xunit;
 
 namespace CardanoSharp.Wallet.Test.Extensions

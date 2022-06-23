@@ -1,13 +1,8 @@
-﻿using CardanoSharp.Wallet.Common;
-using CardanoSharp.Wallet.Enums;
-using CardanoSharp.Wallet.Extensions;
-using CardanoSharp.Wallet.Extensions.Models;
+﻿using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Models.Segments;
 using CardanoSharp.Wallet.Utilities;
-using Chaos.NaCl;
 using System;
-using System.Security.Cryptography;
 
 namespace CardanoSharp.Wallet.Models.Derivations
 {
@@ -42,7 +37,7 @@ namespace CardanoSharp.Wallet.Models.Derivations
 
     public abstract class AChildKeyDerivation : AKeyDerivation, IPathDerivation
     {
-        static uint MinHardIndex = 0x80000000;
+        const uint MinHardIndex = 0x80000000;
 
 
         protected AChildKeyDerivation(PrivateKey key, ISegment segment) : base(segment)

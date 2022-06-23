@@ -3,7 +3,6 @@ using CardanoSharp.Wallet.Models.Transactions.Scripts;
 using CardanoSharp.Wallet.Utilities;
 using PeterO.Cbor2;
 using System;
-using System.Linq;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {
@@ -11,11 +10,9 @@ namespace CardanoSharp.Wallet.Extensions.Models
     {
         public static byte[] GetPolicyId(this ScriptAll scriptAll)
         {
-            var serializedCBOR = scriptAll.GetCBOR().EncodeToBytes();
-
             BigEndianBuffer buffer = new BigEndianBuffer();
             buffer.Write(new byte[] { 0x00 });
-            buffer.Write(serializedCBOR);
+            buffer.Write(scriptAll.GetCBOR().EncodeToBytes());
             return HashUtility.Blake2b224(buffer.ToArray());
         }
 

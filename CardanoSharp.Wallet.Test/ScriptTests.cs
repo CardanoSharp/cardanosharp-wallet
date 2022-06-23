@@ -1,14 +1,6 @@
-﻿using CardanoSharp.Wallet.Models.Transactions;
-using CardanoSharp.Wallet.Models.Transactions.Scripts;
-using System;
-using System.Collections.Generic;
-using CardanoSharp.Wallet.Extensions;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CardanoSharp.Wallet.Extensions;
 using Xunit;
 using CardanoSharp.Wallet.Extensions.Models;
-using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.TransactionBuilding;
 using CardanoSharp.Wallet.Utilities;
 

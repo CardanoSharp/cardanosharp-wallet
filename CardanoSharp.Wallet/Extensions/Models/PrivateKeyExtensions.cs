@@ -5,15 +5,12 @@ using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Utilities;
 using Chaos.NaCl;
 using System;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {
     public static class PrivateKeyExtensions
     {
-        static UInt32 MinHardIndex = 0x80000000;
+        const uint MinHardIndex = 0x80000000;
 
         /// <summary>
         /// Master node derivation

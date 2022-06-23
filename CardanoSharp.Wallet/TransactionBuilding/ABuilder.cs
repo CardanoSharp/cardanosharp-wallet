@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CardanoSharp.Wallet.TransactionBuilding
+﻿namespace CardanoSharp.Wallet.TransactionBuilding
 {
     public interface IABuilder<T>
     {

@@ -1,18 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Security.Cryptography;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using System.Text.RegularExpressions;
-using CardanoSharp.Wallet.Common;
-using Chaos.NaCl;
-using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Keys;
-using System.Collections.Generic;
 using CardanoSharp.Wallet.Words;
 
 namespace CardanoSharp.Wallet
