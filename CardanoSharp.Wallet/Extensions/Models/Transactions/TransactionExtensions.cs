@@ -22,8 +22,8 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             //if we have a transaction witness set, lets build Witness Set CBOR and add to Transaction Array
             if (transaction.TransactionWitnessSet != null)
             {
-                cborTransaction.Add(transaction.TransactionWitnessSet.GetCBOR(
-                    transaction.TransactionBody, transaction.AuxiliaryData));
+                cborTransaction.Add(
+                    transaction.TransactionWitnessSet.GetCBOR(transaction.TransactionBody, transaction.AuxiliaryData));
             }
             else
             {
@@ -89,7 +89,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (!a.HasValue) a = FeeStructure.Coefficient;
             if (!b.HasValue) b = FeeStructure.Constant;
 
-            return ((uint)transaction.Serialize().ToStringHex().Length * a.Value) + b.Value;
+            return ((uint)transaction.Serialize().Length * a.Value) + b.Value;
         }
 
         public static byte[] Serialize(this Transaction transaction)
