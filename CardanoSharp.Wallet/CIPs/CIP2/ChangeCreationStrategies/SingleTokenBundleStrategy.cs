@@ -38,7 +38,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
         {
             // get quantity of UTxO for current asset
             long currentQuantity = coinSelection.SelectedUtxos
-                .SelectMany(x => x.AssetList
+                .SelectMany(x => x.Balance.Assets
                     .Where(al =>
                         al.PolicyId.SequenceEqual(asset.PolicyId) 
                         && al.Name.Equals(asset.Name))
@@ -89,7 +89,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
         {
             // get quantity of UTxO for current asset
             ulong currentQuantity = (ulong)coinSelection.SelectedUtxos
-                    .Select(x => (long) x.Value)
+                    .Select(x => (long) x.Balance.Lovelaces)
                     .Sum();
 
             // determine change value for current asset based on requested and how much is selected

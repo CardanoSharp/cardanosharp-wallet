@@ -50,61 +50,91 @@ public class CIP2Tests
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 10 * lovelace
+            Balance = new Balance()
+            {
+                Lovelaces = 10 * lovelace
+            }
         };
         utxo_20_ada_no_assets = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 20 * lovelace
+            Balance = new Balance()
+            {
+                Lovelaces = 20 * lovelace
+            }
         };
         utxo_30_ada_no_assets = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 30 * lovelace
+            Balance = new Balance()
+            {
+                Lovelaces = 30 * lovelace
+            }
         };
         utxo_40_ada_no_assets = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 40 * lovelace
+            Balance = new Balance()
+            {
+                Lovelaces = 40 * lovelace
+            }
         };
         utxo_50_ada_no_assets = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 50 * lovelace
+            Balance = new Balance()
+            {
+                Lovelaces = 50 * lovelace
+            }
         };
         utxo_60_ada_no_assets = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 60 * lovelace
+            Balance = new Balance()
+            {
+                Lovelaces = 60 * lovelace
+            }
         };
         utxo_70_ada_no_assets = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 70 * lovelace
+            Balance = new Balance()
+            {
+                Lovelaces = 70 * lovelace
+            }
         };
         utxo_80_ada_no_assets = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 80 * lovelace
+            Balance = new Balance()
+            {
+                Lovelaces = 80 * lovelace
+            }
         };
         utxo_90_ada_no_assets = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 90 * lovelace
+            Balance = new Balance()
+            {
+                Lovelaces = 90 * lovelace
+            }
         };
         utxo_100_ada_no_assets = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 100 * lovelace
+            Balance = new Balance()
+            {
+                Lovelaces = 100 * lovelace
+            }
         };
         
         output_100_ada_no_assets = new TransactionOutput()
@@ -177,40 +207,55 @@ public class CIP2Tests
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 10 * lovelace,
-            AssetList = new List<Asset>() { asset_10_tokens }
+            Balance = new Balance()
+            {
+                Lovelaces = 10 * lovelace,
+                Assets = new List<Asset>() { asset_10_tokens }
+            }
         };
         
         utxo_10_ada_20_tokens = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 10 * lovelace,
-            AssetList = new List<Asset>() { asset_20_tokens }
+            Balance = new Balance()
+            {
+                Lovelaces = 10 * lovelace,
+                Assets = new List<Asset>() { asset_20_tokens }
+            }
         };
         
         utxo_10_ada_30_tokens = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 10 * lovelace,
-            AssetList = new List<Asset>() { asset_30_tokens }
+            Balance = new Balance()
+            {
+                Lovelaces = 10 * lovelace,
+                Assets = new List<Asset>() { asset_30_tokens }
+            }
         };
         
         utxo_10_ada_40_tokens = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 10 * lovelace,
-            AssetList = new List<Asset>() { asset_40_tokens }
+            Balance = new Balance()
+            {
+                Lovelaces = 10 * lovelace,
+                Assets = new List<Asset>() { asset_40_tokens }
+            }
         };
         
         utxo_10_ada_50_tokens = new Utxo()
         {
             TxHash = getRandomTransactionHash(),
             TxIndex = 0,
-            Value = 10 * lovelace,
-            AssetList = new List<Asset>() { asset_50_tokens }
+            Balance = new Balance()
+            {
+                Lovelaces = 10 * lovelace,
+                Assets = new List<Asset>() { asset_50_tokens }
+            }
         };
     }
     
@@ -283,7 +328,7 @@ public class CIP2Tests
 
         //assert
         ulong totalSelected = 0;
-        response.SelectedUtxos.ForEach(s => totalSelected = totalSelected + s.Value);
+        response.SelectedUtxos.ForEach(s => totalSelected = totalSelected + s.Balance.Lovelaces);
         ulong totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + s.Value.Coin);
         Assert.True(totalSelected == totalChange + output_100_ada_no_assets.Value.Coin);
@@ -332,13 +377,13 @@ public class CIP2Tests
         
         //assert
         //assert that selected utxo ada value is greater than the requested outputs' ada value
-        Assert.True(response.SelectedUtxos.Sum(x => (long)x.Value) > outputs.Sum(x => (long)x.Value.Coin));
+        Assert.True(response.SelectedUtxos.Sum(x => (long)x.Balance.Lovelaces) > outputs.Sum(x => (long)x.Value.Coin));
         
         //assert that selected utxo assets equal output + change asset values
         Assert.Equal(
             response.SelectedUtxos.Sum(x => 
-                x.AssetList.Where(y => 
-                    y.PolicyId.Equals(utxo_10_ada_50_tokens.AssetList.FirstOrDefault().PolicyId))
+                x.Balance.Assets.Where(y => 
+                    y.PolicyId.Equals(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
                         ?.Sum(z => (long)z.Quantity) ?? 0), 
             (response.ChangeOutputs.Sum(x => 
                 x.Value.MultiAsset?.Sum(y => 
@@ -350,7 +395,7 @@ public class CIP2Tests
             );
         
         //assert that selected utxo ada value equal output + change utxo ada value
-        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Value), 
+        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Balance.Lovelaces), 
             (response.ChangeOutputs.Sum(x => (long)x.Value.Coin) 
                     +
                     outputs.Sum(x => (long)x.Value.Coin)));
@@ -373,13 +418,13 @@ public class CIP2Tests
         
         //assert
         //assert that selected utxo ada value is greater than the requested outputs' ada value
-        Assert.True(response.SelectedUtxos.Sum(x => (long)x.Value) > outputs.Sum(x => (long)x.Value.Coin));
+        Assert.True(response.SelectedUtxos.Sum(x => (long)x.Balance.Lovelaces) > outputs.Sum(x => (long)x.Value.Coin));
         
         //assert that selected utxo assets equal output + change asset values
         Assert.Equal(
             response.SelectedUtxos.Sum(x => 
-                x.AssetList.Where(y => 
-                    y.PolicyId.Equals(utxo_10_ada_50_tokens.AssetList.FirstOrDefault().PolicyId))
+                x.Balance.Assets.Where(y => 
+                    y.PolicyId.Equals(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
                         ?.Sum(z => (long)z.Quantity) ?? 0), 
             (response.ChangeOutputs.Sum(x => 
                 x.Value.MultiAsset?.Sum(y => 
@@ -391,7 +436,7 @@ public class CIP2Tests
             );
         
         //assert that selected utxo ada value equal output + change utxo ada value
-        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Value), 
+        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Balance.Lovelaces), 
             (response.ChangeOutputs.Sum(x => (long)x.Value.Coin) 
                     +
                     outputs.Sum(x => (long)x.Value.Coin)));
@@ -414,13 +459,13 @@ public class CIP2Tests
         
         //assert
         //assert that selected utxo ada value is greater than the requested outputs' ada value
-        Assert.True(response.SelectedUtxos.Sum(x => (long)x.Value) > outputs.Sum(x => (long)x.Value.Coin));
+        Assert.True(response.SelectedUtxos.Sum(x => (long)x.Balance.Lovelaces) > outputs.Sum(x => (long)x.Value.Coin));
         
         //assert that selected utxo assets equal output + change asset values
         Assert.Equal(
             response.SelectedUtxos.Sum(x => 
-                x.AssetList.Where(y => 
-                    y.PolicyId.Equals(utxo_10_ada_50_tokens.AssetList.FirstOrDefault().PolicyId))
+                x.Balance.Assets.Where(y => 
+                    y.PolicyId.Equals(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
                         ?.Sum(z => (long)z.Quantity) ?? 0), 
             (response.ChangeOutputs.Sum(x => 
                 x.Value.MultiAsset?.Sum(y => 
@@ -432,7 +477,7 @@ public class CIP2Tests
             );
         
         //assert that selected utxo ada value equal output + change utxo ada value
-        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Value), 
+        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Balance.Lovelaces), 
             (response.ChangeOutputs.Sum(x => (long)x.Value.Coin) 
                     +
                     outputs.Sum(x => (long)x.Value.Coin)));
@@ -455,13 +500,13 @@ public class CIP2Tests
         
         //assert
         //assert that selected utxo ada value is greater than the requested outputs' ada value
-        Assert.True(response.SelectedUtxos.Sum(x => (long)x.Value) > outputs.Sum(x => (long)x.Value.Coin));
+        Assert.True(response.SelectedUtxos.Sum(x => (long)x.Balance.Lovelaces) > outputs.Sum(x => (long)x.Value.Coin));
         
         //assert that selected utxo assets equal output + change asset values
         Assert.Equal(
             response.SelectedUtxos.Sum(x => 
-                x.AssetList.Where(y => 
-                    y.PolicyId.Equals(utxo_10_ada_50_tokens.AssetList.FirstOrDefault().PolicyId))
+                x.Balance.Assets.Where(y => 
+                    y.PolicyId.Equals(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
                         ?.Sum(z => (long)z.Quantity) ?? 0), 
             (response.ChangeOutputs.Sum(x => 
                 x.Value.MultiAsset?.Sum(y => 
@@ -473,7 +518,7 @@ public class CIP2Tests
             );
         
         //assert that selected utxo ada value equal output + change utxo ada value
-        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Value), 
+        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Balance.Lovelaces), 
             (response.ChangeOutputs.Sum(x => (long)x.Value.Coin) 
                     +
                     outputs.Sum(x => (long)x.Value.Coin)));

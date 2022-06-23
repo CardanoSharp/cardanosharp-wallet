@@ -65,11 +65,11 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 ulong quantity = 0;
                 if (asset is null)
                 {
-                    quantity = su.Value;
+                    quantity = su.Balance.Lovelaces;
                 }
                 else
                 {
-                    quantity = su.AssetList
+                    quantity = su.Balance.Assets
                         .First(ma =>
                             ma.PolicyId.SequenceEqual(asset.PolicyId)
                             && ma.Name.Equals(asset.Name))
