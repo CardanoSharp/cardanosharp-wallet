@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {
-    public static class TransactionOutputExtensions
+    public static partial class TransactionOutputExtensions
     {
         public static CBORObject GetCBOR(this TransactionOutput transactionOutput)
         {
