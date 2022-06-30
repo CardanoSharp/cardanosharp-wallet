@@ -48,6 +48,13 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
+        public ITransactionBodyBuilder AddInput(TransactionInput transactionInput)
+        {
+
+            _model.TransactionInputs.Add(transactionInput);
+            return this;
+        }
+
         public ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex)
         {
 
@@ -67,6 +74,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
                 TransactionId = transactionId,
                 TransactionIndex = transactionIndex
             });
+            return this;
+        }
+
+        public ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput)
+        {
+            _model.TransactionOutputs.Add(transactionOutput);
             return this;
         }
 
