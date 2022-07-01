@@ -88,8 +88,16 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         {
             if (!a.HasValue) a = FeeStructure.Coefficient;
             if (!b.HasValue) b = FeeStructure.Constant;
+            // Required because zero value => smaller CBOR payload => fee lower than minimum
+            transaction.TransactionBody.Fee = b.Value;
+            return ((uint)transaction.Serialize().Length * a.Value) + b.Value;
+        }
 
-            return ((uint)transaction.Serialize().ToStringHex().Length * a.Value) + b.Value;
+        public static uint CalculateAndSetFee(this Transaction transaction, uint? a = null, uint? b = null)
+        {
+            var fee = CalculateFee(transaction, a, b);
+            transaction.TransactionBody.Fee = fee;
+            return fee;
         }
 
         public static byte[] Serialize(this Transaction transaction)
