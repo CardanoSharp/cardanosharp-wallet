@@ -43,7 +43,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             }
             
             //we need to determine if we have any change for tokens. this way we can accommodate the min lovelaces in our current value
-            if(_changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance);
+            if(coinSelection.SelectedUtxos.Any() && _changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance);
             
             _coinSelection.SelectInputs(coinSelection, availableUTxOs, balance.Lovelaces, null, limit);
             
