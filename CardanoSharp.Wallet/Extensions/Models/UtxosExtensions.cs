@@ -94,7 +94,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
 			{
 				utxo.Balance.Assets = tempOutput.Value.MultiAsset.SelectMany(
 					x => x.Value.Token.Select(
-						y => new Asset() { PolicyId = x.Key.ToStringHex(), Name = y.Key.ToStringAscii(), Quantity = y.Value }
+						y => new Asset() { PolicyId = x.Key.ToStringHex(), Name = System.Text.Encoding.UTF8.GetString(y.Key), Quantity = y.Value }
 						)
 					).ToList();
 			}
