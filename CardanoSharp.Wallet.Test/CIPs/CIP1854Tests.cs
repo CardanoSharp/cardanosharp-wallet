@@ -13,24 +13,48 @@ public class CIP1854Tests
 {
     //this is the same as a MultiSig wallet using enterprise addresses 
     [Theory]
-    [InlineData("script1cpqa5wphg30n29lfptpm7959hnthm2lfkta0rp2g4cxu7l7tk6q", "addr_test1wrqyrk3cxaz97dghay9v80cksk7dwldtaxe04uv9fzhqmnc7c66vh")]
-    public void SharedEnterpriseScriptAddressTest(string controlScriptEncoded, string expectedBechAddress)
+    [InlineData("script1cpqa5wphg30n29lfptpm7959hnthm2lfkta0rp2g4cxu7l7tk6q", "addr_test1wrqyrk3cxaz97dghay9v80cksk7dwldtaxe04uv9fzhqmnc7c66vh", true)]
+    [InlineData("script1cpqa5wphg30n29lfptpm7959hnthm2lfkta0rp2g4cxu7l7tk6q", "addr_test1wrqyrk3cxaz97dghay9v80cksk7dwldtaxe04uv9fzhqmnc7c66vh", false)]
+    public void SharedEnterpriseScriptAddressTest(string controlScriptEncoded, string expectedBechAddress, bool useFluentApi)
     {
         // Create two wallets for multisig
         var mnemonic1 = GetActor1();
         var mnemonic2 = GetActor2();
 
-        PrivateKey rootKey1 = mnemonic1.GetRootKey();
-        PrivateKey rootKey2 = mnemonic2.GetRootKey();
+        PublicKey paymentPub1, paymentPub2;
+        if (useFluentApi)
+        {
+            var paymentNode1 = mnemonic1.GetMasterNode()
+                .Derive(PurposeType.MultiSig)
+                .Derive(CoinType.Ada)
+                .Derive(0)
+                .Derive(RoleType.ExternalChain)
+                .Derive(0);
+            paymentNode1.SetPublicKey();
+            var paymentNode2 = mnemonic2.GetMasterNode()
+                .Derive(PurposeType.MultiSig)
+                .Derive(CoinType.Ada)
+                .Derive(0)
+                .Derive(RoleType.ExternalChain)
+                .Derive(0);
+            paymentNode2.SetPublicKey();
 
-        // Establish path
-        string paymentPath = $"m/1854'/1815'/0'/0/0";
+            paymentPub1 = paymentNode1.PublicKey;
+            paymentPub2 = paymentNode2.PublicKey;
+        }
+        else
+        {
+            // Get Root Keys
+            PrivateKey rootKey1 = mnemonic1.GetRootKey();
+            PrivateKey rootKey2 = mnemonic2.GetRootKey();
+            
+            // Establish path
+            string paymentPath = $"m/1854'/1815'/0'/0/0";
 
-        // Generate payment keys
-        var paymentPrv1 = rootKey1.Derive(paymentPath);
-        var paymentPub1 = paymentPrv1.GetPublicKey(false);
-        var paymentPrv2 = rootKey2.Derive(paymentPath);
-        var paymentPub2 = paymentPrv2.GetPublicKey(false);
+            // Generate payment keys
+            paymentPub1 = rootKey1.Derive(paymentPath).GetPublicKey(false);
+            paymentPub2 = rootKey2.Derive(paymentPath).GetPublicKey(false);
+        }
 
         // Generate payment hashes
         var paymentHash1 = HashUtility.Blake2b224(paymentPub1.Key);
