@@ -2,8 +2,10 @@
 using System;
 using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Keys;
+using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet
@@ -13,6 +15,7 @@ namespace CardanoSharp.Wallet
         [Obsolete]
         Address GetAddress(PublicKey payment, PublicKey stake, NetworkType networkType, AddressType addressType);
         Address GetBaseAddress(PublicKey payment, PublicKey stake, NetworkType networkType);
+        Address GetEnterpriseScriptAddress(byte[] policyId, NetworkType networkType);
         Address GetRewardAddress(PublicKey stake, NetworkType networkType);
         Address GetEnterpriseAddress(PublicKey payment, NetworkType networkType);
         Address ExtractRewardAddress(Address basePaymentAddress);
@@ -120,6 +123,25 @@ namespace CardanoSharp.Wallet
             return new Address(prefix, addressArray);
         }
 
+        public Address GetEnterpriseScriptAddress(byte[] policyId, NetworkType networkType)
+        {
+            var addressType = AddressType.EnterpriseScript;
+            var networkInfo = getNetworkInfo(networkType);
+
+            //get prefix
+            var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
+
+            //get header
+            var header = getAddressHeader(networkInfo, addressType);
+            
+            //get body
+            byte[] addressArray = new byte[1 + policyId.Length];
+            addressArray[0] = header;
+            Buffer.BlockCopy(policyId, 0, addressArray, 1, policyId.Length);
+
+            return new Address(prefix, addressArray);
+        }
+
         public Address ExtractRewardAddress(Address basePaymentAddress)
         {
             if (basePaymentAddress.AddressType != AddressType.Base)
@@ -144,6 +166,7 @@ namespace CardanoSharp.Wallet
                 AddressType.Reward => "stake",
                 AddressType.Base => "addr",
                 AddressType.Enterprise => "addr",
+                AddressType.EnterpriseScript => "addr",
                 _ => throw new Exception("Unknown address type")
             };
 
@@ -169,6 +192,7 @@ namespace CardanoSharp.Wallet
                 AddressType.Base => (byte)(networkInfo.NetworkId & 0xF),
                 AddressType.Enterprise => (byte)(0b0110_0000 | networkInfo.NetworkId & 0xF),
                 AddressType.Reward => (byte)(0b1110_0000 | networkInfo.NetworkId & 0xF),
+                AddressType.EnterpriseScript => (byte)(0b0111_0000 | networkInfo.NetworkId & 0xF),
                 _ => throw new Exception("Unknown address type")
             };
     }

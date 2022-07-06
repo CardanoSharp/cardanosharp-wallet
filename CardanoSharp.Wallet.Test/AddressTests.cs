@@ -6,6 +6,8 @@ using Xunit;
 using CardanoSharp.Wallet.Models.Keys;
 using System;
 using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.TransactionBuilding;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -181,6 +183,58 @@ namespace CardanoSharp.Wallet.Test
         {
             string addr = "addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp";
             Assert.True(new Address(addr).Equals(new Address(addr)));
+        }
+
+        //this is the same as a MultiSig wallet using enterprise addresses 
+        [Fact]
+        public void SharedEnterpriseScriptAddressTest()
+        {
+            var mnemonicService = new MnemonicService();
+            // Create two wallets for multisig
+            var mnemonic1 = mnemonicService.Restore("scale fiction sadness render fun system hunt skull awake neither quick uncle grab grid credit");
+            var mnemonic2 = mnemonicService.Restore("harsh absorb lazy resist elephant social carry roof remember picture merry enlist regret major practice");
+
+            PrivateKey rootKey1 = mnemonic1.GetRootKey();
+            string controlRoot1 = "root_shared_xsk10r5xcutqdjfwcw6la74xs3lphayuvef8uj290dknxdd2pau7mep6f00eraxwzc6ls9dkx83ufq3zp0uv42dzxu4hk043zp6mmcg0zu40pl0zfup2aja7sn9kuar87ht3xgvqnlstf4jguu9l45vcyxrh4546qw3e";
+            PrivateKey rootKey2 = mnemonic2.GetRootKey();
+            string controlRoot2 = "root_shared_xsk1trap2lt7ge27txmc0kw76nc0n6wy235q59y4rmpnpcst8ey6vdvf6zdym4v7z0hc3r03sfe8rxj2xjzlus0yan3fvr0thfgy4kfztalsw9p94dculq2jd6745j2grlrp23xaua2d2nltdjqzp5lzehadq56z6ukj";
+
+            // Establish path
+            string paymentPath = $"m/1854'/1815'/0'/0/0";
+
+            // Generate payment keys
+            var paymentPrv1 = rootKey1.Derive(paymentPath);
+            var paymentPub1 = paymentPrv1.GetPublicKey(false);
+            var controlVk1 = "addr_shared_vk1jekcwcr4qq4flq9kgqmuztyu2fs08ypympkzn3n8lg2gjgaq554qdc7zqh";
+            var paymentPrv2 = rootKey2.Derive(paymentPath);
+            var paymentPub2 = paymentPrv2.GetPublicKey(false);
+            var controlVk2 = "addr_shared_vk1szahs9ppk5s6ts8fjpp09vza36jusakcu0msphsqkmlge470lpashscxzy";
+
+            // Generate payment hashes
+            var paymentHash1 = HashUtility.Blake2b224(paymentPub1.Key);
+            var paymentHash2 = HashUtility.Blake2b224(paymentPub2.Key);
+
+            // Create a Policy Script with a type of Script Any
+            var policyScript = ScriptAnyBuilder.Create
+                .SetScript(NativeScriptBuilder.Create.SetKeyHash(paymentHash1))
+                .SetScript(NativeScriptBuilder.Create.SetKeyHash(paymentHash2))
+                .Build();
+
+            // Generate the Policy Id
+            var policyId = policyScript.GetPolicyId();
+            var controlScriptEncoded = "script1cpqa5wphg30n29lfptpm7959hnthm2lfkta0rp2g4cxu7l7tk6q";
+            var controlScriptBytes = Bech32.Decode(controlScriptEncoded, out _, out _);
+            var encodedPolicyId = Bech32.Encode(policyId, "script");
+            Assert.Equal(controlScriptBytes, policyId);
+            Assert.Equal(controlScriptEncoded, encodedPolicyId);
+            
+            //Generate Address
+            var actualAddress = _addressService.GetEnterpriseScriptAddress(policyId, NetworkType.Testnet);
+            var expectedAddress = new Address("addr_test1wrqyrk3cxaz97dghay9v80cksk7dwldtaxe04uv9fzhqmnc7c66vh");
+            
+            var z1 = Bech32.Decode(actualAddress.ToString(), out _, out _).ToStringHex();
+            var z2 = Bech32.Decode(expectedAddress.ToString(), out _, out _).ToStringHex();
+            Assert.Equal(actualAddress.ToString(), expectedAddress.ToString());
         }
     }
 }

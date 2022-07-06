@@ -5,6 +5,7 @@
         Base,
         Ptr,
         Enterprise,
+        EnterpriseScript,
         Reward
     }
 }
