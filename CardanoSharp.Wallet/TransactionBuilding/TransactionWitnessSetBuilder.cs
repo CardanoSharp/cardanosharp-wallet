@@ -8,6 +8,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
     public interface ITransactionWitnessSetBuilder: IABuilder<TransactionWitnessSet>
     {
         ITransactionWitnessSetBuilder AddVKeyWitness(PublicKey vKey, PrivateKey sKey);
+        ITransactionWitnessSetBuilder MockVKeyWitness(int count = 1);
         ITransactionWitnessSetBuilder AddNativeScript(INativeScriptBuilder nativeScriptBuilder);
         [Obsolete("Will be deprecated. Please use SetScriptAllNativeScript() instead")]
         ITransactionWitnessSetBuilder SetNativeScript(IScriptAllBuilder scriptAllBuilder);
@@ -47,8 +48,24 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             _model.VKeyWitnesses.Add(new VKeyWitness()
             {
                 VKey = vKey,
-                SKey = sKey
+                SKey = sKey,
+                IsMock = false
             });
+            return this;
+        }
+
+        public ITransactionWitnessSetBuilder MockVKeyWitness(int count = 1)
+        {
+            for (var x = 0; x < count; x++)
+            {
+                _model.VKeyWitnesses.Add(new VKeyWitness()
+                {
+                   VKey = new PublicKey(getMockKeyId(32), null),
+                   Signature = getMockKeyId(64),
+                   IsMock = true
+                });
+            }
+
             return this;
         }
 
@@ -97,6 +114,16 @@ namespace CardanoSharp.Wallet.TransactionBuilding
                 }
             };
             return this;
+        }
+        
+        private byte[] getMockKeyId(int length)
+        {
+            var hash = new byte[length];
+            for (var i = 0; i < hash.Length; i++)
+            {
+                hash[i] = 0x00;
+            }
+            return hash;
         }
     }
 }
