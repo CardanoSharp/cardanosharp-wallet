@@ -900,8 +900,6 @@ namespace CardanoSharp.Wallet.Test
 
             //act
             var serialized = transaction.Serialize();
-            var tx = serialized.DeserializeTransaction();
-            var actual = tx.Serialize().ToStringHex();
 
             //assert
             Assert.Equal("84a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900477367d9134e384a25edd3e23c72735ee6de6490d39c537a247e1b65d9e5a6498b927f664a2c82343aa6a50cdde47de0a2b8c54ecd9c99c21a000f42400200030a0758208dc8a798a1da0e2a6df17e66b10a49b5047133dd4daae2686ef1f73369d3fa16a100818258200f8ad2c7def332bca2f897ef2a1608ee655341227efe7d2284eeb3f94d08d5fa584074a7a181addbda26d7974119ac6e3fe35286fb4a6f7a9db573a5e5836808613097256fa2f0284e255cadc566cef96bde750a3ca5cb79a0726349d3424148e000f582a11904d2a1646e616d656e73696d706c65206d65737361676580",
@@ -920,7 +918,7 @@ namespace CardanoSharp.Wallet.Test
                 .SetFee(100000);
 
             var witnesses = TransactionWitnessSetBuilder.Create
-                .MockVKeyWitness(1);
+                .MockVKeyWitness();
 
             var auxData = AuxiliaryDataBuilder.Create
                 .AddMetadata(1234, new { name = "simple message" });
@@ -933,8 +931,6 @@ namespace CardanoSharp.Wallet.Test
 
             //act
             var serialized = transaction.Serialize();
-            var tx = serialized.DeserializeTransaction();
-            var actual = tx.Serialize().ToStringHex();
 
             //assert
             Assert.Equal("84a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900477367d9134e384a25edd3e23c72735ee6de6490d39c537a247e1b65d9e5a6498b927f664a2c82343aa6a50cdde47de0a2b8c54ecd9c99c21a000f4240021a000186a0030a0758208dc8a798a1da0e2a6df17e66b10a49b5047133dd4daae2686ef1f73369d3fa16a100818258200000000000000000000000000000000000000000000000000000000000000000584000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f582a11904d2a1646e616d656e73696d706c65206d65737361676580",
