@@ -907,6 +907,37 @@ namespace CardanoSharp.Wallet.Test
         }
 
         [Fact]
+        public void MockingWitnessesTest()
+        {
+            //arrange
+            var transactionBody = TransactionBodyBuilder.Create
+                .AddInput(getGenesisTransaction(), 0)
+                .AddOutput("00477367D9134E384A25EDD3E23C72735EE6DE6490D39C537A247E1B65D9E5A6498B927F664A2C82343AA6A50CDDE47DE0A2B8C54ECD9C99C2".HexToByteArray(),
+                    1000000)
+                .SetTtl(10)
+                .SetFee(100000);
+
+            var witnesses = TransactionWitnessSetBuilder.Create
+                .MockVKeyWitness();
+
+            var auxData = AuxiliaryDataBuilder.Create
+                .AddMetadata(1234, new { name = "simple message" });
+
+            var transaction = TransactionBuilder.Create
+                .SetBody(transactionBody)
+                .SetWitnesses(witnesses)
+                .SetAuxData(auxData)
+                .Build();
+
+            //act
+            var serialized = transaction.Serialize();
+
+            //assert
+            Assert.Equal("84a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900477367d9134e384a25edd3e23c72735ee6de6490d39c537a247e1b65d9e5a6498b927f664a2c82343aa6a50cdde47de0a2b8c54ecd9c99c21a000f4240021a000186a0030a0758208dc8a798a1da0e2a6df17e66b10a49b5047133dd4daae2686ef1f73369d3fa16a100818258200000000000000000000000000000000000000000000000000000000000000000584000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f582a11904d2a1646e616d656e73696d706c65206d65737361676580",
+                serialized.ToStringHex());
+        }
+
+        [Fact]
         public void MintingTest()
         {
             var rootKey = getBase15WordWallet();

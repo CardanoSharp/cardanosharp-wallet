@@ -10,19 +10,24 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
     {
         public static CBORObject GetCBOR(this VKeyWitness vKeyWitness, TransactionBody transactionBody, AuxiliaryData auxiliaryData)
         {
-            //only do signing if skey is present (wont be present for deserialized transactions but signature will already be there)
-            if (vKeyWitness.SKey != null)
+            //execute only if not mocked
+            if (!vKeyWitness.IsMock)
             {
-                //sign body
-                var txBodyHash = HashUtility.Blake2b256(transactionBody.GetCBOR(auxiliaryData).EncodeToBytes());
-                vKeyWitness.Signature = vKeyWitness.SKey.Sign(txBodyHash);
+                //only do signing if skey is present (wont be present for deserialized transactions but signature will already be there)
+                if (vKeyWitness.SKey != null)
+                {
+                    //sign body
+                    var txBodyHash = HashUtility.Blake2b256(transactionBody.GetCBOR(auxiliaryData).EncodeToBytes());
+                    vKeyWitness.Signature = vKeyWitness.SKey.Sign(txBodyHash);
+                }
+
+                //validation
+                if (vKeyWitness.VKey.Key.Length != 32)
+                {
+                    throw new ArgumentException("vKeyWitness.VKey.Key not expected length (expected 32)");
+                }
             }
-            //validation
-            if (vKeyWitness.VKey.Key.Length != 32)
-            {
-                throw new ArgumentException("vKeyWitness.VKey.Key not expected length (expected 32)");
-            }
-            
+
             //fill out cbor structure for vkey witnesses
             return CBORObject.NewArray()
                 .Add(vKeyWitness.VKey.Key)
