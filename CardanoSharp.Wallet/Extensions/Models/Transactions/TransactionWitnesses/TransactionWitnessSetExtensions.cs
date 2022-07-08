@@ -12,10 +12,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
         {
             var cborWitnessSet = CBORObject.NewMap();
 
-            if (transactionWitnessSet.VKeyWitnesses.Any(x => !x.IsMock))
+            if (transactionWitnessSet.VKeyWitnesses.Any())
             {
                 var cborVKeyWitnesses = CBORObject.NewArray();
-                foreach (var vkeyWitness in transactionWitnessSet.VKeyWitnesses.Where(x => !x.IsMock))
+                foreach (var vkeyWitness in transactionWitnessSet.VKeyWitnesses)
                 {
                     cborVKeyWitnesses.Add(vkeyWitness.GetCBOR(transactionBody, auxiliaryData));
                 }
