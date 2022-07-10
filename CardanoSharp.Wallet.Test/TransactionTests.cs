@@ -906,8 +906,10 @@ namespace CardanoSharp.Wallet.Test
                 serialized.ToStringHex());
         }
 
-        [Fact]
-        public void MockingWitnessesTest()
+        [Theory]
+        [InlineData(1, 167789)]
+        [InlineData(10, 207785)]
+        public void MockingWitnessesTest(int mocks, int expectedFee)
         {
             //arrange
             var transactionBody = TransactionBodyBuilder.Create
@@ -918,7 +920,7 @@ namespace CardanoSharp.Wallet.Test
                 .SetFee(100000);
 
             var witnesses = TransactionWitnessSetBuilder.Create
-                .MockVKeyWitness();
+                .MockVKeyWitness(mocks);
 
             var auxData = AuxiliaryDataBuilder.Create
                 .AddMetadata(1234, new { name = "simple message" });
@@ -930,11 +932,18 @@ namespace CardanoSharp.Wallet.Test
                 .Build();
 
             //act
-            var serialized = transaction.Serialize();
+            //163257 - 1
+            //
+            var fee = transaction.CalculateFee();
+            Assert.Equal(expectedFee, (int)fee);
+            Assert.NotNull(transaction.TransactionWitnessSet);
+            transactionBody.SetFee(fee);
 
-            //assert
-            Assert.Equal("84a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900477367d9134e384a25edd3e23c72735ee6de6490d39c537a247e1b65d9e5a6498b927f664a2c82343aa6a50cdde47de0a2b8c54ecd9c99c21a000f4240021a000186a0030a0758208dc8a798a1da0e2a6df17e66b10a49b5047133dd4daae2686ef1f73369d3fa16a100818258200000000000000000000000000000000000000000000000000000000000000000584000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f582a11904d2a1646e616d656e73696d706c65206d65737361676580",
-                serialized.ToStringHex());
+            witnesses.ClearMocks();
+            var serializedTx = transaction.Serialize();
+            var deserializedTx = serializedTx.DeserializeTransaction();
+            Assert.Equal(fee, deserializedTx.TransactionBody.Fee);
+            Assert.Null(deserializedTx.TransactionWitnessSet);
         }
 
         [Fact]

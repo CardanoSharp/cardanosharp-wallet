@@ -2,6 +2,7 @@
 using CardanoSharp.Wallet.Models.Transactions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
@@ -9,6 +10,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
     {
         ITransactionWitnessSetBuilder AddVKeyWitness(PublicKey vKey, PrivateKey sKey);
         ITransactionWitnessSetBuilder MockVKeyWitness(int count = 1);
+        ITransactionWitnessSetBuilder ClearMocks();
         ITransactionWitnessSetBuilder AddNativeScript(INativeScriptBuilder nativeScriptBuilder);
         [Obsolete("Will be deprecated. Please use SetScriptAllNativeScript() instead")]
         ITransactionWitnessSetBuilder SetNativeScript(IScriptAllBuilder scriptAllBuilder);
@@ -66,6 +68,23 @@ namespace CardanoSharp.Wallet.TransactionBuilding
                 });
             }
 
+            return this;
+        }
+
+        public ITransactionWitnessSetBuilder ClearMocks()
+        {
+            // Hold non-Mocked VKeys
+            var realVkeys = _model.VKeyWitnesses.Where(x => !x.IsMock);
+            
+            // Reset VKey list
+            _model.VKeyWitnesses = new HashSet<VKeyWitness>();
+            
+            // Add non-Mocked VKeys
+            foreach (var vkey in realVkeys)
+            {
+                _model.VKeyWitnesses.Add(vkey);
+            }
+            
             return this;
         }
 
