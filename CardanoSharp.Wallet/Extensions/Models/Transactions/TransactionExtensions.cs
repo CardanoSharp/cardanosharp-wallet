@@ -97,6 +97,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         {
             var fee = CalculateFee(transaction, a, b);
             transaction.TransactionBody.Fee = fee;
+
+            if (transaction.TransactionWitnessSet is not null)
+                transaction.TransactionWitnessSet.RemoveMocks();
+            
             return fee;
         }
 
