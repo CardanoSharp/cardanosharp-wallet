@@ -13,6 +13,7 @@ using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
 using PeterO.Cbor2;
 using System.Linq;
+using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -932,14 +933,19 @@ namespace CardanoSharp.Wallet.Test
                 .Build();
 
             //act
-            //163257 - 1
-            //
             var fee = transaction.CalculateFee();
+            transaction.TransactionBody.Fee = fee;
             Assert.Equal(expectedFee, (int)fee);
             Assert.NotNull(transaction.TransactionWitnessSet);
-            transactionBody.SetFee(fee);
 
-            witnesses.ClearMocks();
+            //the functionality that is here would automatically be done if you use 
+            //  transaction.CalculateAndSetFee()
+            //  but i wanted to test before and after this piece to ensure "RemoveMocks"
+            //  did remove the IsMock VKeyWitnesses
+            transaction.TransactionWitnessSet.RemoveMocks();
+            Assert.Empty(transaction.TransactionWitnessSet.VKeyWitnesses);
+            
+            //serialize/deserialize transaction to ensure object was built without mocks and has correct fee
             var serializedTx = transaction.Serialize();
             var deserializedTx = serializedTx.DeserializeTransaction();
             Assert.Equal(fee, deserializedTx.TransactionBody.Fee);
