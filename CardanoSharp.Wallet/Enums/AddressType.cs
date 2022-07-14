@@ -3,6 +3,7 @@
     public enum AddressType
     {
         Base,
+        BaseScript,
         Ptr,
         Enterprise,
         EnterpriseScript,
