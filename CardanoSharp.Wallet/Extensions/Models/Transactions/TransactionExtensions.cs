@@ -93,8 +93,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return ((uint)transaction.Serialize().Length * a.Value) + b.Value;
         }
 
-        public static uint CalculateAndSetFee(this Transaction transaction, uint? a = null, uint? b = null)
+        public static uint CalculateAndSetFee(this Transaction transaction, uint? a = null, uint? b = null, int mockedVKeyWitnesses = 0)
         {
+            if(mockedVKeyWitnesses > 0)
+                transaction.TransactionWitnessSet.VKeyWitnesses.CreateMocks(mockedVKeyWitnesses);
+            
             var fee = CalculateFee(transaction, a, b);
             transaction.TransactionBody.Fee = fee;
 

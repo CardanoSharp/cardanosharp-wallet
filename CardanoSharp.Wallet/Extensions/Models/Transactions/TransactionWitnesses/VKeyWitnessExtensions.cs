@@ -3,6 +3,7 @@ using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Utilities;
 using PeterO.Cbor2;
 using System;
+using System.Collections.Generic;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses
 {
@@ -68,6 +69,29 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
         public static VKeyWitness DeserializeVKeyWitness(this byte[] bytes)
         {
             return CBORObject.DecodeFromBytes(bytes).GetVKeyWitness();
+        }
+
+        public static void CreateMocks(this ICollection<VKeyWitness> witnesses, int mocks)
+        {
+            for (var x = 0; x < mocks; x++)
+            {
+                witnesses.Add(new VKeyWitness()
+                {
+                    VKey = new PublicKey(getMockKeyId(32), null),
+                    Signature = getMockKeyId(64),
+                    IsMock = true
+                });
+            }
+        }
+        
+        private static byte[] getMockKeyId(int length)
+        {
+            var hash = new byte[length];
+            for (var i = 0; i < hash.Length; i++)
+            {
+                hash[i] = 0x00;
+            }
+            return hash;
         }
     }
 }
