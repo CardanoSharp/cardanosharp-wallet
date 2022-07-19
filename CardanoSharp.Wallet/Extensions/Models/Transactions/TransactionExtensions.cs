@@ -93,10 +93,18 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return ((uint)transaction.Serialize().Length * a.Value) + b.Value;
         }
 
-        public static uint CalculateAndSetFee(this Transaction transaction, uint? a = null, uint? b = null, int mockedVKeyWitnesses = 0)
+        /// <summary>
+        /// This method will create mock witnesses, calculate fee, set the fee, and remove mocks
+        /// </summary>
+        /// <param name="transaction">This is the transaction we are calculating the fee for</param>
+        /// <param name="a">This comes from the protocol parameters. Parameter MinFeeA</param>
+        /// <param name="b">This comes from the protocol parameters. Parameter MinFeeB</param>
+        /// <param name="numberOfVKeyWitnessesToMock">To correctly calculate the fee, we need to have the signatures of all required private keys. You can mock if you cannot currently sign with all. This will ensure the fee is correctly calculated while you gather the signatures</param>
+        /// <returns></returns>
+        public static uint CalculateAndSetFee(this Transaction transaction, uint? a = null, uint? b = null, int numberOfVKeyWitnessesToMock = 0)
         {
-            if(mockedVKeyWitnesses > 0)
-                transaction.TransactionWitnessSet.VKeyWitnesses.CreateMocks(mockedVKeyWitnesses);
+            if(numberOfVKeyWitnessesToMock > 0)
+                transaction.TransactionWitnessSet.VKeyWitnesses.CreateMocks(numberOfVKeyWitnessesToMock);
             
             var fee = CalculateFee(transaction, a, b);
             transaction.TransactionBody.Fee = fee;
