@@ -3,6 +3,7 @@ using CardanoSharp.Wallet.Models.Transactions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
@@ -58,16 +59,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public ITransactionWitnessSetBuilder MockVKeyWitness(int count = 1)
         {
-            for (var x = 0; x < count; x++)
-            {
-                _model.VKeyWitnesses.Add(new VKeyWitness()
-                {
-                   VKey = new PublicKey(getMockKeyId(32), null),
-                   Signature = getMockKeyId(64),
-                   IsMock = true
-                });
-            }
-
+            _model.VKeyWitnesses.CreateMocks(count);
             return this;
         }
 
@@ -133,16 +125,6 @@ namespace CardanoSharp.Wallet.TransactionBuilding
                 }
             };
             return this;
-        }
-        
-        private byte[] getMockKeyId(int length)
-        {
-            var hash = new byte[length];
-            for (var i = 0; i < hash.Length; i++)
-            {
-                hash[i] = 0x00;
-            }
-            return hash;
         }
     }
 }
