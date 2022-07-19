@@ -870,7 +870,7 @@ namespace CardanoSharp.Wallet.Test
             //assert
             Assert.Equal("84a400818258203b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b700018182581d611c616f1acb460668a9b2f123c80372c2adad3583b9c6cd2b1deeed1c01021a00016f32030aa10081825820f9aa3fccb7fe539e471188ccc9ee65514c5961c070b06ca185962484a4813bee5840fae5de40c94d759ce13bf9886262159c4f26a289fd192e165995b785259e503f6887bf39dfa23a47cf163784c6eee23f61440e749bc1df3c73975f5231aeda0ff5f6",
                 serialized.ToStringHex());
-            Assert.Equal((uint)172013, fee);
+            Assert.Equal((uint)163697, fee);
             Assert.Equal(true, isValid);
         }
 

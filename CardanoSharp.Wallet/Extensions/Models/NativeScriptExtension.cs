@@ -87,7 +87,6 @@ namespace CardanoSharp.Wallet.Extensions.Models
                 throw new ArgumentException("nativeScriptCbor first element (index) has value outside expected range (expected 0..5)");
             }
 
-            //var nativeScriptKey = ((string)nativeScriptCbor[1].DecodeValueByCborType()).HexToByteArray();
             switch (nativeScriptTypeIndex)
             {
                 case 0:
