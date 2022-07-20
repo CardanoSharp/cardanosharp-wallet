@@ -13,6 +13,7 @@ using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
 using PeterO.Cbor2;
 using System.Linq;
+using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -904,6 +905,101 @@ namespace CardanoSharp.Wallet.Test
             //assert
             Assert.Equal("84a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900477367d9134e384a25edd3e23c72735ee6de6490d39c537a247e1b65d9e5a6498b927f664a2c82343aa6a50cdde47de0a2b8c54ecd9c99c21a000f42400200030a0758208dc8a798a1da0e2a6df17e66b10a49b5047133dd4daae2686ef1f73369d3fa16a100818258200f8ad2c7def332bca2f897ef2a1608ee655341227efe7d2284eeb3f94d08d5fa584074a7a181addbda26d7974119ac6e3fe35286fb4a6f7a9db573a5e5836808613097256fa2f0284e255cadc566cef96bde750a3ca5cb79a0726349d3424148e000f582a11904d2a1646e616d656e73696d706c65206d65737361676580",
                 serialized.ToStringHex());
+        }
+
+        [Theory]
+        [InlineData(1, 167789)]
+        [InlineData(10, 207785)]
+        public void MockingWitnesses_MockViaBuilder_Test(int mocks, int expectedFee)
+        {
+            //arrange
+            var transactionBody = TransactionBodyBuilder.Create
+                .AddInput(getGenesisTransaction(), 0)
+                .AddOutput("00477367D9134E384A25EDD3E23C72735EE6DE6490D39C537A247E1B65D9E5A6498B927F664A2C82343AA6A50CDDE47DE0A2B8C54ECD9C99C2".HexToByteArray(),
+                    1000000)
+                .SetTtl(10)
+                .SetFee(100000);
+
+            var witnesses = TransactionWitnessSetBuilder.Create
+                .MockVKeyWitness(mocks);
+
+            var auxData = AuxiliaryDataBuilder.Create
+                .AddMetadata(1234, new { name = "simple message" });
+
+            var transaction = TransactionBuilder.Create
+                .SetBody(transactionBody)
+                .SetWitnesses(witnesses)
+                .SetAuxData(auxData)
+                .Build();
+
+            //act
+            var fee = transaction.CalculateFee();
+            transaction.TransactionBody.Fee = fee;
+            Assert.Equal(expectedFee, (int)fee);
+            Assert.NotNull(transaction.TransactionWitnessSet);
+
+            //the functionality that is here would automatically be done if you use 
+            //  transaction.CalculateAndSetFee()
+            //  but i wanted to test before and after this piece to ensure "RemoveMocks"
+            //  did remove the IsMock VKeyWitnesses
+            transaction.TransactionWitnessSet.RemoveMocks();
+            Assert.Empty(transaction.TransactionWitnessSet.VKeyWitnesses);
+            
+            //serialize/deserialize transaction to ensure object was built without mocks and has correct fee
+            var serializedTx = transaction.Serialize();
+            var deserializedTx = serializedTx.DeserializeTransaction();
+            Assert.Equal(fee, deserializedTx.TransactionBody.Fee);
+            Assert.Null(deserializedTx.TransactionWitnessSet);
+        }
+
+        [Theory]
+        [InlineData(1, 167789)]
+        [InlineData(10, 207785)]
+        public void MockingWitnesses_MockViaList_Test(int mocks, int expectedFee)
+        {
+            //arrange
+            var transactionBody = TransactionBodyBuilder.Create
+                .AddInput(getGenesisTransaction(), 0)
+                .AddOutput("00477367D9134E384A25EDD3E23C72735EE6DE6490D39C537A247E1B65D9E5A6498B927F664A2C82343AA6A50CDDE47DE0A2B8C54ECD9C99C2".HexToByteArray(),
+                    1000000)
+                .SetTtl(10)
+                .SetFee(100000);
+
+            var witnesses = TransactionWitnessSetBuilder.Create;
+
+            var auxData = AuxiliaryDataBuilder.Create
+                .AddMetadata(1234, new { name = "simple message" });
+
+            var transaction = TransactionBuilder.Create
+                .SetBody(transactionBody)
+                .SetWitnesses(witnesses)
+                .SetAuxData(auxData)
+                .Build();
+
+            //act
+            //the functionality that is here would automatically be done if you use 
+            //  transaction.CalculateAndSetFee()
+            //  but i wanted to test before and after this piece to ensure "CreateMocks"
+            //  did correctly create the witnesses
+            transaction.TransactionWitnessSet.VKeyWitnesses.CreateMocks(mocks);
+            
+            var fee = transaction.CalculateFee();
+            transaction.TransactionBody.Fee = fee;
+            Assert.Equal(expectedFee, (int)fee);
+            Assert.NotNull(transaction.TransactionWitnessSet);
+
+            //the functionality that is here would automatically be done if you use 
+            //  transaction.CalculateAndSetFee()
+            //  but i wanted to test before and after this piece to ensure "RemoveMocks"
+            //  did remove the IsMock VKeyWitnesses
+            transaction.TransactionWitnessSet.RemoveMocks();
+            Assert.Empty(transaction.TransactionWitnessSet.VKeyWitnesses);
+            
+            //serialize/deserialize transaction to ensure object was built without mocks and has correct fee
+            var serializedTx = transaction.Serialize();
+            var deserializedTx = serializedTx.DeserializeTransaction();
+            Assert.Equal(fee, deserializedTx.TransactionBody.Fee);
+            Assert.Null(deserializedTx.TransactionWitnessSet);
         }
 
         [Fact]

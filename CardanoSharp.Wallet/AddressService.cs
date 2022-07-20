@@ -32,7 +32,7 @@ namespace CardanoSharp.Wallet
             var stakeEncoded = HashUtility.Blake2b224(stake.Key);
 
             //get prefix
-            var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
+            var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
 
             //get header
             var header = getAddressHeader(networkInfo, addressType);
@@ -71,7 +71,7 @@ namespace CardanoSharp.Wallet
             var stakeEncoded = HashUtility.Blake2b224(stake.Key);
 
             //get prefix
-            var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
+            var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
 
             //get header
             var header = getAddressHeader(networkInfo, addressType);
@@ -92,7 +92,7 @@ namespace CardanoSharp.Wallet
             var stakeEncoded = HashUtility.Blake2b224(stake.Key);
 
             //get prefix
-            var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
+            var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
 
             //get header
             var header = getAddressHeader(networkInfo, addressType);
@@ -112,7 +112,7 @@ namespace CardanoSharp.Wallet
             var paymentEncoded = HashUtility.Blake2b224(payment.Key);
 
             //get prefix
-            var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
+            var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
 
             //get header
             var header = getAddressHeader(networkInfo, addressType);
@@ -203,7 +203,7 @@ namespace CardanoSharp.Wallet
             // and same value as the blake2b-224 hash digest of the stake key (blake2b-224=224bits=28bytes)
             const int stakeKeyDigestByteLength = 28;
             byte[] rewardAddressBytes = new byte[1 + stakeKeyDigestByteLength];
-            var rewardAddressPrefix = $"{getPrefixHeader(AddressType.Reward)}{getPrefixTail(basePaymentAddress.NetworkType)}";
+            var rewardAddressPrefix = $"{GetPrefixHeader(AddressType.Reward)}{GetPrefixTail(basePaymentAddress.NetworkType)}";
             var rewardAddressHeader = getAddressHeader(getNetworkInfo(basePaymentAddress.NetworkType), AddressType.Reward);
             rewardAddressBytes[0] = rewardAddressHeader;
             // Extract stake key hash from baseAddressBytes 
@@ -212,7 +212,10 @@ namespace CardanoSharp.Wallet
             return new Address(rewardAddressPrefix, rewardAddressBytes);
         }
 
-        private string getPrefixHeader(AddressType addressType) =>
+        public static string GetPrefix(AddressType addressType, NetworkType networkType) =>
+            $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
+
+        public static string GetPrefixHeader(AddressType addressType) =>
             addressType switch
             {
                 AddressType.Reward => "stake",
@@ -223,7 +226,7 @@ namespace CardanoSharp.Wallet
                 _ => throw new Exception("Unknown address type")
             };
 
-        private string getPrefixTail(NetworkType networkType) =>
+        public static string GetPrefixTail(NetworkType networkType) =>
             networkType switch
             {
                 NetworkType.Testnet => "_test",
