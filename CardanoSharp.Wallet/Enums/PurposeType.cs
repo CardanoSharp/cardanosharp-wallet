@@ -14,6 +14,10 @@
         /// </summary>
         Shelley = 1852,
         /// <summary>
+        /// Represents a 'MultiSig' wallet. https://cips.cardano.org/cips/cip1854/
+        /// </summary>
+        MultiSig = 1854,
+        /// <summary>
         /// Represents a 'Policy Keys' wallet. https://cips.cardano.org/cips/cip1855/
         /// </summary>
         PolicyKeys = 1855

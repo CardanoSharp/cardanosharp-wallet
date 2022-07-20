@@ -6,6 +6,8 @@ using Xunit;
 using CardanoSharp.Wallet.Models.Keys;
 using System;
 using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.TransactionBuilding;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.Test
 {
