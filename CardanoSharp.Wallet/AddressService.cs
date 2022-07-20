@@ -141,7 +141,7 @@ namespace CardanoSharp.Wallet
             };
 
             //get prefix
-            var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
+            var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
 
             //get header
             var header = getAddressHeader(networkInfo, addressType);
@@ -180,7 +180,7 @@ namespace CardanoSharp.Wallet
             };
 
             //get prefix
-            var prefix = $"{getPrefixHeader(addressType)}{getPrefixTail(networkType)}";
+            var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
 
             //get header
             var header = getAddressHeader(networkInfo, addressType);
