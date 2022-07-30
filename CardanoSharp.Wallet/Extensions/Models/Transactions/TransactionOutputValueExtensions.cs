@@ -77,7 +77,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
 
             var outputValue = new TransactionOutputValue();
-            outputValue.Coin = Convert.ToUInt64(transactionOutputValueCbor[0].DecodeValueByCborType());
+            outputValue.Coin = Convert.ToInt64(transactionOutputValueCbor[0].DecodeValueByCborType());
 
             //check for tokens
             if (transactionOutputValueCbor.Count > 1 && transactionOutputValueCbor[1].Type == CBORType.Map)
@@ -94,7 +94,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                         foreach (var tokenCbor in policyCbor.Keys)
                         {
                             var assetBytes = ((string)tokenCbor.DecodeValueByCborType()).HexToByteArray();
-                            var assetToken = Convert.ToUInt64(policyCbor[tokenCbor].DecodeValueByCborType());
+                            var assetToken = Convert.ToInt64(policyCbor[tokenCbor].DecodeValueByCborType());
 
                             asset.Token.Add(assetBytes, assetToken);
                         }

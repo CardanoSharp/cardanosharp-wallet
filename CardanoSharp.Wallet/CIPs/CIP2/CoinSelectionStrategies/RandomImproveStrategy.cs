@@ -16,13 +16,13 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
     
     public class RandomImproveStrategy: BaseSelectionStrategy, IRandomImproveStrategy
     {
-        public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUTxOs, ulong amount, Asset asset = null, int limit = 20)
+        public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUTxOs, long amount, Asset asset = null, int limit = 20)
         {
             //1. Randomly select UTxOs
             var rand = new Random();
             
             //determine
-            ulong currentAmount = GetCurrentBalance(coinSelection, asset);
+            long currentAmount = GetCurrentBalance(coinSelection, asset);
             
             //reorder list
             availableUTxOs = OrderUTxOsByDescending(availableUTxOs, asset);
@@ -86,7 +86,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
         }
 
         //why is this static
-        private static bool CalculateCondition(Utxo v1, ulong ideal, ulong max, Utxo v0, int limit, ICollection utxos, Asset asset)
+        private static bool CalculateCondition(Utxo v1, long ideal, long max, Utxo v0, int limit, ICollection utxos, Asset asset)
         {
             bool[] arrayToMatchConditions = { false, false, false,};
             arrayToMatchConditions[0] =  asset is null ? Math.Abs((long) (ideal - v1.Balance.Lovelaces)) < Math.Abs((long) (ideal -  (v0.Balance?.Lovelaces ?? 0))) 
