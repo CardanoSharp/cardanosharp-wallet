@@ -9,7 +9,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
     {
         ITransactionOutputValueBuilder WithCoin(uint coin);
 
-        ITransactionOutputValueBuilder WithMultiAsset(Dictionary<byte[], NativeAsset> multiAsset);
+        ITransactionOutputValueBuilder WithMultiAsset(Dictionary<byte[], NativeAsset<ulong>> multiAsset);
     }
 
     public class TransactionOutputValueBuilder: ABuilder<TransactionOutputValue>, ITransactionOutputValueBuilder
@@ -39,7 +39,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
-        public ITransactionOutputValueBuilder WithMultiAsset(Dictionary<byte[], NativeAsset> multiAsset)
+        public ITransactionOutputValueBuilder WithMultiAsset(Dictionary<byte[], NativeAsset<ulong>> multiAsset)
         {
             _model.MultiAsset = multiAsset;
             return this;

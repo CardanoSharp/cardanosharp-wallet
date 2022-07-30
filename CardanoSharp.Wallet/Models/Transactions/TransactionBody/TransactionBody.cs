@@ -23,7 +23,7 @@ public partial class TransactionBody
         {
             TransactionInputs = new HashSet<TransactionInput>();
             TransactionOutputs = new HashSet<TransactionOutput>();
-            Mint = new Dictionary<byte[], NativeAsset>();
+            Mint = new Dictionary<byte[], NativeAsset<long>>();
         }
 
         public virtual ICollection<TransactionInput> TransactionInputs { get; set; }
@@ -35,6 +35,6 @@ public partial class TransactionBody
         public Update Update { get; set; }
         public string MetadataHash { get; set; }
         public uint? TransactionStartInterval { get; set; }
-        public Dictionary<byte[], NativeAsset> Mint { get; set; }
+        public Dictionary<byte[], NativeAsset<long>> Mint { get; set; }
     }
 }

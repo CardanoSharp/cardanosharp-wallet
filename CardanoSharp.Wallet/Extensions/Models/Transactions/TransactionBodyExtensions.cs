@@ -161,11 +161,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 {
                     var byteMintKey = ((string)key.DecodeValueByCborType()).HexToByteArray();
                     var assetCbor = mintCbor[key];
-                    var nativeAsset = new NativeAsset();
+                    var nativeAsset = new NativeAsset<long>();
                     foreach (var assetKey in assetCbor.Keys)
                     {
                         var byteAssetKey = ((string)assetKey.DecodeValueByCborType()).HexToByteArray();
-                        var token = Convert.ToUInt64(assetCbor[assetKey].DecodeValueByCborType());
+                        var token = Convert.ToInt64(assetCbor[assetKey].DecodeValueByCborType());
                         nativeAsset.Token.Add(byteAssetKey, token);
                     }
 

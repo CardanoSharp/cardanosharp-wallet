@@ -11,6 +11,6 @@ namespace CardanoSharp.Wallet.Models.Transactions
         /// BPlusTree<byte[], NativeAsset>
         /// byte[] = PolicyID
         /// </summary>
-        public Dictionary<byte[], NativeAsset> MultiAsset { get; set; }
+        public Dictionary<byte[], NativeAsset<ulong>> MultiAsset { get; set; }
     }
 }

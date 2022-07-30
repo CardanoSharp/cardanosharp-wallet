@@ -16,7 +16,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
         ITransactionBodyBuilder SetFee(ulong fee);
         ITransactionBodyBuilder SetTtl(uint ttl);
-        ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
+        ITransactionBodyBuilder SetMint(ITokenBundleBuilder token = null, ITokenBurnBuilder burnToken = null);
     }
 
     public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBodyBuilder
@@ -110,9 +110,49 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
-        public ITransactionBodyBuilder SetMint(ITokenBundleBuilder tokenBuilder)
+        public ITransactionBodyBuilder SetMint(ITokenBundleBuilder tokenBundleBuilder = null, ITokenBurnBuilder tokenBurnBuilder = null)
         {
-            _model.Mint = tokenBuilder.Build();
+            Dictionary<byte[], NativeAsset<long>> mint = new Dictionary<byte[], NativeAsset<long>>();
+
+            if (tokenBurnBuilder != null) {
+                var tokenBurn = tokenBurnBuilder.Build();
+                foreach (var tokenBurnPair in tokenBurn) {
+                    var policyId = tokenBurnPair.Key;
+                    var asset = tokenBurnPair.Value;
+                    bool isPolicyInMint = mint.TryGetValue(policyId, out NativeAsset<long> nativeAsset);
+                    if (!isPolicyInMint) {
+                        nativeAsset = new NativeAsset<long>();
+                        mint.Add(policyId, nativeAsset);
+                    }
+                    
+                    foreach (var tokenPair in asset.Token) {
+                        var assetId = tokenPair.Key;
+                        var amount = tokenPair.Value;
+                        nativeAsset.Token.Add(tokenPair.Key, Convert.ToInt64(tokenPair.Value));
+                    }        
+                }
+            }
+            
+            if (tokenBundleBuilder != null) {
+                var tokenBundle = tokenBundleBuilder.Build();
+                foreach (var tokenBundlePair in tokenBundle) {
+                    var policyId = tokenBundlePair.Key;
+                    var asset = tokenBundlePair.Value;
+                    bool isPolicyInMint = mint.TryGetValue(policyId, out NativeAsset<long> nativeAsset);
+                    if (!isPolicyInMint) {
+                        nativeAsset = new NativeAsset<long>();
+                        mint.Add(policyId, nativeAsset);
+                    }
+                    
+                    foreach (var tokenPair in asset.Token) {
+                        var assetId = tokenPair.Key;
+                        var amount = tokenPair.Value;
+                        nativeAsset.Token.Add(tokenPair.Key, Convert.ToInt64(tokenPair.Value));
+                    }        
+                }
+            }
+
+            _model.Mint = mint; 
             return this;
         }
     }

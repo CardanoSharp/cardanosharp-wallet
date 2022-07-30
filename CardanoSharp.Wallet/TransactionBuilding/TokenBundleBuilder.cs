@@ -6,24 +6,24 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public interface ITokenBundleBuilder: IABuilder<Dictionary<byte[], NativeAsset>>
+    public interface ITokenBundleBuilder: IABuilder<Dictionary<byte[], NativeAsset<ulong>>>
     {
         ITokenBundleBuilder AddToken(byte[] policyId, byte[] asset, ulong amount);
     }
 
-    public class TokenBundleBuilder: ABuilder<Dictionary<byte[], NativeAsset>>, ITokenBundleBuilder
+    public class TokenBundleBuilder: ABuilder<Dictionary<byte[], NativeAsset<ulong>>>, ITokenBundleBuilder
     {
         private TokenBundleBuilder()
         {
-            _model = new Dictionary<byte[], NativeAsset>();
+            _model = new Dictionary<byte[], NativeAsset<ulong>>();
         }
 
-        private TokenBundleBuilder(Dictionary<byte[], NativeAsset> model)
+        private TokenBundleBuilder(Dictionary<byte[], NativeAsset<ulong>> model)
         {
             _model = model;
         }
 
-        public static ITokenBundleBuilder GetBuilder(Dictionary<byte[], NativeAsset> model)
+        public static ITokenBundleBuilder GetBuilder(Dictionary<byte[], NativeAsset<ulong>> model)
         {
             if (model == null)
             {
@@ -42,7 +42,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             var policy = _model.FirstOrDefault(x => x.Key.SequenceEqual(policyId));
             if (policy.Key is null)
             {
-                policy = new KeyValuePair<byte[], NativeAsset>(policyId, new NativeAsset());
+                policy = new KeyValuePair<byte[], NativeAsset<ulong>>(policyId, new NativeAsset<ulong>());
                 _model.Add(policy.Key, policy.Value);
             }
 

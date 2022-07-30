@@ -5,24 +5,24 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public interface INativeAssetBuilder: IABuilder<NativeAsset>
+    public interface INativeAssetBuilder: IABuilder<NativeAsset<ulong>>
     {
         INativeAssetBuilder WithToken(Dictionary<byte[], ulong> token);
     }
 
-    public class NativeAssetBuilder: ABuilder<NativeAsset>, INativeAssetBuilder
+    public class NativeAssetBuilder: ABuilder<NativeAsset<ulong>>, INativeAssetBuilder
     {
         public NativeAssetBuilder()
         {
-            _model = new NativeAsset();
+            _model = new NativeAsset<ulong>();
         }
 
-        private NativeAssetBuilder(NativeAsset model)
+        private NativeAssetBuilder(NativeAsset<ulong> model)
         {
             _model = model;
         }
 
-        public static INativeAssetBuilder GetBuilder(NativeAsset model)
+        public static INativeAssetBuilder GetBuilder(NativeAsset<ulong> model)
         {
             if (model == null)
             {

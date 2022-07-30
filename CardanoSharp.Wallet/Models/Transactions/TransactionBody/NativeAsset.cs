@@ -4,13 +4,13 @@ using System.Text;
 
 namespace CardanoSharp.Wallet.Models.Transactions
 {
-    public partial class NativeAsset
+    public partial class NativeAsset<T>
     {
         public NativeAsset()
         {
-            Token = new Dictionary<byte[], ulong>();
+            Token = new Dictionary<byte[], T>();
         }
 
-        public Dictionary<byte[], ulong> Token { get; set; }
+        public Dictionary<byte[], T> Token { get; set; }
     }
 }
