@@ -10,21 +10,21 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 {
     public abstract class BaseSelectionStrategy
     {
-        protected ulong GetCurrentBalance(CoinSelection coinSelection, Asset asset = null)
+        protected long GetCurrentBalance(CoinSelection coinSelection, Asset asset = null)
         {
             if (asset is null)
             {
-                ulong minLovelaces = 0;
+                long minLovelaces = 0;
                 if (coinSelection.ChangeOutputs.Any())
                 {
                     minLovelaces = coinSelection.ChangeOutputs.First().CalculateMinUtxoLovelace();
                     coinSelection.ChangeOutputs.First().Value.Coin = minLovelaces;
                 }
-                return (ulong)coinSelection.SelectedUtxos.Sum(x => (long)x.Balance.Lovelaces) - minLovelaces;
+                return coinSelection.SelectedUtxos.Sum(x => (long)x.Balance.Lovelaces) - minLovelaces;
             }
             else
             {
-                return (ulong)coinSelection.SelectedUtxos.Sum(x => (long)(x.Balance.Assets
+                return coinSelection.SelectedUtxos.Sum(x => (long)(x.Balance.Assets
                     .FirstOrDefault(ma =>
                         ma.PolicyId.SequenceEqual(asset.PolicyId)
                         && ma.Name.Equals(asset.Name))?.Quantity ?? 0));

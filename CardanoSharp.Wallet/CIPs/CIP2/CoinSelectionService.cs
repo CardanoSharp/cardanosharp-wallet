@@ -57,12 +57,12 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             return coinSelection;
         }
 
-        private bool HasSufficientBalance(IEnumerable<Utxo> selectedUtxos, ulong amount, Asset asset = null)
+        private bool HasSufficientBalance(IEnumerable<Utxo> selectedUtxos, long amount, Asset asset = null)
         {
-            ulong totalInput = 0;
+            long totalInput = 0;
             foreach (var su in selectedUtxos)
             {
-                ulong quantity = 0;
+                long quantity = 0;
                 if (asset is null)
                 {
                     quantity = su.Balance.Lovelaces;

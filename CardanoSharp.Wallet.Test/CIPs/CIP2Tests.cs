@@ -43,7 +43,7 @@ public class CIP2Tests
 
     public CIP2Tests()
     {
-        ulong lovelace = 1000000;
+        long lovelace = 1000000;
         string policyId = getRandomAssetPolicyIdHash();
         string assetName = getRandomAssetNameHash();
         
@@ -168,7 +168,7 @@ public class CIP2Tests
                         policyId.HexToByteArray(), 
                         new NativeAsset()
                         {
-                            Token = new Dictionary<byte[], ulong>()
+                            Token = new Dictionary<byte[], long>()
                             {
                                 { assetName.HexToByteArray(), 50 }
                             }
@@ -377,9 +377,9 @@ public class CIP2Tests
         var response = coinSelection.GetCoinSelection(outputs, utxos);
 
         //assert
-        ulong totalSelected = 0;
+        long totalSelected = 0;
         response.SelectedUtxos.ForEach(s => totalSelected = totalSelected + s.Balance.Lovelaces);
-        ulong totalChange = 0;
+        long totalChange = 0;
         response.ChangeOutputs.ForEach(s => totalChange = totalChange + s.Value.Coin);
         Assert.True(totalSelected == totalChange + output_100_ada_no_assets.Value.Coin);
     }

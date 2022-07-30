@@ -7,6 +7,6 @@ namespace CardanoSharp.Wallet.Models
     {
         public string PolicyId { get; set; }
         public string Name { get; set; }
-        public ulong Quantity { get; set; }
+        public long Quantity { get; set; }
     }
 }

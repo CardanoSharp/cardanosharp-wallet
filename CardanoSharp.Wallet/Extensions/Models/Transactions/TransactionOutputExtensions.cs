@@ -49,7 +49,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 				//coin
 				transactionOutput.Value = new TransactionOutputValue()
 				{
-					Coin = transactionOutputCbor[1].DecodeValueToUInt64()
+					Coin = transactionOutputCbor[1].DecodeValueToInt64()
 				};
 			}
 			else
@@ -59,7 +59,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 				transactionOutput.Value.MultiAsset = new Dictionary<byte[], NativeAsset>();
 
 				var coinCbor = transactionOutputCbor[1][0];
-				transactionOutput.Value.Coin = coinCbor.DecodeValueToUInt64();
+				transactionOutput.Value.Coin = coinCbor.DecodeValueToInt64();
 
 				var multiAssetCbor = transactionOutputCbor[1][1];
 				foreach (var policyKeyCbor in multiAssetCbor.Keys)
@@ -71,7 +71,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
 					foreach (var assetKeyCbor in assetMapCbor.Keys)
 					{
-						var assetToken = assetMapCbor[assetKeyCbor].DecodeValueToUInt64();
+						var assetToken = assetMapCbor[assetKeyCbor].DecodeValueToInt64();
 						var assetKeyBytes = ((string)assetKeyCbor.DecodeValueByCborType()).HexToByteArray();
 
 						nativeAsset.Token.Add(assetKeyBytes, assetToken);
@@ -95,7 +95,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 			return CBORObject.DecodeFromBytes(bytes).GetTransactionOutput();
 		}
 
-		public static ulong CalculateMinUtxoLovelace(
+		public static long CalculateMinUtxoLovelace(
 			this TransactionOutput output,
 			int lovelacePerUtxoWord = 34482, // utxoCostPerWord in protocol params (could change in the future)
 			int policyIdSizeBytes = 28, // 224 bit policyID (won't change in forseeable future)
@@ -108,7 +108,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 			var nativeAssets = (output.Value.MultiAsset != null && output.Value.MultiAsset.Count > 0);
 
 			if (!nativeAssets)
-				return (ulong)lovelacePerUtxoWord * adaOnlyUtxoSizeWords; // 999978 lovelaces or 0.999978 ADA
+				return (long)lovelacePerUtxoWord * adaOnlyUtxoSizeWords; // 999978 lovelaces or 0.999978 ADA
 
 			return output.Value.MultiAsset.CalculateMinUtxoLovelace(lovelacePerUtxoWord, policyIdSizeBytes, hasDataHash);
 		}
