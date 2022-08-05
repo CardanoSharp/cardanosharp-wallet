@@ -14,13 +14,13 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
         {
             if (asset is null)
             {
-                long minLovelaces = 0;
+                ulong minLovelaces = 0;
                 if (coinSelection.ChangeOutputs.Any())
                 {
                     minLovelaces = coinSelection.ChangeOutputs.First().CalculateMinUtxoLovelace();
                     coinSelection.ChangeOutputs.First().Value.Coin = minLovelaces;
                 }
-                return coinSelection.SelectedUtxos.Sum(x => (long)x.Balance.Lovelaces) - minLovelaces;
+                return coinSelection.SelectedUtxos.Sum(x => (long)x.Balance.Lovelaces) - (long)minLovelaces;
             }
             else
             {

@@ -23,7 +23,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             }
 
             //determine/calculate the min lovelaces required for the token bundle
-            long minLovelaces = 0;
+            ulong minLovelaces = 0;
             if (coinSelection.ChangeOutputs.Any())
             {
                 minLovelaces = coinSelection.ChangeOutputs.First().CalculateMinUtxoLovelace();
@@ -85,11 +85,11 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             }
         }
 
-        public void CalculateAdaUtxo(CoinSelection coinSelection, long ada, long tokenBundleMin)
+        public void CalculateAdaUtxo(CoinSelection coinSelection, ulong ada, ulong tokenBundleMin)
         {
             // get quantity of UTxO for current asset
-            long currentQuantity = coinSelection.SelectedUtxos
-                    .Select(x => x.Balance.Lovelaces)
+            ulong currentQuantity = (ulong)coinSelection.SelectedUtxos
+                    .Select(x => (long)x.Balance.Lovelaces)
                     .Sum();
 
             // determine change value for current asset based on requested and how much is selected
@@ -100,7 +100,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             {
                 Value = new TransactionOutputValue()
                 {
-                    Coin = changeValue,
+                    Coin = (ulong)changeValue,
                     MultiAsset = null
                 }
             });

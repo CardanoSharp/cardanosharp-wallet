@@ -77,7 +77,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
 
             var outputValue = new TransactionOutputValue();
-            outputValue.Coin = Convert.ToInt64(transactionOutputValueCbor[0].DecodeValueByCborType());
+            outputValue.Coin = Convert.ToUInt64(transactionOutputValueCbor[0].DecodeValueByCborType());
 
             //check for tokens
             if (transactionOutputValueCbor.Count > 1 && transactionOutputValueCbor[1].Type == CBORType.Map)

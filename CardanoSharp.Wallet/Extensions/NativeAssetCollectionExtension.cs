@@ -7,7 +7,7 @@ namespace CardanoSharp.Wallet.Extensions
 {
     public static class NativeAssetCollectionExtension
     {
-        public static long CalculateMinUtxoLovelace(this Dictionary<byte[], NativeAsset> tokens,
+        public static ulong CalculateMinUtxoLovelace(this Dictionary<byte[], NativeAsset> tokens,
             int lovelacePerUtxoWord = 34482, // utxoCostPerWord in protocol params (could change in the future)
             int policyIdSizeBytes = 28, // 224 bit policyID (won't change in forseeable future)
             bool hasDataHash = false) // for UTxOs with a smart contract datum
@@ -40,7 +40,7 @@ namespace CardanoSharp.Wallet.Extensions
                 + tokensNameLen + byteRoundUpAddition) / bytesPerWord;
             var dataHashSizeWords = hasDataHash ? fixedDataHashSizeWords : 0;
 
-            var minUtxoLovelace = Convert.ToInt64(lovelacePerUtxoWord
+            var minUtxoLovelace = Convert.ToUInt64(lovelacePerUtxoWord
                 * (fixedUtxoEntryWithoutValueSizeWords + valueSizeWords + dataHashSizeWords));
 
             return minUtxoLovelace;

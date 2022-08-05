@@ -41,7 +41,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
                 // get quantity of UTxO
                 var quantity = (asset is null)
-                    ? ou.Balance.Lovelaces
+                    ? (long)ou.Balance.Lovelaces
                     : ou.Balance.Assets.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name)).Quantity;
 
                 // increment current amount by the UTxO quantity
