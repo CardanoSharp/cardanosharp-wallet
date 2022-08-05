@@ -69,7 +69,7 @@ public class CIP30Tests
 		Assert.Equal((uint)1, unspentOutput.Input.TransactionIndex);
 		Assert.Equal("005A99CB175EB944462D6BFD29D06E0A69DEFC091D8E5ECAB740AFAC6F1922FCDEEB6DF8592D78B20C6E22FDB73FA9446AAD05626D78000B7F",
 			unspentOutput.Output.Address.ToStringHex().ToUpper());
-		Assert.Equal(1344798, unspentOutput.Output.Value.Coin);
+		Assert.Equal((ulong)1344798, unspentOutput.Output.Value.Coin);
 		var multiAsset = unspentOutput.Output.Value.MultiAsset;
 		Assert.NotNull(multiAsset);
 		Assert.Single(multiAsset);
@@ -120,7 +120,7 @@ public class CIP30Tests
 		Assert.Equal((uint)0, utxo.TxIndex);
 		Assert.Equal("addr_test1qpdfnjcht6u5g33dd07jn5rwpf5aalqfrk89aj4hgzh6cmceyt7da6mdlpvj679jp3hz9ldh8755g64dq43x67qqpdls6uzr2z",
 			utxo.OutputAddress);
-		Assert.Equal(1344798, utxo.Balance.Lovelaces);
+		Assert.Equal((ulong)1344798, utxo.Balance.Lovelaces);
 		Assert.NotNull(utxo.Balance.Assets);
 		Assert.Equal(1, utxo.Balance.Assets.Count);
 		Assert.Equal("635da8872ab583e67993c69e67f50f12cc34ef8e1e1d93da9a9fe0cd", utxo.Balance.Assets.First().PolicyId);
