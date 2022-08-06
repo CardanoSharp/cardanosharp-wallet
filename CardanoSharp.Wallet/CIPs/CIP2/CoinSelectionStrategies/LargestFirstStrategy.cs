@@ -14,10 +14,10 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
     public class LargestFirstStrategy: BaseSelectionStrategy, ILargestFirstStrategy
     {
-        public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUtxos, ulong amount, Asset asset = null, int limit = 20)
+        public void SelectInputs(CoinSelection coinSelection, List<Utxo> availableUtxos, long amount, Asset asset = null, int limit = 20)
         {
             //determine
-            ulong currentAmount = GetCurrentBalance(coinSelection, asset);
+            long currentAmount = GetCurrentBalance(coinSelection, asset);
             
             //reorder the available utxos
             availableUtxos = OrderUTxOsByDescending(availableUtxos, asset);
@@ -41,7 +41,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
                 // get quantity of UTxO
                 var quantity = (asset is null)
-                    ? ou.Balance.Lovelaces
+                    ? (long)ou.Balance.Lovelaces
                     : ou.Balance.Assets.FirstOrDefault(x => x.PolicyId.SequenceEqual(asset.PolicyId) && x.Name.Equals(asset.Name)).Quantity;
 
                 // increment current amount by the UTxO quantity

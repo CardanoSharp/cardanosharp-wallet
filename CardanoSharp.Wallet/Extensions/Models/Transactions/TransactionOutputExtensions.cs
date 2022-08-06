@@ -71,7 +71,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
 					foreach (var assetKeyCbor in assetMapCbor.Keys)
 					{
-						var assetToken = assetMapCbor[assetKeyCbor].DecodeValueToUInt64();
+						var assetToken = assetMapCbor[assetKeyCbor].DecodeValueToInt64();
 						var assetKeyBytes = ((string)assetKeyCbor.DecodeValueByCborType()).HexToByteArray();
 
 						nativeAsset.Token.Add(assetKeyBytes, assetToken);

@@ -45,9 +45,9 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             //we need to determine if we have any change for tokens. this way we can accommodate the min lovelaces in our current value
             if(coinSelection.SelectedUtxos.Any() && _changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance);
             
-            _coinSelection.SelectInputs(coinSelection, availableUTxOs, balance.Lovelaces, null, limit);
+            _coinSelection.SelectInputs(coinSelection, availableUTxOs, (long)balance.Lovelaces, null, limit);
             
-            if (!HasSufficientBalance(coinSelection.SelectedUtxos, balance.Lovelaces, null))
+            if (!HasSufficientBalance(coinSelection.SelectedUtxos, (long)balance.Lovelaces, null))
                 throw new Exception("UTxOs have insufficient balance");
             
             if(_changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance);
@@ -57,15 +57,15 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             return coinSelection;
         }
 
-        private bool HasSufficientBalance(IEnumerable<Utxo> selectedUtxos, ulong amount, Asset asset = null)
+        private bool HasSufficientBalance(IEnumerable<Utxo> selectedUtxos, long amount, Asset asset = null)
         {
-            ulong totalInput = 0;
+            long totalInput = 0;
             foreach (var su in selectedUtxos)
             {
-                ulong quantity = 0;
+                long quantity = 0;
                 if (asset is null)
                 {
-                    quantity = su.Balance.Lovelaces;
+                    quantity = (long)su.Balance.Lovelaces;
                 }
                 else
                 {

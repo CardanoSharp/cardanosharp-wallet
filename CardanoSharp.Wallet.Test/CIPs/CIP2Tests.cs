@@ -168,7 +168,7 @@ public class CIP2Tests
                         policyId.HexToByteArray(), 
                         new NativeAsset()
                         {
-                            Token = new Dictionary<byte[], ulong>()
+                            Token = new Dictionary<byte[], long>()
                             {
                                 { assetName.HexToByteArray(), 50 }
                             }

@@ -34,7 +34,7 @@ public class CIP30Tests
 							"698A6EA0CA99F315034072AF31EAAC6EC11FE8558D3F48E9775AAB9D".HexToByteArray(),
 							new NativeAsset()
 							{
-								Token = new Dictionary<byte[], ulong>()
+								Token = new Dictionary<byte[], long>()
 								{
 									{ "7444524950".HexToByteArray(), 3999999899 }
 								}
@@ -44,7 +44,7 @@ public class CIP30Tests
 							"A4A461B1F5C751D4EFDFF99070CA9FAED2293DE3578AC7401F0ED5CC".HexToByteArray(),
 							new NativeAsset()
 							{
-								Token = new Dictionary<byte[], ulong>()
+								Token = new Dictionary<byte[], long>()
 								{
 									{ "744C616365".HexToByteArray(), 3 }
 								}
@@ -80,7 +80,7 @@ public class CIP30Tests
 		Assert.Single(token);
 		Assert.Equal("544D4F4E",
 			token.Keys.First().ToStringHex().ToUpper());
-		Assert.Equal((ulong)8000, token.Values.First());
+		Assert.Equal((long)8000, token.Values.First());
 	}
 
 	[Fact]
@@ -125,6 +125,6 @@ public class CIP30Tests
 		Assert.Equal(1, utxo.Balance.Assets.Count);
 		Assert.Equal("635da8872ab583e67993c69e67f50f12cc34ef8e1e1d93da9a9fe0cd", utxo.Balance.Assets.First().PolicyId);
 		Assert.Equal("TMON", utxo.Balance.Assets.First().Name);
-		Assert.Equal((ulong)6000, utxo.Balance.Assets.First().Quantity);
+		Assert.Equal((long)6000, utxo.Balance.Assets.First().Quantity);
 	}
 }

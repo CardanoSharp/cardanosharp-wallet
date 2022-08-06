@@ -71,9 +71,9 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                 //add policy and asset to token bundle
                 changeUtxo.Value.MultiAsset.Add(asset.PolicyId.HexToByteArray(), new NativeAsset()
                 {
-                    Token = new Dictionary<byte[], ulong>()
+                    Token = new Dictionary<byte[], long>()
                     {
-                        {asset.Name.HexToByteArray(), (ulong)changeValue}
+                        {asset.Name.HexToByteArray(), changeValue}
                     }
                 });
             }
@@ -81,7 +81,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             {
                 //policy already exists in token bundle, just add the asset
                 var policyAsset = multiAsset.FirstOrDefault();
-                policyAsset.Value.Token.Add(asset.Name.HexToByteArray(), (ulong)changeValue);
+                policyAsset.Value.Token.Add(asset.Name.HexToByteArray(), changeValue);
             }
         }
 
@@ -89,7 +89,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
         {
             // get quantity of UTxO for current asset
             ulong currentQuantity = (ulong)coinSelection.SelectedUtxos
-                    .Select(x => (long) x.Balance.Lovelaces)
+                    .Select(x => (long)x.Balance.Lovelaces)
                     .Sum();
 
             // determine change value for current asset based on requested and how much is selected

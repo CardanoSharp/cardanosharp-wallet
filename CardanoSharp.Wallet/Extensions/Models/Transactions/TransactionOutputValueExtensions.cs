@@ -94,7 +94,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                         foreach (var tokenCbor in policyCbor.Keys)
                         {
                             var assetBytes = ((string)tokenCbor.DecodeValueByCborType()).HexToByteArray();
-                            var assetToken = Convert.ToUInt64(policyCbor[tokenCbor].DecodeValueByCborType());
+                            var assetToken = Convert.ToInt64(policyCbor[tokenCbor].DecodeValueByCborType());
 
                             asset.Token.Add(assetBytes, assetToken);
                         }
