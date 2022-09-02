@@ -230,6 +230,8 @@ namespace CardanoSharp.Wallet
             networkType switch
             {
                 NetworkType.Testnet => "_test",
+                NetworkType.Preview => "_test",
+                NetworkType.Preprod => "_test",
                 NetworkType.Mainnet => "",
                 _ => throw new Exception("Unknown address type")
             };
@@ -238,6 +240,8 @@ namespace CardanoSharp.Wallet
             type switch
             {
                 NetworkType.Testnet => new NetworkInfo(0b0000, 1097911063),
+                NetworkType.Preview => new NetworkInfo(0b0000, 2),
+                NetworkType.Preprod => new NetworkInfo(0b0000, 1),
                 NetworkType.Mainnet => new NetworkInfo(0b0001, 764824073),
                 _ => throw new Exception("Unknown network type")
             };
