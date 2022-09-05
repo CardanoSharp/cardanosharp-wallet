@@ -4,6 +4,8 @@
     {
         Unknown,
         Testnet,
+        Preview,
+        Preprod,
         Mainnet
     }
 }
