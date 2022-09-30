@@ -14,7 +14,6 @@ using CardanoSharp.Wallet.TransactionBuilding;
 using PeterO.Cbor2;
 using System.Linq;
 using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
-using Xunit.Abstractions;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -27,7 +26,7 @@ namespace CardanoSharp.Wallet.Test
         private static DirectoryInfo __dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
         private static JsonSerializerOptions __jsonSerializerOptions = new JsonSerializerOptions() { WriteIndented = true };
 
-        public TransactionTests(ITestOutputHelper testOutputHelper)
+        public TransactionTests()
         {
             _keyService = new MnemonicService();
             _addressService = new AddressService();
