@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using Xunit;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
+using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Utilities;
 using System.IO;
 using System.Text.Json;
 using System;
-using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
 using PeterO.Cbor2;
 using System.Linq;
@@ -1123,6 +1123,83 @@ namespace CardanoSharp.Wallet.Test
 
             Assert.Equal("84a500818258200000000000000000000000000000000000000000000000000000000000000000000200031903e8075820e3ef965b77defa1103e792740dad9b87136ce2b26f215207eedc822a7693918d09a1581c7b45f5a5758a8880b4a6fb0da6d6ad3b11963d217658c7d23ebc62b4a145746f6b656e20a20082825820489ef28ea97f719ee7768645fc74b811c271e5d7ef06c2310854db30158e945d5840871ce64265329d62f1465fa92fb1c43bbb349b392b9c03a0633cd528386a9960f4412e5e60cdbc6d89fb414b874b8231441d72b771081d7f53e6386ee6998a048258200000000000000000000000000000000000000000000000000000000000000000584090392e604b1be1925e4238db75c53fc5da357b14bab8ba9265fd378037f34d17a3a1f6bf9febba10584420ca5cda76bc492486aae9ed70964034a51a2faedf0d01818201818200581cf9dca21a6c826ec8acb4cf395cbc24351937bfe6560b2683ab8b415ff582a1190539a1676d657373616765727368617270206275726e696e67207465737480",
                 signedTxStr);
+        }
+
+        
+
+        [Fact]
+        public void ExplicitMetadataHashTest() {
+             var rootKey = getBase15WordWallet();
+
+            //get payment keys
+            (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
+
+            //get stake keys
+            (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
+
+            //get delegation address
+            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+
+            //policy info
+            var policySkey = getGenesisTransaction();
+            var policyVkey = getGenesisTransaction();
+            var policyKeyHash = HashUtility.Blake2b224(policyVkey);
+
+            var scriptAllBuilder = ScriptAllBuilder.Create.SetScript(NativeScriptBuilder.Create.SetKeyHash(policyKeyHash));
+
+            var policyScript = scriptAllBuilder.Build();
+
+            var policyId = policyScript.GetPolicyId();
+
+            uint txInIndex = 0;
+            string txInAddr = getGenesisTransaction().ToStringHex();
+
+            string mintAssetName = "token";
+            long assetAmount = 1;
+
+            var mintAsset = TokenBundleBuilder.Create
+                .AddToken(policyId, mintAssetName.ToBytes(), assetAmount);
+                
+            var auxData = AuxiliaryDataBuilder.Create
+                .AddMetadata(1337, new { message = "sharp minting test" });
+
+            var transactionBody = TransactionBodyBuilder.Create
+                .AddInput(txInAddr.HexToByteArray(), txInIndex)
+                .AddOutput(baseAddr, 1, mintAsset)
+                .SetMint(mintAsset)
+                .SetTtl(1000)
+                .SetMetadataHash(auxData)
+                .SetFee(0);
+
+            var witnesses = TransactionWitnessSetBuilder.Create
+                .AddVKeyWitness(paymentPub, paymentPrv)
+                .AddVKeyWitness(new PublicKey(policyVkey, new byte[0]), new PrivateKey(policySkey, new byte[0]))
+                .SetNativeScript(scriptAllBuilder);
+
+            var transaction = TransactionBuilder.Create
+                .SetBody(transactionBody)
+                .SetWitnesses(witnesses)
+                .Build();
+
+            var transaction2 = TransactionBuilder.Create
+                .SetBody(transactionBody)
+                .SetWitnesses(witnesses)
+                .SetAuxData(auxData)
+                .Build();
+            transaction2.AuxiliaryData = null;
+
+            string metadata_hash = transactionBody.Build().MetadataHash;
+
+            // Serialize and Deserialize Transaction to ensure the metadata hash is properly kept
+            var signedTxStr = transaction.Serialize().ToStringHex();
+            var signedTx2Str = transaction2.Serialize().ToStringHex();
+            Transaction transactionDeserialized = signedTxStr.HexToByteArray().DeserializeTransaction();
+            Transaction transaction2Deserialized = signedTx2Str.HexToByteArray().DeserializeTransaction();
+
+            // Asset the metadata hash before and after are equal
+            Assert.Equal(metadata_hash, transactionDeserialized.TransactionBody.MetadataHash.ToLower());
+            Assert.Equal(metadata_hash, transaction2Deserialized.TransactionBody.MetadataHash.ToLower());
+            Assert.Equal(metadata_hash, "e0850084789cdd38358caaa60f7c0326e9fa3d7bd9acf53c95e348389740da48");
         }
 
         private byte[] getGenesisTransaction()
