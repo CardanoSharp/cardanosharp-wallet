@@ -8,5 +8,6 @@ namespace CardanoSharp.Wallet.Models.Transactions
         public PublicKey VKey { get; set; }
         public PrivateKey SKey { get; set; }
         public byte[] Signature { get; set; }
+        public bool IsMock { get; set; }
     }
 }

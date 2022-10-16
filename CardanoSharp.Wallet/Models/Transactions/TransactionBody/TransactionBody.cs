@@ -20,13 +20,13 @@ namespace CardanoSharp.Wallet.Models.Transactions
     {
         public TransactionBody()
         {
-            TransactionInputs = new HashSet<TransactionInput>();
-            TransactionOutputs = new HashSet<TransactionOutput>();
+            TransactionInputs = new List<TransactionInput>();
+            TransactionOutputs = new List<TransactionOutput>();
             Mint = new Dictionary<byte[], NativeAsset>();
         }
 
-        public virtual ICollection<TransactionInput> TransactionInputs { get; set; }
-        public virtual ICollection<TransactionOutput> TransactionOutputs { get; set; }
+        public virtual IList<TransactionInput> TransactionInputs { get; set; }
+        public virtual IList<TransactionOutput> TransactionOutputs { get; set; }
         public ulong Fee { get; set; }
         public uint? Ttl { get; set; }
         public Certificate Certificate { get; set; }

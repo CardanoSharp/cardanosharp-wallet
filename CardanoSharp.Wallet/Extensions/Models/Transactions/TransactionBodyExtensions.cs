@@ -54,9 +54,14 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
 
             //add metadata
-            if (auxiliaryData != null)
+            if (auxiliaryData != null || transactionBody.MetadataHash != default)
             {
-                cborBody.Add(7, HashUtility.Blake2b256(auxiliaryData.GetCBOR().EncodeToBytes()));
+                if (auxiliaryData != null) {
+                    cborBody.Add(7, HashUtility.Blake2b256(auxiliaryData.Serialize()));
+                }
+                else if (transactionBody.MetadataHash != default) {
+                    cborBody.Add(7, transactionBody.MetadataHash.HexToByteArray());
+                }
             }
 
             //add tokens for minting
@@ -147,7 +152,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             //? 7 : auxiliary_data_hash
             if (transactionBodyCbor.ContainsKey(7))
             {
-                //nothing to deserialize as the auxiliary data hash should be regenerated each time during serialization
+                transactionBody.MetadataHash = (string)transactionBodyCbor[7].DecodeValueByCborType();
             }
 
             //? 8 : uint                    ; validity interval start
@@ -163,7 +168,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                     foreach (var assetKey in assetCbor.Keys)
                     {
                         var byteAssetKey = ((string)assetKey.DecodeValueByCborType()).HexToByteArray();
-                        var token = assetCbor[assetKey].DecodeValueToUInt64();
+                        var token = assetCbor[assetKey].DecodeValueToInt64();
                         nativeAsset.Token.Add(byteAssetKey, token);
                     }
 

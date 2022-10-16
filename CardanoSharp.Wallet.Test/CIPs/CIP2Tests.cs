@@ -14,6 +14,7 @@ namespace CardanoSharp.Wallet.Test.CIPs;
 
 public class CIP2Tests
 {
+    private TransactionOutput output_10_ada_no_assets;
     private TransactionOutput output_100_ada_no_assets;
     private TransactionOutput output_10_ada_50_tokens;
 
@@ -137,6 +138,15 @@ public class CIP2Tests
             }
         };
         
+        output_10_ada_no_assets = new TransactionOutput()
+        {
+            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Value = new TransactionOutputValue()
+            {
+                Coin = 10 * lovelace
+            }
+        };
+        
         output_100_ada_no_assets = new TransactionOutput()
         {
             Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
@@ -158,7 +168,7 @@ public class CIP2Tests
                         policyId.HexToByteArray(), 
                         new NativeAsset()
                         {
-                            Token = new Dictionary<byte[], ulong>()
+                            Token = new Dictionary<byte[], long>()
                             {
                                 { assetName.HexToByteArray(), 50 }
                             }
@@ -283,6 +293,46 @@ public class CIP2Tests
         Assert.Equal(response.Inputs[0].TransactionId, utxo_50_ada_no_assets.TxHash.HexToByteArray());
         Assert.Equal(response.Inputs[1].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
         Assert.Equal(response.Inputs[2].TransactionId, utxo_30_ada_no_assets.TxHash.HexToByteArray());
+    }
+    
+    [Fact]
+    public void LargestFirst_SingleUtxo_Test()
+    {
+        //arrange
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { output_10_ada_no_assets };
+        var utxos = new List<Utxo>()
+        {
+            utxo_40_ada_no_assets
+        };
+
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos);
+
+        //assert
+        Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
+        Assert.Equal(response.Inputs[0].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
+        Assert.True(response.ChangeOutputs.Count() == 1);
+    }
+    
+    [Fact]
+    public void RandomImprove_SingleUtxo_Test()
+    {
+        //arrange
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { output_10_ada_no_assets };
+        var utxos = new List<Utxo>()
+        {
+            utxo_40_ada_no_assets
+        };
+
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos);
+
+        //assert
+        Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
+        Assert.Equal(response.Inputs[0].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
+        Assert.True(response.ChangeOutputs.Count() == 1);
     }
     
     [Fact]

@@ -1,6 +1,9 @@
 ﻿using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.Utilities;
+
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
@@ -13,6 +16,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
         ITransactionBodyBuilder SetFee(ulong fee);
         ITransactionBodyBuilder SetTtl(uint ttl);
+        ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder);
         ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
     }
 
@@ -117,6 +121,11 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionBodyBuilder SetTtl(uint ttl)
         {
             _model.Ttl = ttl;
+            return this;
+        }
+
+        public ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder) {
+            _model.MetadataHash = HashUtility.Blake2b256(auxiliaryDataBuilder.Build().GetCBOR().EncodeToBytes()).ToStringHex();
             return this;
         }
 

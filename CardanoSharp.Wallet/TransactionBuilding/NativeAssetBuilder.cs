@@ -5,7 +5,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 {
     public interface INativeAssetBuilder: IABuilder<NativeAsset>
     {
-        INativeAssetBuilder WithToken(Dictionary<byte[], ulong> token);
+        INativeAssetBuilder WithToken(Dictionary<byte[], long> token);
     }
 
     public class NativeAssetBuilder: ABuilder<NativeAsset>, INativeAssetBuilder
@@ -29,7 +29,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return new NativeAssetBuilder(model);
         }
 
-        public INativeAssetBuilder WithToken(Dictionary<byte[], ulong> token)
+        public INativeAssetBuilder WithToken(Dictionary<byte[], long> token)
         {
             _model.Token = token;
             return this;

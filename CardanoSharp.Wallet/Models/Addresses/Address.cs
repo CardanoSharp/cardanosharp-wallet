@@ -16,6 +16,15 @@ namespace CardanoSharp.Wallet.Models.Addresses
         {
         }
 
+        public Address(byte[] address)
+        {
+            _bytes = address;
+            AddressType = GetAddressType();
+            NetworkType = GetNetworkType();
+            Prefix = AddressService.GetPrefix(AddressType, NetworkType);
+            _address = Bech32.Encode(address, Prefix);
+        }
+
         public Address(string prefix, byte[] address)
         {
             _bytes = address;

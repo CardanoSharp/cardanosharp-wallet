@@ -89,5 +89,18 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
         {
             return CBORObject.DecodeFromBytes(bytes).GetTransactionWitnessSet();
         }
+
+        public static void RemoveMocks(this TransactionWitnessSet transactionWitnessSet)
+        {
+            //remove vkey witness mocks
+            if (transactionWitnessSet.VKeyWitnesses is not null)
+            {
+                var mockedWitnesses = transactionWitnessSet.VKeyWitnesses.Where(x => x.IsMock);
+                foreach (var mockedWitness in mockedWitnesses)
+                {
+                    transactionWitnessSet.VKeyWitnesses.Remove(mockedWitness);
+                }
+            }
+        }
     }
 }
