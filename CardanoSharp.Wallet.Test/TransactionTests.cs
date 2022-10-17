@@ -14,6 +14,7 @@ using CardanoSharp.Wallet.TransactionBuilding;
 using PeterO.Cbor2;
 using System.Linq;
 using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
 
 namespace CardanoSharp.Wallet.Test
 {
