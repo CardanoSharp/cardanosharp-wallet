@@ -27,7 +27,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness
         public ICollection<NativeScript> NativeScripts { get; set; }
         public ICollection<BootStrapWitness> BootStrapWitnesses { get; set; }
         public ICollection<byte[]> PlutusScriptV1 { get; set; }
-        public ICollection<object> PlutusData { get; set; }
+        public ICollection<IPlutusData> PlutusData { get; set; }
         public ICollection<Redeemer> Redeemer { get; set; }
         public ICollection<byte[]> PlutusScriptV2 { get; set; }
         
