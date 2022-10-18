@@ -9,10 +9,48 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 	{
 		public static CBORObject GetCBOR(this TransactionOutput transactionOutput)
 		{
-			//start the cbor transaction output object with the address we are sending
-			var cborTransactionOutput = CBORObject.NewArray()
-				.Add(transactionOutput.Address)
-				.Add(transactionOutput.Value.GetCBOR());
+			CBORObject cborTransactionOutput;
+
+			if (transactionOutput.DatumOption is null
+			    && transactionOutput.ScriptReference is null)
+			{
+				//start the cbor transaction output object with the address we are sending
+				cborTransactionOutput = CBORObject.NewArray()
+					.Add(transactionOutput.Address)
+					.Add(transactionOutput.Value.GetCBOR());
+
+				if (transactionOutput.DatumHash is not null)
+					cborTransactionOutput.Add(transactionOutput.DatumHash);
+			}
+			else
+			{
+				cborTransactionOutput = CBORObject.NewMap()
+					.Add(0, transactionOutput.Address)
+					.Add(1, transactionOutput.Value.GetCBOR());
+
+				if (transactionOutput.DatumOption is not null)
+				{
+					var cborDatumOption = CBORObject.NewArray();
+					if (transactionOutput.DatumOption.Hash is not null)
+					{
+						cborDatumOption.Add(0);
+						cborDatumOption.Add(transactionOutput.DatumOption.Hash);
+					}else if (transactionOutput.DatumOption.Data is not null)
+					{
+						cborDatumOption.Add(1);
+						//cborDatumOption.Add(transactionOutput.DatumOption.Data.GetCBOR());
+						//will need to build out IPlutusData types
+					}
+
+					cborTransactionOutput.Add(2, cborDatumOption);
+				}
+
+				if (transactionOutput.ScriptReference is not null)
+				{
+					//var cborScriptReference = transactionOutput.ScriptReference.GetCBOR().WithTag(24);
+					//cborTransactionOutput.Add(3, cborScriptReference);
+				}
+			}
 
 			return cborTransactionOutput;
 		}
