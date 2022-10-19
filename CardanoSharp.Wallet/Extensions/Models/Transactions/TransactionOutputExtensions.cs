@@ -38,8 +38,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 					}else if (transactionOutput.DatumOption.Data is not null)
 					{
 						cborDatumOption.Add(1);
-						//cborDatumOption.Add(transactionOutput.DatumOption.Data.GetCBOR());
-						//will need to build out IPlutusData types
+						cborDatumOption.Add(transactionOutput.DatumOption.Data.GetCBOR());
 					}
 
 					cborTransactionOutput.Add(2, cborDatumOption);
@@ -47,8 +46,8 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
 				if (transactionOutput.ScriptReference is not null)
 				{
-					//var cborScriptReference = transactionOutput.ScriptReference.GetCBOR().WithTag(24);
-					//cborTransactionOutput.Add(3, cborScriptReference);
+					var cborScriptReference = transactionOutput.ScriptReference.Serialize();
+					cborTransactionOutput.Add(3, cborScriptReference);
 				}
 			}
 

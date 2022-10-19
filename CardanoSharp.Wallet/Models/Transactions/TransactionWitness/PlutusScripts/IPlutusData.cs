@@ -12,7 +12,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     //     / bounded_bytes
     public interface IPlutusData
     {
-        CBORObject GetCbor();
+        CBORObject GetCBOR();
     }
 
     // big_int = int / big_uint / big_nint
@@ -23,7 +23,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     public class PlutusDataInt : IPlutusData
     {
         public int Value { get; set; }
-        public CBORObject GetCbor()
+        public CBORObject GetCBOR()
         {
             return CBORObject.FromSimpleValue(Value);
         }
@@ -33,7 +33,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     public class PlutusDataUInt: IPlutusData
     {
         public byte[] Value { get; set; }
-        public CBORObject GetCbor()
+        public CBORObject GetCBOR()
         {
             return CBORObject.FromJSONBytes(Value).WithTag(2);
         }
@@ -43,7 +43,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     public class PlutusDataNInt: IPlutusData
     {
         public byte[] Value { get; set; }
-        public CBORObject GetCbor()
+        public CBORObject GetCBOR()
         {
             return CBORObject.FromJSONBytes(Value).WithTag(3);
         }
@@ -53,7 +53,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     public class PlutusDataBytes: IPlutusData
     {
         public byte[] Value { get; set; }
-        public CBORObject GetCbor()
+        public CBORObject GetCBOR()
         {
             return CBORObject.FromJSONBytes(Value);
         }
@@ -63,7 +63,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     public class PlutusDataMap: IPlutusData
     {
         public Dictionary<IPlutusData, IPlutusData> Value { get; set; }
-        public CBORObject GetCbor()
+        public CBORObject GetCBOR()
         {
             return CBORObject.FromObject(Value);
         }
@@ -73,7 +73,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     public class PlutusDataArray: IPlutusData
     {
         public IPlutusData[] Value { get; set; }
-        public CBORObject GetCbor()
+        public CBORObject GetCBOR()
         {
             return CBORObject.FromObject(Value);
         }
