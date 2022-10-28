@@ -3,12 +3,13 @@ using System.Linq;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.TransactionBuilding;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
 {
     public static partial class TransactionOutputExtensions
     {
-        public static Balance AggregateAssets(this IEnumerable<TransactionOutput> transactionOutputs)
+        public static Balance AggregateAssets(this IEnumerable<TransactionOutput> transactionOutputs, TokenBundleBuilder mint = null)
         {
             Balance balance = new Balance()
             {
@@ -44,6 +45,25 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
                     }
                 }
             }
+
+            // remove / add assets from balance based on mint / burn token bundle
+            if (mint is not null) {
+                var mintAssets = mint.Build();
+                foreach (var ma  in mintAssets) {
+                    foreach (var na in ma.Value.Token) {
+                        var nativeAsset = balance.Assets.FirstOrDefault(x =>
+                        x.PolicyId.Equals(ma.Key.ToStringHex()) && x.Name.Equals(na.Key.ToStringHex()));
+                        if (nativeAsset is not null)
+                        {
+                            // remove native asset value from balance, if burning tokens, this will add to the balance
+                            nativeAsset.Quantity = nativeAsset.Quantity - na.Value;
+                            if (nativeAsset.Quantity <= 0) {
+                                balance.Assets.Remove(nativeAsset);
+                            }
+                        }
+                    }                
+                }
+            }            
             
             return balance;
         }

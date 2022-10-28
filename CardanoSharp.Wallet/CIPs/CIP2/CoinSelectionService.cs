@@ -5,15 +5,15 @@ using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
 using CardanoSharp.Wallet.CIPs.CIP2.Extensions;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Extensions;
-using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.TransactionBuilding;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2
 {
     public interface ICoinSelectionService
     {
-        CoinSelection GetCoinSelection(IEnumerable<TransactionOutput> outputs, IEnumerable<Utxo> utxos, int limit = 20);
+        CoinSelection GetCoinSelection(IEnumerable<TransactionOutput> outputs, IEnumerable<Utxo> utxos, int limit = 20, TokenBundleBuilder mint = null);
     }
     
     public class CoinSelectionService: ICoinSelectionService
@@ -27,14 +27,16 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             _changeCreation = changeCreation;
         }
 
-        public CoinSelection GetCoinSelection(IEnumerable<TransactionOutput> outputs, IEnumerable<Utxo> utxos, int limit = 20)
+        public CoinSelection GetCoinSelection(IEnumerable<TransactionOutput> outputs, IEnumerable<Utxo> utxos, int limit = 20, TokenBundleBuilder mint = null)
         {
             var coinSelection = new CoinSelection();
             var availableUTxOs = new List<Utxo>(utxos);
 
+            //use balance with mint to select change outputs and balancing without mint to select inputs
             var balance = outputs.AggregateAssets();
+            var balanceWithoutMint = outputs.AggregateAssets(mint);
             
-            foreach (var asset in balance.Assets)
+            foreach (var asset in balanceWithoutMint.Assets)
             {
                 _coinSelection.SelectInputs(coinSelection, availableUTxOs, asset.Quantity, asset, limit);
 
@@ -43,14 +45,14 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             }
             
             //we need to determine if we have any change for tokens. this way we can accommodate the min lovelaces in our current value
-            if(coinSelection.SelectedUtxos.Any() && _changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance);
+            if(coinSelection.SelectedUtxos.Any() && _changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance, null);
             
-            _coinSelection.SelectInputs(coinSelection, availableUTxOs, (long)balance.Lovelaces, null, limit);
+            _coinSelection.SelectInputs(coinSelection, availableUTxOs, (long)balanceWithoutMint.Lovelaces, null, limit);
             
-            if (!HasSufficientBalance(coinSelection.SelectedUtxos, (long)balance.Lovelaces, null))
+            if (!HasSufficientBalance(coinSelection.SelectedUtxos, (long)balanceWithoutMint.Lovelaces, null))
                 throw new Exception("UTxOs have insufficient balance");
             
-            if(_changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance);
+            if(_changeCreation is not null) _changeCreation.CalculateChange(coinSelection, balance, null);
 
             PopulateInputList(coinSelection);
 

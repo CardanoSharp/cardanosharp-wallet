@@ -17,6 +17,7 @@ public class CIP2Tests
     private TransactionOutput output_10_ada_no_assets;
     private TransactionOutput output_100_ada_no_assets;
     private TransactionOutput output_10_ada_50_tokens;
+    private TransactionOutput output_10_ada_1_minted_assets;
 
     private Asset asset_10_tokens;
     private Asset asset_20_tokens;
@@ -40,6 +41,9 @@ public class CIP2Tests
     private Utxo utxo_10_ada_30_tokens;
     private Utxo utxo_10_ada_40_tokens;
     private Utxo utxo_10_ada_50_tokens;
+
+    private ITokenBundleBuilder mint_1_token_1_quantity;
+    private ITokenBundleBuilder mint_1_token_100_quantity;
 
     public CIP2Tests()
     {
@@ -136,7 +140,13 @@ public class CIP2Tests
             {
                 Lovelaces = 100 * lovelace
             }
-        };
+        };        
+
+        mint_1_token_1_quantity = (ITokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_1_token_1_quantity.AddToken("4a4c17cc89b90f7239ce83f41e4f47005859870178f4e6815b1cd318".HexToByteArray(), "ADABlob1".ToBytes(), 1);
+
+        mint_1_token_100_quantity = (ITokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_1_token_100_quantity.AddToken("d5e6bf0500378d4f0da4e8dde6becec7621cd8cbf5cbb9b87013d4cc".HexToByteArray(), "ADABlobs1".ToBytes(), 100);
         
         output_10_ada_no_assets = new TransactionOutput()
         {
@@ -175,6 +185,16 @@ public class CIP2Tests
                         }
                     }
                 }
+            }
+        };
+
+        output_10_ada_1_minted_assets = new TransactionOutput()
+        {
+            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Value = new TransactionOutputValue()
+            {
+                Coin = 10 * lovelace,
+                MultiAsset = mint_1_token_1_quantity.Build()
             }
         };
 
@@ -572,6 +592,25 @@ public class CIP2Tests
             (response.ChangeOutputs.Sum(x => (long)x.Value.Coin) 
                     +
                     outputs.Sum(x => (long)x.Value.Coin)));
+    }
+
+    [Fact]
+    public void LargestFirst_SingleUTXO_Minting_Test()
+    {
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { output_10_ada_1_minted_assets };
+        var utxos = new List<Utxo>()
+        {
+            utxo_40_ada_no_assets
+        };
+
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos, mint: (TokenBundleBuilder)mint_1_token_1_quantity);
+
+        //assert
+        Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
+        Assert.Equal(response.Inputs[0].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
+        Assert.True(response.ChangeOutputs.Count() == 1);
     }
     
     private string getRandomTransactionHash()

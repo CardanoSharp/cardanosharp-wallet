@@ -6,12 +6,13 @@ using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.TransactionBuilding;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
 {
     public class SingleTokenBundleStrategy: IChangeCreationStrategy
     {
-        public void CalculateChange(CoinSelection coinSelection, Balance balance)
+        public void CalculateChange(CoinSelection coinSelection, Balance balance, ITokenBundleBuilder mint = null)
         {
             //clear our change output list
             coinSelection.ChangeOutputs.Clear();
@@ -19,7 +20,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             //calculate change for token bundle
             foreach (var asset in balance.Assets)
             {
-                CalculateTokenBundleUtxo(coinSelection, asset);
+                CalculateTokenBundleUtxo(coinSelection, asset, mint);
             }
 
             //determine/calculate the min lovelaces required for the token bundle
@@ -34,19 +35,29 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             CalculateAdaUtxo(coinSelection, balance.Lovelaces, minLovelaces);
         }
 
-        public void CalculateTokenBundleUtxo(CoinSelection coinSelection, Asset asset)
+        public void CalculateTokenBundleUtxo(CoinSelection coinSelection, Asset asset, ITokenBundleBuilder mint = null)
         {
             // get quantity of UTxO for current asset
             long currentQuantity = coinSelection.SelectedUtxos
+                .Where(x => x.Balance.Assets is not null)
                 .SelectMany(x => x.Balance.Assets
                     .Where(al =>
                         al.PolicyId.SequenceEqual(asset.PolicyId) 
                         && al.Name.Equals(asset.Name))
                     .Select(x => (long) x.Quantity))
                 .Sum();
+            
+            // remove / add from currentQuantity based on mint / burn token bundle
+            if (mint is not null) {
+                var mintAssets = mint.Build();
+                var nativeAsset = mintAssets.Where(ma => ma.Key.ToStringHex().SequenceEqual(asset.PolicyId)).FirstOrDefault().Value; 
+                long mintQuantity = nativeAsset.Token.Where(na => na.Key.ToStringHex().SequenceEqual(asset.Name)).FirstOrDefault().Value;
+                currentQuantity += mintQuantity;
+            }            
 
             // determine change value for current asset based on requested and how much is selected
             var changeValue = currentQuantity - (long)asset.Quantity;
+            if (changeValue <= 0) return;
             
             //since this is our token bundle change utxo, it could already exist from previous assets
             var changeUtxo = coinSelection.ChangeOutputs.FirstOrDefault(x => x.Value.MultiAsset is not null);

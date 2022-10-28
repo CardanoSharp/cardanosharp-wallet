@@ -3,7 +3,7 @@ using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Models;
-using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.TransactionBuilding;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2
 {
