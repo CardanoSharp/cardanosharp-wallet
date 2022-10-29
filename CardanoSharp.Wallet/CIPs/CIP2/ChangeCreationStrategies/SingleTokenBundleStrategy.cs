@@ -105,6 +105,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
 
             // determine change value for current asset based on requested and how much is selected
             var changeValue = Math.Abs((long)(currentQuantity - tokenBundleMin - ada));
+            if (changeValue <= 0) return;
 
             //this is for lovelaces
             coinSelection.ChangeOutputs.Add(new TransactionOutput()

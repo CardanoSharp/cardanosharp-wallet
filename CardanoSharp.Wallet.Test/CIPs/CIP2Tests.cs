@@ -595,7 +595,7 @@ public class CIP2Tests
     }
 
     [Fact]
-    public void LargestFirst_SingleUTXO_Minting_Test()
+    public void LargestFirst_SingleUTXO_SingleOutput_Mint_Test()
     {
         var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_1_minted_assets };
@@ -612,6 +612,119 @@ public class CIP2Tests
         Assert.Equal(response.Inputs[0].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
         Assert.True(response.ChangeOutputs.Count() == 1);
     }
+
+    [Fact]
+    public void LargestFirst_MultiUTXO_SingleOutput_Mint_Test()
+    {
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { output_10_ada_1_minted_assets };
+        var utxos = new List<Utxo>()
+        {
+            utxo_40_ada_no_assets,
+            utxo_50_ada_no_assets
+        };
+
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos, mint: (TokenBundleBuilder)mint_1_token_1_quantity);
+
+        //assert
+        Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_50_ada_no_assets.TxHash);
+        Assert.Equal(response.Inputs[0].TransactionId, utxo_50_ada_no_assets.TxHash.HexToByteArray());
+        Assert.True(response.ChangeOutputs.Count() == 1);
+    }
+
+    [Fact]
+    public void LargestFirst_SingleUTXO_MultiOutput_Mint_Test()
+    {
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { output_10_ada_no_assets, output_10_ada_1_minted_assets };
+        var utxos = new List<Utxo>()
+        {
+            utxo_40_ada_no_assets
+        };
+
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos, mint: (TokenBundleBuilder)mint_1_token_1_quantity);
+
+        //assert
+        Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
+        Assert.Equal(response.Inputs[0].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
+        Assert.True(response.ChangeOutputs.Count() == 1);
+    }
+
+    [Fact]
+    public void LargestFirst_MultiUTXO_MultiOutput_Mint_Test()
+    {
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { output_100_ada_no_assets, output_10_ada_1_minted_assets };
+        var utxos = new List<Utxo>()
+        {
+            utxo_40_ada_no_assets,
+            utxo_10_ada_no_assets,
+            utxo_50_ada_no_assets,
+            utxo_20_ada_no_assets,
+            utxo_30_ada_no_assets,
+        };
+
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos, mint: (TokenBundleBuilder)mint_1_token_1_quantity);
+
+        //assert
+        Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_50_ada_no_assets.TxHash);
+        Assert.Equal(response.Inputs[0].TransactionId, utxo_50_ada_no_assets.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos[1].TxHash, utxo_40_ada_no_assets.TxHash);
+        Assert.Equal(response.Inputs[1].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos[2].TxHash, utxo_30_ada_no_assets.TxHash);
+        Assert.Equal(response.Inputs[2].TransactionId, utxo_30_ada_no_assets.TxHash.HexToByteArray());
+    }
+
+    /*
+    [Fact]
+    public void LargestFirst_WithTokens_Mint_Test()
+    {
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { output_10_ada_50_tokens, output_10_ada_1_minted_assets };
+        var utxos = new List<Utxo>()
+        {
+            utxo_10_ada_30_tokens, 
+            utxo_10_ada_50_tokens,
+            utxo_50_ada_no_assets,
+        };
+
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos, mint: (TokenBundleBuilder)mint_1_token_1_quantity);
+
+        //assert
+        Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_50_tokens.TxHash);
+        Assert.Equal(response.Inputs[0].TransactionId, utxo_10_ada_50_tokens.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos[1].TxHash, utxo_10_ada_30_tokens.TxHash);
+        Assert.Equal(response.Inputs[1].TransactionId, utxo_10_ada_30_tokens.TxHash.HexToByteArray());        
+
+        var selectedUTXOsSum = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
+                x.Balance.Assets.Where(y => 
+                    y.PolicyId.Equals(utxo_10_ada_50_tokens.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0);
+
+        var mintAssets = mint_1_token_1_quantity.Build();
+        var nativeAsset = mintAssets.Where(ma => ma.Key.ToStringHex().SequenceEqual(mint_1_token_1_quantity.Balance.Assets.FirstOrDefault().PolicyId)).FirstOrDefault().Value; 
+        var mintQuantity = nativeAsset.Token.Where(na => na.Key.ToStringHex().SequenceEqual(mint_1_token_1_quantity.Balance.Assets.FirstOrDefault().Name)).FirstOrDefault().Value;
+        
+        var changeOutputSum = (response.ChangeOutputs.Sum(x => 
+                x.Value.MultiAsset?.Sum(y => 
+                    y.Value.Token.Sum(z => (long)z.Value)) ?? 0));
+
+        var outputsSum = outputs.Sum(x =>
+                        x.Value.MultiAsset?.Sum(y => 
+                            y.Value.Token.Sum(z => (long)z.Value)) ?? 0);
+        Assert.Equal(selectedUTXOsSum + mintQuantity, changeOutputSum + outputsSum);
+        
+        //assert that selected utxo ada value equal output + change utxo ada value
+        Assert.Equal(response.SelectedUtxos.Sum(x => (long) x.Balance.Lovelaces), 
+            (response.ChangeOutputs.Sum(x => (long)x.Value.Coin) 
+                    +
+                    outputs.Sum(x => (long)x.Value.Coin)));
+    }
+    */
     
     private string getRandomTransactionHash()
     {
