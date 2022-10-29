@@ -24,7 +24,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             }
             else
             {
-                return coinSelection.SelectedUtxos.Sum(x => (long)(x.Balance.Assets
+                return coinSelection.SelectedUtxos.Where(x => x.Balance.Assets is not null)
+                    .Sum(x => (long)(x.Balance.Assets
                     .FirstOrDefault(ma =>
                         ma.PolicyId.SequenceEqual(asset.PolicyId)
                         && ma.Name.Equals(asset.Name))?.Quantity ?? 0));
