@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
+using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models;
@@ -12,7 +13,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
 {
     public class SingleTokenBundleStrategy: IChangeCreationStrategy
     {
-        public void CalculateChange(CoinSelection coinSelection, Balance balance, ITokenBundleBuilder mint = null)
+        public void CalculateChange(CoinSelection coinSelection, Balance balance)
         {
             //clear our change output list
             coinSelection.ChangeOutputs.Clear();
@@ -20,7 +21,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             //calculate change for token bundle
             foreach (var asset in balance.Assets)
             {
-                CalculateTokenBundleUtxo(coinSelection, asset, mint);
+                CalculateTokenBundleUtxo(coinSelection, asset);
             }
 
             //determine/calculate the min lovelaces required for the token bundle
@@ -35,7 +36,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             CalculateAdaUtxo(coinSelection, balance.Lovelaces, minLovelaces);
         }
 
-        public void CalculateTokenBundleUtxo(CoinSelection coinSelection, Asset asset, ITokenBundleBuilder mint = null)
+        public void CalculateTokenBundleUtxo(CoinSelection coinSelection, Asset asset)
         {
             // get quantity of UTxO for current asset
             long currentQuantity = coinSelection.SelectedUtxos
@@ -45,15 +46,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                         al.PolicyId.SequenceEqual(asset.PolicyId) 
                         && al.Name.Equals(asset.Name))
                     .Select(x => (long) x.Quantity))
-                .Sum();
-            
-            // remove / add from currentQuantity based on mint / burn token bundle
-            if (mint is not null) {
-                var mintAssets = mint.Build();
-                var nativeAsset = mintAssets.Where(ma => ma.Key.ToStringHex().SequenceEqual(asset.PolicyId)).FirstOrDefault().Value; 
-                long mintQuantity = nativeAsset.Token.Where(na => na.Key.ToStringHex().SequenceEqual(asset.Name)).FirstOrDefault().Value;
-                currentQuantity += mintQuantity;
-            }            
+                .Sum();       
 
             // determine change value for current asset based on requested and how much is selected
             var changeValue = currentQuantity - (long)asset.Quantity;
@@ -70,7 +63,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                     Value = new TransactionOutputValue()
                     {
                         MultiAsset = new Dictionary<byte[], NativeAsset>()
-                    }
+                    },
+                    OutputPurpose = OutputPurpose.Change
                 };
                 coinSelection.ChangeOutputs.Add(changeUtxo);
             }
@@ -113,8 +107,9 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                 Value = new TransactionOutputValue()
                 {
                     Coin = (ulong)changeValue,
-                    MultiAsset = null
-                }
+                    MultiAsset = null,
+                },
+                OutputPurpose = OutputPurpose.Change
             });
         }
     }
