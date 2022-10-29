@@ -42,7 +42,12 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
                             balance.Assets.Add(nativeAsset);
                         }
 
-                        nativeAsset.Quantity = nativeAsset.Quantity + na.Value;
+                        if(o.OutputPurpose == OutputPurpose.Burn) {
+                            nativeAsset.Quantity = nativeAsset.Quantity - na.Value;
+                        }
+                        else {
+                            nativeAsset.Quantity = nativeAsset.Quantity + na.Value;
+                        }                        
                     }
                 }
             }

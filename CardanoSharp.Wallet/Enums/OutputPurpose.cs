@@ -4,6 +4,7 @@
     {
         Spend,
         Change,
-        Mint
+        Mint,
+        Burn,
     }
 }
