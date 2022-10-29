@@ -1167,12 +1167,54 @@ public class CIP2Tests
         var response = coinSelection.GetCoinSelection(outputs, utxos, mint: (TokenBundleBuilder)mint_3_token_1_quantity);
 
         //assert
+        Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_40_tokens.TxHash);        
+        Assert.Equal(response.Inputs[0].TransactionId, utxo_10_ada_40_tokens.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos[1].TxHash, utxo_10_ada_20_tokens.TxHash);        
+        Assert.Equal(response.Inputs[1].TransactionId, utxo_10_ada_20_tokens.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos[2].TxHash, utxo_60_ada_no_assets.TxHash);        
+        Assert.Equal(response.Inputs[2].TransactionId, utxo_60_ada_no_assets.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos[3].TxHash, utxo_40_ada_no_assets.TxHash);        
+        Assert.Equal(response.Inputs[3].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos[4].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
+        Assert.Equal(response.Inputs[4].TransactionId, utxo_10_ada_1_owned_mint_asset.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos[5].TxHash, utxo_10_ada_100_owned_mint_asset.TxHash);        
+        Assert.Equal(response.Inputs[5].TransactionId, utxo_10_ada_100_owned_mint_asset.TxHash.HexToByteArray());
+        Assert.True(response.SelectedUtxos.Count() == 6);
+        Assert.True(response.ChangeOutputs.Count() == 2);
+    }
+
+    [Fact]
+    public void LargestFirst_MultiOption_Test_2()
+    {
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_minted_assets, output_100_ada_no_assets, output_10_ada_50_tokens };
+        var utxos = new List<Utxo>()
+        {
+            utxo_40_ada_no_assets,
+            utxo_10_ada_1_owned_mint_asset,
+            utxo_10_ada_100_owned_mint_asset,
+            utxo_10_ada_40_tokens,
+            utxo_60_ada_no_assets,            
+            utxo_10_ada_20_tokens, 
+            utxo_90_ada_no_assets,           
+        };
+
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos, mint: (TokenBundleBuilder)mint_3_token_1_quantity);
+
+        //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
         Assert.Equal(response.Inputs[0].TransactionId, utxo_10_ada_1_owned_mint_asset.TxHash.HexToByteArray());
-        Assert.Equal(response.SelectedUtxos[1].TxHash, utxo_40_ada_no_assets.TxHash);        
-        Assert.Equal(response.Inputs[1].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
-        Assert.True(response.SelectedUtxos.Count() == 2);
-        Assert.True(response.ChangeOutputs.Count() == 1);
+        Assert.Equal(response.SelectedUtxos[1].TxHash, utxo_10_ada_40_tokens.TxHash);        
+        Assert.Equal(response.Inputs[1].TransactionId, utxo_10_ada_40_tokens.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos[2].TxHash, utxo_10_ada_20_tokens.TxHash);        
+        Assert.Equal(response.Inputs[2].TransactionId, utxo_10_ada_20_tokens.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos[3].TxHash, utxo_90_ada_no_assets.TxHash);        
+        Assert.Equal(response.Inputs[3].TransactionId, utxo_90_ada_no_assets.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos[4].TxHash, utxo_60_ada_no_assets.TxHash);        
+        Assert.Equal(response.Inputs[4].TransactionId, utxo_60_ada_no_assets.TxHash.HexToByteArray());
+        Assert.True(response.SelectedUtxos.Count() == 5);
+        Assert.True(response.ChangeOutputs.Count() == 2);
     }
     
     private string getRandomTransactionHash()

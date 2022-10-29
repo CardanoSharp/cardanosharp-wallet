@@ -29,7 +29,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
                     foreach (var na in ma.Value.Token)
                     {
                         var nativeAsset = balance.Assets.FirstOrDefault(x =>
-                            x.PolicyId.Equals(ma.Key.ToStringHex()) && x.Name.Equals(na.Key.ToStringHex()));
+                            x.PolicyId.Equals(ma.Key.ToStringHex()) && 
+                            x.Name.Equals(na.Key.ToStringHex()));
                         if (nativeAsset is null)
                         {
                             nativeAsset = new Asset()
@@ -52,7 +53,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
                 foreach (var ma  in mintAssets) {
                     foreach (var na in ma.Value.Token) {
                         var nativeAsset = balance.Assets.FirstOrDefault(x =>
-                        x.PolicyId.Equals(ma.Key.ToStringHex()) && x.Name.Equals(na.Key.ToStringHex()));
+                            x.PolicyId.Equals(ma.Key.ToStringHex()) && 
+                            x.Name.Equals(na.Key.ToStringHex()));
                         if (nativeAsset is not null)
                         {
                             // remove native asset value from balance, if burning tokens, this will add to the balance

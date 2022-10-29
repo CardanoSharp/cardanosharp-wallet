@@ -71,11 +71,11 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 }
                 else
                 {
-                    quantity = su.Balance.Assets
-                        .First(ma =>
+                    quantity = (long)(su.Balance.Assets
+                        .FirstOrDefault(ma =>
                             ma.PolicyId.SequenceEqual(asset.PolicyId)
-                            && ma.Name.Equals(asset.Name))
-                        .Quantity;
+                            && ma.Name.Equals(asset.Name))?
+                        .Quantity ?? 0);
                 }
 
                 totalInput = totalInput + quantity;
