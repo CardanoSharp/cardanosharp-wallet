@@ -14,6 +14,7 @@ namespace CardanoSharp.Wallet.Test.CIPs;
 
 public class CIP2Tests
 {
+    private TransactionOutput output_1_ada_no_assets;
     private TransactionOutput output_10_ada_no_assets;
     private TransactionOutput output_100_ada_no_assets;
     private TransactionOutput output_10_ada_50_tokens;
@@ -63,6 +64,12 @@ public class CIP2Tests
     private ITokenBundleBuilder mint_2_token_1_quantity;
     private ITokenBundleBuilder mint_2_token_100_quantity;
     private ITokenBundleBuilder mint_3_token_1_quantity;
+
+    private ITokenBundleBuilder burn_1_token_1_quantity;
+    private ITokenBundleBuilder burn_1_token_100_quantity;
+    private ITokenBundleBuilder burn_2_token_1_quantity;
+    private ITokenBundleBuilder burn_2_token_100_quantity;
+    private ITokenBundleBuilder burn_3_token_1_quantity;
 
     public CIP2Tests()
     {
@@ -158,6 +165,15 @@ public class CIP2Tests
             Balance = new Balance()
             {
                 Lovelaces = 100 * lovelace
+            }
+        };
+
+        output_1_ada_no_assets = new TransactionOutput()
+        {
+            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Value = new TransactionOutputValue()
+            {
+                Coin = 1 * lovelace
             }
         };
         
@@ -317,6 +333,24 @@ public class CIP2Tests
         mint_3_token_1_quantity = (ITokenBundleBuilder)TokenBundleBuilder.Create;
         mint_3_token_1_quantity.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
         mint_3_token_1_quantity.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
+        burn_1_token_1_quantity = (ITokenBundleBuilder)TokenBundleBuilder.Create;
+        burn_1_token_1_quantity.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), -1);
+
+        burn_1_token_100_quantity = (ITokenBundleBuilder)TokenBundleBuilder.Create;
+        burn_1_token_100_quantity.AddToken(mint_policy_3.HexToByteArray(), mint_policy_3_asset_1.ToBytes(), -100);
+
+        burn_2_token_1_quantity = (ITokenBundleBuilder)TokenBundleBuilder.Create;
+        burn_2_token_1_quantity.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), -1);
+        burn_2_token_1_quantity.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), -1);
+
+        burn_2_token_100_quantity = (ITokenBundleBuilder)TokenBundleBuilder.Create;
+        burn_2_token_100_quantity.AddToken(mint_policy_3.HexToByteArray(), mint_policy_3_asset_1.ToBytes(), -100);
+        burn_2_token_100_quantity.AddToken(mint_policy_4.HexToByteArray(), mint_policy_4_asset_1.ToBytes(), -100);
+
+        burn_3_token_1_quantity = (ITokenBundleBuilder)TokenBundleBuilder.Create;
+        burn_3_token_1_quantity.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), -2);
+        burn_3_token_1_quantity.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), -1);
 
         asset_mint_1_tokens_1 = new Asset()
         {
@@ -1216,6 +1250,86 @@ public class CIP2Tests
         Assert.True(response.SelectedUtxos.Count() == 5);
         Assert.True(response.ChangeOutputs.Count() == 2);
     }
+
+    [Fact]
+    public void LargestFirst_SingleUTXO_SingleOutput_Burn_Test()
+    {
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { output_1_ada_no_assets };
+        var utxos = new List<Utxo>()
+        {
+            utxo_10_ada_1_owned_mint_asset
+        };
+
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos, mint: (TokenBundleBuilder)burn_1_token_1_quantity);
+
+        //assert
+        Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);
+        Assert.Equal(response.Inputs[0].TransactionId, utxo_10_ada_1_owned_mint_asset.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos.Count(), 1);
+        Assert.Equal(response.ChangeOutputs.Count(), 1);
+
+        var selectedUTXOsSum = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
+                x.Balance.Assets.Where(y => 
+                    y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0);
+
+        var changeOutputSum = response.ChangeOutputs.Sum(x => 
+                x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
+                    y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        
+        var outputsSum = outputs.Sum(x =>
+                x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
+                    y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+    
+        var burn = burn_1_token_1_quantity.Build();
+        var burnQuantity = burn.Sum(x => x.Value.Token.Sum(z => (long)z.Value));
+        Asset.Equals(burnQuantity, -1);
+
+        Assert.Equal(selectedUTXOsSum + burnQuantity, changeOutputSum + outputsSum);
+    }
+
+    /*
+    [Fact]
+    public void LargestFirst_SingleUTXO_MultiOutput_Burn_Test()
+    {
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
+        var outputs = new List<TransactionOutput>() { output_1_ada_no_assets, output_1_ada_no_assets, output_1_ada_no_assets };
+        var utxos = new List<Utxo>()
+        {
+            utxo_10_ada_1_owned_mint_asset
+        };
+
+        //act
+        var response = coinSelection.GetCoinSelection(outputs, utxos, mint: (TokenBundleBuilder)burn_1_token_1_quantity);
+
+        //assert
+        Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);
+        Assert.Equal(response.Inputs[0].TransactionId, utxo_10_ada_1_owned_mint_asset.TxHash.HexToByteArray());
+        Assert.Equal(response.SelectedUtxos.Count(), 1);
+        Assert.Equal(response.ChangeOutputs.Count(), 1);
+
+        var selectedUTXOsSum = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
+                x.Balance.Assets.Where(y => 
+                    y.PolicyId.Equals(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId))
+                        ?.Sum(z => (long)z.Quantity) ?? 0);
+
+        var changeOutputSum = response.ChangeOutputs.Sum(x => 
+                x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
+                    y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+        
+        var outputsSum = outputs.Sum(x =>
+                x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
+                    y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
+    
+        var burn = burn_1_token_1_quantity.Build();
+        var burnQuantity = burn.Sum(x => x.Value.Token.Sum(z => (long)z.Value));
+        Asset.Equals(burnQuantity, -1);
+
+        Assert.Equal(selectedUTXOsSum + burnQuantity, changeOutputSum + outputsSum);
+    }
+    */
     
     private string getRandomTransactionHash()
     {
