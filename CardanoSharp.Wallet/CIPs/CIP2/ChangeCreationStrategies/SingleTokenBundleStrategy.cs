@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
+using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models;
@@ -59,7 +60,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                     Value = new TransactionOutputValue()
                     {
                         MultiAsset = new Dictionary<byte[], NativeAsset>()
-                    }
+                    },
+                    OutputPurpose = OutputPurpose.Change
                 };
                 coinSelection.ChangeOutputs.Add(changeUtxo);
             }
@@ -101,8 +103,9 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                 Value = new TransactionOutputValue()
                 {
                     Coin = (ulong)changeValue,
-                    MultiAsset = null
-                }
+                    MultiAsset = null,
+                },
+                OutputPurpose = OutputPurpose.Change
             });
         }
     }
