@@ -282,7 +282,7 @@ public partial class CIP2Tests
         Assert.Equal(response.SelectedUtxos[1].TxHash, utxo_40_ada_no_assets.TxHash);        
         Assert.Equal(response.Inputs[1].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
         Assert.True(response.SelectedUtxos.Count() == 2);
-        Assert.True(response.ChangeOutputs.Count() == 2);
+        Assert.True(response.ChangeOutputs.Count() == 1);
     }
 
     [Fact]
@@ -326,7 +326,7 @@ public partial class CIP2Tests
         Assert.Equal(response.SelectedUtxos[1].TxHash, utxo_40_ada_no_assets.TxHash);        
         Assert.Equal(response.Inputs[1].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
         Assert.True(response.SelectedUtxos.Count() == 2);
-        Assert.True(response.ChangeOutputs.Count() == 2);
+        Assert.True(response.ChangeOutputs.Count() == 1);
     }
 
     [Fact]
@@ -352,7 +352,7 @@ public partial class CIP2Tests
         Assert.Equal(response.SelectedUtxos[2].TxHash, utxo_40_ada_no_assets.TxHash);        
         Assert.Equal(response.Inputs[2].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
         Assert.True(response.SelectedUtxos.Count() == 3);
-        Assert.True(response.ChangeOutputs.Count() == 2);
+        Assert.True(response.ChangeOutputs.Count() == 1);
     }
 
     [Fact]
