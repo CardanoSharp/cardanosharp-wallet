@@ -3,19 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2;
 using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
-using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
-using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
-using CardanoSharp.Wallet.TransactionBuilding;
 using Xunit;
 
 namespace CardanoSharp.Wallet.Test.CIPs;
 
 public partial class CIP2Tests
 {
-     [Fact]
+    [Fact]
     public void LargestFirst_SingleOutput_Burn_Test()
     {
         var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());

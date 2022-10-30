@@ -1,14 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2;
 using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
-using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
-using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
-using CardanoSharp.Wallet.TransactionBuilding;
 using Xunit;
 
 namespace CardanoSharp.Wallet.Test.CIPs;
