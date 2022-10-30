@@ -35,6 +35,10 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                     changeOutput = tokenBundleChangeOutputs[changeOutputIndex];
 
                 TransactionOutput calculatedOutput = CalculateTokenBundleUtxo(coinSelection, asset, outputBalance, changeOutput, changeAddress);
+                if (calculatedOutput is null) 
+                    continue;
+
+
                 if (tokenBundleChangeOutputs.Count < idealTokenBundleChangeOutputs)
                     tokenBundleChangeOutputs.Add(calculatedOutput);
                 else
@@ -78,6 +82,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
 
             // determine change value for current asset based on requested and how much is selected
             var changeValue = currentQuantity - outputQuantity;
+            if (changeValue <= 0) 
+                return null;
 
             if (changeUtxo is null)
             {
@@ -120,6 +126,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
         {
             // determine change value for current asset based on requested and how much is selected
             var changeValue = Math.Abs((long)(ada - tokenBundleMin - outputBalance.Lovelaces - fee));
+            if (changeValue <= 0)
+                return;
 
             //this is for lovelaces
             coinSelection.ChangeOutputs.Add(new TransactionOutput()
