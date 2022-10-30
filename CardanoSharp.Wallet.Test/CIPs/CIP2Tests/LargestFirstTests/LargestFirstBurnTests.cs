@@ -35,7 +35,7 @@ public partial class CIP2Tests
         Assert.Equal(response.SelectedUtxos[1].TxHash, utxo_40_ada_no_assets.TxHash);
         Assert.Equal(response.Inputs[1].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
         Assert.Equal(response.SelectedUtxos.Count(), 2);
-        Assert.Equal(response.ChangeOutputs.Count(), 1);
+        Assert.Equal(response.ChangeOutputs.Count(), 2);
 
         var selectedUTXOsSum = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
                 x.Balance.Assets.Where(y => 
@@ -74,7 +74,7 @@ public partial class CIP2Tests
         Assert.Equal(response.SelectedUtxos[1].TxHash, utxo_40_ada_no_assets.TxHash);
         Assert.Equal(response.Inputs[1].TransactionId, utxo_40_ada_no_assets.TxHash.HexToByteArray());
         Assert.Equal(response.SelectedUtxos.Count(), 2);
-        Assert.Equal(response.ChangeOutputs.Count(), 1);
+        Assert.Equal(response.ChangeOutputs.Count(), 2);
 
         var selectedUTXOsSum = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
                 x.Balance.Assets.Where(y => 
@@ -112,7 +112,7 @@ public partial class CIP2Tests
         Assert.Equal(response.SelectedUtxos[1].TxHash, utxo_10_ada_1_owned_mint_asset_two.TxHash);
         Assert.Equal(response.Inputs[1].TransactionId, utxo_10_ada_1_owned_mint_asset_two.TxHash.HexToByteArray());
         Assert.Equal(response.SelectedUtxos.Count(), 2);
-        Assert.Equal(response.ChangeOutputs.Count(), 1);
+        Assert.Equal(response.ChangeOutputs.Count(), 2);
 
         var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
             x.Balance.Assets.Where(y => 
@@ -169,7 +169,7 @@ public partial class CIP2Tests
         Assert.Equal(response.SelectedUtxos[4].TxHash, utxo_10_ada_1_owned_mint_asset_two.TxHash);
         Assert.Equal(response.Inputs[4].TransactionId, utxo_10_ada_1_owned_mint_asset_two.TxHash.HexToByteArray());
         Assert.Equal(response.SelectedUtxos.Count(), 5);
-        Assert.Equal(response.ChangeOutputs.Count(), 1);
+        Assert.Equal(response.ChangeOutputs.Count(), 2);
 
         var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
             x.Balance.Assets.Where(y => 
