@@ -144,8 +144,20 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             if (fee is null)
                 fee = _model.Fee;
             
+            //get count of change outputs to deduct fee from evenly
+            //note we are selecting only ones that dont have assets
+            //  this is to respect minimum ada required for token bundles
             var countOfChangeOutputs = _model.TransactionOutputs
-                .Count(x => x.OutputPurpose == OutputPurpose.Change);
+                .Count(x => x.OutputPurpose == OutputPurpose.Change
+                    && (x.Value.MultiAsset is null 
+                        || (x.Value.MultiAsset is not null 
+                            && !x.Value.MultiAsset.Any())));
+            
+            //if we dont find any, we include token bundles
+            if (countOfChangeOutputs == 0)
+                countOfChangeOutputs = _model.TransactionOutputs
+                    .Count(x => x.OutputPurpose == OutputPurpose.Change);
+            
             ulong feePerChangeOutput = fee.Value / (ulong)countOfChangeOutputs;
             ulong feeRemaining = fee.Value % (ulong)countOfChangeOutputs;
             bool needToApplyRemaining = true;
