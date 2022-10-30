@@ -1270,7 +1270,6 @@ public partial class CIP2Tests
             x.Value.MultiAsset?.Where(y => y.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().PolicyId)).Sum(y => 
                 y.Value.Token.Where(z => z.Key.ToStringHex().SequenceEqual(utxo_10_ada_1_owned_mint_asset_two.Balance.Assets.FirstOrDefault().Name)).Sum(z => (long)z.Value)) ?? 0);
 
-        Assert.Equal(response.ChangeOutputs.Count, 1);
         Assert.Equal(totalSelected, totalOutput + totalChange);
         Assert.Equal(selectedUTXOsSumAsset1 + 2, outputsSumAsset1 + changeOutputSumAsset1);
         Assert.Equal(selectedUTXOsSumAsset2 + 1, outputsSumAsset2 + changeOutputSumAsset2);
