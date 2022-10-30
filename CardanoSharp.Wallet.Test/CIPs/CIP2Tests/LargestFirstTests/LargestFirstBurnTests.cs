@@ -24,7 +24,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);
@@ -63,7 +63,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);
@@ -101,7 +101,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);
@@ -152,7 +152,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);
@@ -216,7 +216,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);
@@ -293,7 +293,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);

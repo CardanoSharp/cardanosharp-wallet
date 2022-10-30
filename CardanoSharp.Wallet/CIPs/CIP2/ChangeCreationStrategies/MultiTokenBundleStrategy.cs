@@ -13,7 +13,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
 {
     public class MultiTokenBundleStrategy: IChangeCreationStrategy
     {
-        public void CalculateChange(CoinSelection coinSelection, Balance outputBalance)
+        public void CalculateChange(CoinSelection coinSelection, Balance outputBalance, string changeAddress, ulong fee = 0)
         {
             //clear our change output list
             coinSelection.ChangeOutputs.Clear();
@@ -34,7 +34,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                 if (changeOutputIndex < tokenBundleChangeOutputs.Count)
                     changeOutput = tokenBundleChangeOutputs[changeOutputIndex];
 
-                TransactionOutput calculatedOutput = CalculateTokenBundleUtxo(coinSelection, asset, outputBalance, changeOutput);
+                TransactionOutput calculatedOutput = CalculateTokenBundleUtxo(coinSelection, asset, outputBalance, changeOutput, changeAddress);
                 if (tokenBundleChangeOutputs.Count < idealTokenBundleChangeOutputs)
                     tokenBundleChangeOutputs.Add(calculatedOutput);
                 else
@@ -55,10 +55,10 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             coinSelection.ChangeOutputs = tokenBundleChangeOutputs;            
 
             //calculate ada utxo accounting for selected, requested, and token bundle min 
-            CalculateAdaUtxo(coinSelection, inputBalance.Lovelaces, minLovelaces, outputBalance);
+            CalculateAdaUtxo(coinSelection, inputBalance.Lovelaces, minLovelaces, outputBalance, changeAddress, fee);
         }
 
-        public TransactionOutput CalculateTokenBundleUtxo(CoinSelection coinSelection, Asset asset, Balance outputBalance, TransactionOutput changeUtxo)
+        public TransactionOutput CalculateTokenBundleUtxo(CoinSelection coinSelection, Asset asset, Balance outputBalance, TransactionOutput changeUtxo, string changeAddress)
         {
             // get quantity of UTxO for current asset
             long currentQuantity = coinSelection.SelectedUtxos
@@ -84,6 +84,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                 //add if doesnt exist
                 changeUtxo = new TransactionOutput()
                 {
+                    Address = changeAddress.ToBytes(),
                     Value = new TransactionOutputValue()
                     {
                         MultiAsset = new Dictionary<byte[], NativeAsset>()
@@ -115,14 +116,15 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             return changeUtxo;
         }
 
-        public void CalculateAdaUtxo(CoinSelection coinSelection, ulong ada, ulong tokenBundleMin, Balance outputBalance)
+        public void CalculateAdaUtxo(CoinSelection coinSelection, ulong ada, ulong tokenBundleMin, Balance outputBalance, string changeAddress, ulong fee)
         {
             // determine change value for current asset based on requested and how much is selected
-            var changeValue = Math.Abs((long)(ada - tokenBundleMin - outputBalance.Lovelaces));
+            var changeValue = Math.Abs((long)(ada - tokenBundleMin - outputBalance.Lovelaces - fee));
 
             //this is for lovelaces
             coinSelection.ChangeOutputs.Add(new TransactionOutput()
             {
+                Address = changeAddress.ToBytes(),
                 Value = new TransactionOutputValue()
                 {
                     Coin = (ulong)changeValue,

@@ -15,6 +15,7 @@ namespace CardanoSharp.Wallet.Test.CIPs;
 
 public partial class CIP2Tests
 {
+    private string address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu";
     private TransactionOutput output_1_ada_no_assets;
     private TransactionOutput output_10_ada_no_assets;
     private TransactionOutput output_100_ada_no_assets;
@@ -183,7 +184,7 @@ public partial class CIP2Tests
 
         output_1_ada_no_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 1 * lovelace
@@ -192,7 +193,7 @@ public partial class CIP2Tests
         
         output_10_ada_no_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace
@@ -201,7 +202,7 @@ public partial class CIP2Tests
         
         output_100_ada_no_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 100 * lovelace
@@ -210,7 +211,7 @@ public partial class CIP2Tests
         
         output_10_ada_50_tokens = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -457,7 +458,7 @@ public partial class CIP2Tests
         
         output_10_ada_1_minted_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -468,7 +469,7 @@ public partial class CIP2Tests
 
         output_10_ada_100_minted_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -479,7 +480,7 @@ public partial class CIP2Tests
 
         output_10_ada_2_minted_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -490,7 +491,7 @@ public partial class CIP2Tests
 
         output_10_ada_200_minted_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -501,7 +502,7 @@ public partial class CIP2Tests
 
         output_10_ada_1_burned_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -512,7 +513,7 @@ public partial class CIP2Tests
 
         output_10_ada_100_burned_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -523,7 +524,7 @@ public partial class CIP2Tests
 
         output_10_ada_2_burned_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -534,7 +535,7 @@ public partial class CIP2Tests
 
         output_10_ada_200_burned_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -545,7 +546,7 @@ public partial class CIP2Tests
 
         output_10_ada_1_already_minted_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -556,7 +557,7 @@ public partial class CIP2Tests
 
         output_10_ada_100_already_minted_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -567,7 +568,7 @@ public partial class CIP2Tests
 
         output_10_ada_2_already_minted_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -578,7 +579,7 @@ public partial class CIP2Tests
 
         output_10_ada_200_already_minted_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -589,7 +590,7 @@ public partial class CIP2Tests
 
         output_10_ada_50_tokens_1_minted_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,
@@ -616,7 +617,7 @@ public partial class CIP2Tests
 
         output_10_ada_50_tokens_100_minted_assets = new TransactionOutput()
         {
-            Address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu".ToAddress().GetBytes(),
+            Address = address.ToAddress().GetBytes(),
             Value = new TransactionOutputValue()
             {
                 Coin = 10 * lovelace,

@@ -23,7 +23,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -61,7 +61,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -103,7 +103,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -143,7 +143,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -195,7 +195,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -248,7 +248,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -300,7 +300,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -358,7 +358,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -426,7 +426,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -465,7 +465,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -518,7 +518,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -572,7 +572,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -627,7 +627,7 @@ public partial class CIP2Tests
         try
         {
             //act            
-            var response = coinSelection.GetCoinSelection(outputs, utxos);
+            var response = coinSelection.GetCoinSelection(outputs, utxos, address);
         }
         catch (Exception e)
         {
@@ -652,7 +652,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;
@@ -725,7 +725,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         long totalSelected = 0;

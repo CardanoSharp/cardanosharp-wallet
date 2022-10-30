@@ -27,7 +27,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_50_ada_no_assets.TxHash);
@@ -50,7 +50,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -73,7 +73,7 @@ public partial class CIP2Tests
         try
         {
             //act
-            var response = coinSelection.GetCoinSelection(outputs, utxos, 5);
+            var response = coinSelection.GetCoinSelection(outputs, utxos, address, 5);
         }
         catch (Exception e)
         {
@@ -97,7 +97,7 @@ public partial class CIP2Tests
         try
         {
             //act
-            var response = coinSelection.GetCoinSelection(outputs, utxos, 5);
+            var response = coinSelection.GetCoinSelection(outputs, utxos, address, 5);
         }
         catch (Exception e)
         {
@@ -121,7 +121,7 @@ public partial class CIP2Tests
         };
         
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
         
         //assert
         //assert that selected utxo ada value is greater than the requested outputs' ada value
@@ -162,7 +162,7 @@ public partial class CIP2Tests
         }
         
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
         
         //assert
         //assert that selected utxo ada value is greater than the requested outputs' ada value

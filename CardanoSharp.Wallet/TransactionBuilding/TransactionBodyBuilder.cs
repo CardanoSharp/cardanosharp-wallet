@@ -13,8 +13,8 @@ namespace CardanoSharp.Wallet.TransactionBuilding
     {
         ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex);
         ITransactionBodyBuilder AddInput(string transactionId, uint transactionIndex);
-        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, OutputPurpose outputPurpose = OutputPurpose.Spend, ITokenBundleBuilder tokenBundleBuilder = null);
-        ITransactionBodyBuilder AddOutput(Address address, ulong coin, OutputPurpose outputPurpose = OutputPurpose.Spend, ITokenBundleBuilder tokenBundleBuilder = null);
+        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null, OutputPurpose outputPurpose = OutputPurpose.Spend);
+        ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null, OutputPurpose outputPurpose = OutputPurpose.Spend);
         ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
         ITransactionBodyBuilder SetFee(ulong fee);
         ITransactionBodyBuilder SetTtl(uint ttl);
@@ -90,12 +90,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
-        public ITransactionBodyBuilder AddOutput(Address address, ulong coin, OutputPurpose outputPurpose = OutputPurpose.Spend, ITokenBundleBuilder tokenBundleBuilder = null)
+        public ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null, OutputPurpose outputPurpose = OutputPurpose.Spend)
         {
-            return AddOutput(address.GetBytes(), coin, outputPurpose, tokenBundleBuilder);
+            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, outputPurpose);
         }
 
-        public ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, OutputPurpose outputPurpose = OutputPurpose.Spend, ITokenBundleBuilder tokenBundleBuilder = null)
+        public ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null,  OutputPurpose outputPurpose = OutputPurpose.Spend)
         {
             var outputValue = new TransactionOutputValue()
             {

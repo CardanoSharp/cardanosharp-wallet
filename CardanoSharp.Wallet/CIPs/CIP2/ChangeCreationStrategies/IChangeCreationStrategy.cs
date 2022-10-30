@@ -7,6 +7,6 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
 {
     public interface IChangeCreationStrategy
     {
-        void CalculateChange(CoinSelection coinSelection, Balance balance);
+        void CalculateChange(CoinSelection coinSelection, Balance balance, string changeAddress, ulong fee = 0);
     }
 }

@@ -9,7 +9,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
 {
     public static partial class TransactionOutputExtensions
     {
-        public static Balance AggregateAssets(this IEnumerable<TransactionOutput> transactionOutputs)
+        public static Balance AggregateAssets(this IEnumerable<TransactionOutput> transactionOutputs, ulong fee = 0)
         {
             Balance balance = new Balance()
             {
@@ -18,8 +18,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
 
             foreach (var o in transactionOutputs)
             {
-                //aggregate lovelaces
-                balance.Lovelaces = balance.Lovelaces + o.Value.Coin;
+                //aggregate lovelaces and optional fee
+                balance.Lovelaces = balance.Lovelaces + o.Value.Coin + fee;
 
                 //aggregate native assets
                 if(o.Value.MultiAsset is null) continue;

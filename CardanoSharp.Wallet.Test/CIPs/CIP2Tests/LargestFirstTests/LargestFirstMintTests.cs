@@ -23,7 +23,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -42,7 +42,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_50_ada_no_assets.TxHash);
@@ -61,7 +61,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -84,7 +84,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_50_ada_no_assets.TxHash);
@@ -108,7 +108,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_50_tokens.TxHash);
@@ -154,7 +154,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -174,7 +174,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_50_ada_no_assets.TxHash);
@@ -193,7 +193,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -218,7 +218,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_40_tokens.TxHash);
@@ -274,7 +274,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -297,7 +297,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);        
@@ -318,7 +318,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -342,7 +342,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -371,7 +371,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -400,7 +400,7 @@ public partial class CIP2Tests
         try
         {
             //act            
-            var response = coinSelection.GetCoinSelection(outputs, utxos);
+            var response = coinSelection.GetCoinSelection(outputs, utxos, address);
         }
         catch (Exception e)
         {
@@ -425,7 +425,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_40_tokens.TxHash);        
@@ -461,7 +461,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
