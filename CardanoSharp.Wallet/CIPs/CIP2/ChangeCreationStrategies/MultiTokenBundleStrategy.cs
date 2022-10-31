@@ -13,7 +13,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
 {
     public class MultiTokenBundleStrategy: IChangeCreationStrategy
     {
-        public void CalculateChange(CoinSelection coinSelection, Balance outputBalance, string changeAddress, ulong fee = 0)
+        public void CalculateChange(CoinSelection coinSelection, Balance outputBalance, string changeAddress, ulong feeBuffer = 0)
         {
             //clear our change output list
             coinSelection.ChangeOutputs.Clear();
@@ -59,7 +59,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             coinSelection.ChangeOutputs = tokenBundleChangeOutputs;            
 
             //calculate ada utxo accounting for selected, requested, and token bundle min 
-            CalculateAdaUtxo(coinSelection, inputBalance.Lovelaces, minLovelaces, outputBalance, changeAddress, fee);
+            CalculateAdaUtxo(coinSelection, inputBalance.Lovelaces, minLovelaces, outputBalance, changeAddress, feeBuffer);
         }
 
         public TransactionOutput CalculateTokenBundleUtxo(CoinSelection coinSelection, Asset asset, Balance outputBalance, TransactionOutput changeUtxo, string changeAddress)
@@ -122,10 +122,10 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             return changeUtxo;
         }
 
-        public void CalculateAdaUtxo(CoinSelection coinSelection, ulong ada, ulong tokenBundleMin, Balance outputBalance, string changeAddress, ulong fee)
+        public void CalculateAdaUtxo(CoinSelection coinSelection, ulong ada, ulong tokenBundleMin, Balance outputBalance, string changeAddress, ulong feeBuffer = 0)
         {
             // determine change value for current asset based on requested and how much is selected
-            var changeValue = Math.Abs((long)(ada - tokenBundleMin - outputBalance.Lovelaces - fee));
+            var changeValue = Math.Abs((long)(ada - tokenBundleMin - outputBalance.Lovelaces) + (long)feeBuffer);
             if (changeValue <= 0)
                 return;
 

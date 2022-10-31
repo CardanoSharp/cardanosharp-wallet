@@ -15,6 +15,7 @@ namespace CardanoSharp.Wallet.Test.CIPs;
 
 public partial class CIP2Tests
 {
+    private ulong adaToLovelace = 1000000;
     private string address = "addr_test1vrgvgwfx4xyu3r2sf8nphh4l92y84jsslg5yhyr8xul29rczf3alu";
     private TransactionOutput output_1_ada_no_assets;
     private TransactionOutput output_10_ada_no_assets;
