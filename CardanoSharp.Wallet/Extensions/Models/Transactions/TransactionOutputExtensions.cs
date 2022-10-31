@@ -104,6 +104,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 			ulong coinsPerUtxOByte = 4310 // coinsPerUtxoByte in protocol params
 			)
 		{
+			if (output.Value.MultiAsset == null || output.Value.MultiAsset.Count <= 0)
+				return adaOnlyMinUTxO;
+
 			// Set a dummy address if this function is called with Address == null
 			if (output.Address == null)
 				output.Address = dummyAddress.ToBytes();
