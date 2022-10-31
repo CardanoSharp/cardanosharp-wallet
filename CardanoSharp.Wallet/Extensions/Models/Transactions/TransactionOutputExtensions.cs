@@ -1,12 +1,16 @@
-﻿using CardanoSharp.Wallet.Models.Transactions;
-using PeterO.Cbor2;
+﻿
 using System;
 using System.Collections.Generic;
+using CardanoSharp.Wallet.Models.Transactions;
+using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {
 	public static partial class TransactionOutputExtensions
 	{
+		private static ulong adaOnlyMinUTxO = 1000000;
+		private static string dummyAddress = "addr_test1qzx9hu8j4ah3auytk0mwcupd69hpc52t0cw39a65ndrah86djs784u92a3m5w475w3w35tyd6v3qumkze80j8a6h5tuqq5xe8y";
+
 		public static CBORObject GetCBOR(this TransactionOutput transactionOutput)
 		{
 			//start the cbor transaction output object with the address we are sending
@@ -97,20 +101,20 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
 		public static ulong CalculateMinUtxoLovelace(
 			this TransactionOutput output,
-			int lovelacePerUtxoWord = 34482, // utxoCostPerWord in protocol params (could change in the future)
-			int policyIdSizeBytes = 28, // 224 bit policyID (won't change in forseeable future)
-			bool hasDataHash = false) // for UTxOs with a smart contract datum
+			ulong coinsPerUtxOByte = 4310 // coinsPerUtxoByte in protocol params
+			)
 		{
-			const int fixedUtxoEntryWithoutValueSizeWords = 27; // The static parts of a UTxO: 6 + 7 + 14 words
-			const int coinSizeWords = 2; // since updated from 0 in docs.cardano.org/native-tokens/minimum-ada-value-requirement
-			const int adaOnlyUtxoSizeWords = fixedUtxoEntryWithoutValueSizeWords + coinSizeWords;
+			// Set a dummy address if this function is called with Address == null
+			if (output.Address == null)
+				output.Address = dummyAddress.ToBytes();
 
-			var nativeAssets = (output.Value.MultiAsset != null && output.Value.MultiAsset.Count > 0);
+			byte[] serializedOutput = output.Serialize();
+			ulong outputLength = (ulong)serializedOutput.Length;
+			ulong minUTxO = coinsPerUtxOByte * (160 + outputLength);
+			if (minUTxO < adaOnlyMinUTxO)
+				minUTxO = adaOnlyMinUTxO;
 
-			if (!nativeAssets)
-				return (ulong)lovelacePerUtxoWord * adaOnlyUtxoSizeWords; // 999978 lovelaces or 0.999978 ADA
-
-			return output.Value.MultiAsset.CalculateMinUtxoLovelace(lovelacePerUtxoWord, policyIdSizeBytes, hasDataHash);
+			return minUTxO;
 		}
 	}
 }
