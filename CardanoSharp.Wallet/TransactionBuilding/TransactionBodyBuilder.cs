@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
@@ -147,22 +148,33 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             //get count of change outputs to deduct fee from evenly
             //note we are selecting only ones that dont have assets
             //  this is to respect minimum ada required for token bundles
-            var countOfChangeOutputs = _model.TransactionOutputs
-                .Count(x => x.OutputPurpose == OutputPurpose.Change
-                    && (x.Value.MultiAsset is null 
-                        || (x.Value.MultiAsset is not null 
-                            && !x.Value.MultiAsset.Any())));
+            IEnumerable<TransactionOutput> changeOutputs;
+            if(_model.TransactionOutputs
+               .Any(x => x.OutputPurpose == OutputPurpose.Change
+                           && (x.Value.MultiAsset is null 
+                               || (x.Value.MultiAsset is not null 
+                                   && !x.Value.MultiAsset.Any()))))
+            {
+                changeOutputs = _model.TransactionOutputs
+                    .Where(x => x.OutputPurpose == OutputPurpose.Change
+                                && (x.Value.MultiAsset is null
+                                    || (x.Value.MultiAsset is not null
+                                        && !x.Value.MultiAsset.Any())));
+            }
+            else
+            {
+                changeOutputs = _model.TransactionOutputs
+                    .Where(x => x.OutputPurpose == OutputPurpose.Change);
+            }
             
-            //if we dont find any, we include token bundles
-            if (countOfChangeOutputs == 0)
-                countOfChangeOutputs = _model.TransactionOutputs
-                    .Count(x => x.OutputPurpose == OutputPurpose.Change);
-            
-            ulong feePerChangeOutput = fee.Value / (ulong)countOfChangeOutputs;
-            ulong feeRemaining = fee.Value % (ulong)countOfChangeOutputs;
+            ulong feePerChangeOutput = fee.Value / (ulong)changeOutputs.Count();
+            ulong feeRemaining = fee.Value % (ulong)changeOutputs.Count();
             bool needToApplyRemaining = true;
-            foreach (var o in _model.TransactionOutputs.Where(x =>
-                         x.OutputPurpose == OutputPurpose.Change))
+            foreach (var o in _model.TransactionOutputs
+                         .Where(x => x.OutputPurpose == OutputPurpose.Change
+                           && (x.Value.MultiAsset is null 
+                               || (x.Value.MultiAsset is not null 
+                                   && !x.Value.MultiAsset.Any()))))
             {
                 if (needToApplyRemaining)
                 {
