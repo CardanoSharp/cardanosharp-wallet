@@ -12,7 +12,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
     {
         public static CoinSelection UseLargestFirst(this TransactionBodyBuilder tbb, List<Utxo> utxos)
         {
-            var cs = new CoinSelectionService(new LargestFirstStrategy(), null);
+            var cs = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
             var tb = tbb.Build();
             return cs.GetCoinSelection(tb.TransactionOutputs.ToList(), utxos);
         }
@@ -20,13 +20,6 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
         public static CoinSelection UseRandomImprove(this TransactionBodyBuilder tbb, List<Utxo> utxos)
         {
             var cs = new CoinSelectionService(new RandomImproveStrategy(), new SingleTokenBundleStrategy());
-            var tb = tbb.Build();
-            return cs.GetCoinSelection(tb.TransactionOutputs.ToList(), utxos);
-        }
-
-        public static CoinSelection UseLargestFirstWithImprove(this TransactionBodyBuilder tbb, List<Utxo> utxos)
-        {
-            var cs = new CoinSelectionService(new LargestFirstStrategy(), new SingleTokenBundleStrategy());
             var tb = tbb.Build();
             return cs.GetCoinSelection(tb.TransactionOutputs.ToList(), utxos);
         }

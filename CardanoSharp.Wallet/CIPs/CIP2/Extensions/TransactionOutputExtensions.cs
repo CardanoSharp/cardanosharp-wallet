@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
@@ -22,6 +23,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
 
                 //aggregate native assets
                 if(o.Value.MultiAsset is null) continue;
+                if(o.OutputPurpose == OutputPurpose.Mint) continue;
                 
                 foreach (var ma in o.Value.MultiAsset)
                 {
@@ -40,7 +42,12 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
                             balance.Assets.Add(nativeAsset);
                         }
 
-                        nativeAsset.Quantity = nativeAsset.Quantity + na.Value;
+                        if(o.OutputPurpose == OutputPurpose.Burn) {
+                            nativeAsset.Quantity = nativeAsset.Quantity - na.Value;
+                        }
+                        else {
+                            nativeAsset.Quantity = nativeAsset.Quantity + na.Value;
+                        }                        
                     }
                 }
             }

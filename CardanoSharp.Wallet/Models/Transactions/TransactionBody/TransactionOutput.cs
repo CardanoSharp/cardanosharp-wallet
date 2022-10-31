@@ -1,4 +1,6 @@
-﻿namespace CardanoSharp.Wallet.Models.Transactions
+﻿using CardanoSharp.Wallet.Enums;
+
+namespace CardanoSharp.Wallet.Models.Transactions
 {
 
     //transaction_output = [address, amount : value]
@@ -21,5 +23,6 @@
     {
         public byte[] Address { get; set; }
         public TransactionOutputValue Value { get; set; }
+        public OutputPurpose OutputPurpose { get; set; }
     }
 }

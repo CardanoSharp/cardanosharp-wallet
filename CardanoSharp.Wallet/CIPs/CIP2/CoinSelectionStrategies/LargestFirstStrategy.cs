@@ -3,7 +3,7 @@ using System.Linq;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Models;
-using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.TransactionBuilding;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2
 {
@@ -20,14 +20,14 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             long currentAmount = GetCurrentBalance(coinSelection, asset);
             
             //reorder the available utxos
-            availableUtxos = OrderUTxOsByDescending(availableUtxos, asset);
+            List<Utxo> descendingAvailableUtxos = OrderUTxOsByDescending(availableUtxos, asset);
             
             //indices to remove
             var removeIndices = new List<Utxo>();
             
-            for(var x = 0; x < availableUtxos.Count(); x++)
+            for(var x = 0; x < descendingAvailableUtxos.Count(); x++)
             {
-                var ou = availableUtxos[x];
+                var ou = descendingAvailableUtxos[x];
                 
                 // if we already have enough utxos to cover requested amount, break out
                 if (currentAmount > amount) break;

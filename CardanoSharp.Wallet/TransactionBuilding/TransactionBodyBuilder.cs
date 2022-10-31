@@ -1,4 +1,7 @@
-﻿using CardanoSharp.Wallet.Extensions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
@@ -11,13 +14,14 @@ namespace CardanoSharp.Wallet.TransactionBuilding
     {
         ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex);
         ITransactionBodyBuilder AddInput(string transactionId, uint transactionIndex);
-        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null);
-        ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null);
+        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, OutputPurpose outputPurpose = OutputPurpose.Spend, ITokenBundleBuilder tokenBundleBuilder = null);
+        ITransactionBodyBuilder AddOutput(Address address, ulong coin, OutputPurpose outputPurpose = OutputPurpose.Spend, ITokenBundleBuilder tokenBundleBuilder = null);
         ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
         ITransactionBodyBuilder SetFee(ulong fee);
         ITransactionBodyBuilder SetTtl(uint ttl);
         ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder);
         ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
+        ITransactionBodyBuilder RemoveFeeFromChange(ulong? fee = null);
     }
 
     public class TransactionBodyBuilder : ABuilder<TransactionBody>, ITransactionBodyBuilder
@@ -87,12 +91,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
-        public ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null)
+        public ITransactionBodyBuilder AddOutput(Address address, ulong coin, OutputPurpose outputPurpose = OutputPurpose.Spend, ITokenBundleBuilder tokenBundleBuilder = null)
         {
-            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder);
+            return AddOutput(address.GetBytes(), coin, outputPurpose, tokenBundleBuilder);
         }
 
-        public ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null)
+        public ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, OutputPurpose outputPurpose = OutputPurpose.Spend, ITokenBundleBuilder tokenBundleBuilder = null)
         {
             var outputValue = new TransactionOutputValue()
             {
@@ -107,7 +111,8 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             _model.TransactionOutputs.Add(new TransactionOutput()
             {
                 Address = address,
-                Value = outputValue
+                Value = outputValue,
+                OutputPurpose = outputPurpose
             });
             return this;
         }
@@ -132,6 +137,49 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionBodyBuilder SetMint(ITokenBundleBuilder tokenBuilder)
         {
             _model.Mint = tokenBuilder.Build();
+            return this;
+        }
+
+        public ITransactionBodyBuilder RemoveFeeFromChange(ulong? fee = null)
+        {
+            if (fee is null)
+                fee = _model.Fee;
+            
+            //get count of change outputs to deduct fee from evenly
+            //note we are selecting only ones that dont have assets
+            //  this is to respect minimum ada required for token bundles
+            IEnumerable<TransactionOutput> changeOutputs;
+            if(_model.TransactionOutputs
+               .Any(x => x.OutputPurpose == OutputPurpose.Change
+                           && (x.Value.MultiAsset is null 
+                               || (x.Value.MultiAsset is not null 
+                                   && !x.Value.MultiAsset.Any()))))
+            {
+                changeOutputs = _model.TransactionOutputs
+                    .Where(x => x.OutputPurpose == OutputPurpose.Change
+                                && (x.Value.MultiAsset is null
+                                    || (x.Value.MultiAsset is not null
+                                        && !x.Value.MultiAsset.Any())));
+            }
+            else
+            {
+                changeOutputs = _model.TransactionOutputs
+                    .Where(x => x.OutputPurpose == OutputPurpose.Change);
+            }
+            
+            ulong feePerChangeOutput = fee.Value / (ulong)changeOutputs.Count();
+            ulong feeRemaining = fee.Value % (ulong)changeOutputs.Count();
+            bool needToApplyRemaining = true;
+            foreach (var o in changeOutputs)
+            {
+                if (needToApplyRemaining)
+                {
+                    o.Value.Coin = o.Value.Coin - feePerChangeOutput - feeRemaining;
+                    needToApplyRemaining = false;
+                }else 
+                    o.Value.Coin = o.Value.Coin - feePerChangeOutput;
+            }
+
             return this;
         }
     }
