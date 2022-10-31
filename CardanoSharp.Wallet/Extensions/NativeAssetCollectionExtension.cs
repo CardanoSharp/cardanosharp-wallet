@@ -16,7 +16,7 @@ namespace CardanoSharp.Wallet.Extensions
             const int fixedUtxoEntryWithoutValueSizeWords = 27; // The static parts of a UTxO: 6 + 7 + 14 words
             const int fixedPerTokenCost = 12;
             const int byteRoundUpAddition = 7;
-            const int bytesPerWord = 8; // One "word" is 8 bytes (64-bit)
+            const int bytesPerWord = 1; // One "word" is 8 bytes (64-bit)
             const int fixedDataHashSizeWords = 10;
 
             // Get distinct policyIDs and assetNames

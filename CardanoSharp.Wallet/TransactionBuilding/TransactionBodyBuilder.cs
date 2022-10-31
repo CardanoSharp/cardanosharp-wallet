@@ -161,8 +161,11 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             ulong feePerChangeOutput = fee.Value / (ulong)countOfChangeOutputs;
             ulong feeRemaining = fee.Value % (ulong)countOfChangeOutputs;
             bool needToApplyRemaining = true;
-            foreach (var o in _model.TransactionOutputs.Where(x =>
-                         x.OutputPurpose == OutputPurpose.Change))
+            foreach (var o in _model.TransactionOutputs
+                         .Where(x => x.OutputPurpose == OutputPurpose.Change
+                           && (x.Value.MultiAsset is null 
+                               || (x.Value.MultiAsset is not null 
+                                   && !x.Value.MultiAsset.Any()))))
             {
                 if (needToApplyRemaining)
                 {
