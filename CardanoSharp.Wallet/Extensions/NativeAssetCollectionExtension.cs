@@ -8,16 +8,14 @@ namespace CardanoSharp.Wallet.Extensions
     public static class NativeAssetCollectionExtension
     {
         public static ulong CalculateMinUtxoLovelace(this Dictionary<byte[], NativeAsset> tokens,
-            int lovelacePerUtxoWord = 34482, // utxoCostPerWord in protocol params (could change in the future)
+            int coinsPerUtxoByte = 4310, // utxoCostPerWord in protocol params (could change in the future)
             int policyIdSizeBytes = 28, // 224 bit policyID (won't change in forseeable future)
             bool hasDataHash = false) // for UTxOs with a smart contract datum
         {
-            const int fixedUtxoPrefixWords = 6;
-            const int fixedUtxoEntryWithoutValueSizeWords = 27; // The static parts of a UTxO: 6 + 7 + 14 words
+            const int fixedUtxoPrefixBytes = 48;
+            const int fixedUtxoEntryWithoutValueSizeBytes = 216; // The static parts of a UTxO: 8*(6 + 7 + 14) words
             const int fixedPerTokenCost = 12;
-            const int byteRoundUpAddition = 7;
-            const int bytesPerWord = 1; // One "word" is 8 bytes (64-bit)
-            const int fixedDataHashSizeWords = 10;
+            const int fixedDataHashSizeBytes = 80;
 
             // Get distinct policyIDs and assetNames
             var policyIds = new HashSet<string>();
@@ -32,16 +30,16 @@ namespace CardanoSharp.Wallet.Extensions
                 }
             }
 
-            // Calculate (prefix + (numDistinctPids * 28(policyIdSizeBytes) + numTokens * 12(fixedPerTokenCost) + tokensNameLen + 7) ~/8)
+            // Calculate (prefix + numDistinctPids * 28(policyIdSizeBytes) + numTokens * 12(fixedPerTokenCost) + tokensNameLen)
             var tokensNameLen = assetNameHexadecimals.Sum(an => an.Length) / 2; // 2 hexadecimal chars = 1 Byte
-            var valueSizeWords = fixedUtxoPrefixWords + (
-                (policyIds.Count * policyIdSizeBytes)
+            var valueSizeBytes = fixedUtxoPrefixBytes 
+                + ((policyIds.Count * policyIdSizeBytes)
                 + (assetNameHexadecimals.Count * fixedPerTokenCost)
-                + tokensNameLen + byteRoundUpAddition) / bytesPerWord;
-            var dataHashSizeWords = hasDataHash ? fixedDataHashSizeWords : 0;
+                + tokensNameLen);
+            var dataHashSizeBytes = hasDataHash ? fixedDataHashSizeBytes : 0;
 
-            var minUtxoLovelace = Convert.ToUInt64(lovelacePerUtxoWord
-                * (fixedUtxoEntryWithoutValueSizeWords + valueSizeWords + dataHashSizeWords));
+            var minUtxoLovelace = Convert.ToUInt64(coinsPerUtxoByte
+                * (fixedUtxoEntryWithoutValueSizeBytes + valueSizeBytes + dataHashSizeBytes));
 
             return minUtxoLovelace;
         }
