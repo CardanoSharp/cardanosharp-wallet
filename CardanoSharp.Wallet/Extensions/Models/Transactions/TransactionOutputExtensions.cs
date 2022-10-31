@@ -9,7 +9,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 	public static partial class TransactionOutputExtensions
 	{
 		private static ulong adaOnlyMinUTxO = 1000000;
-		private static string dummyAddress = "addr_test1qzx9hu8j4ah3auytk0mwcupd69hpc52t0cw39a65ndrah86djs784u92a3m5w475w3w35tyd6v3qumkze80j8a6h5tuqq5xe8y";
+		private static string dummyAddress = "addr_test1qpu5vlrf4xkxv2qpwngf6cjhtw542ayty80v8dyr49rf5ewvxwdrt70qlcpeeagscasafhffqsxy36t90ldv06wqrk2qum8x5w";
 
 		public static CBORObject GetCBOR(this TransactionOutput transactionOutput)
 		{
