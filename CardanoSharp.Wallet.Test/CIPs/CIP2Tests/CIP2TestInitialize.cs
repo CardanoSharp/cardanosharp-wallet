@@ -509,7 +509,7 @@ public partial class CIP2Tests
                 Coin = 10 * lovelace,
                 MultiAsset = burn_1_token_1_quantity.Build()
             },
-            OutputPurpose = OutputPurpose.Burn,
+            OutputPurpose = OutputPurpose.Mint,
         };
 
         output_10_ada_100_burned_assets = new TransactionOutput()
@@ -520,7 +520,7 @@ public partial class CIP2Tests
                 Coin = 10 * lovelace,
                 MultiAsset = burn_1_token_100_quantity.Build()
             },
-            OutputPurpose = OutputPurpose.Burn,
+            OutputPurpose = OutputPurpose.Mint,
         };
 
         output_10_ada_2_burned_assets = new TransactionOutput()
@@ -531,7 +531,7 @@ public partial class CIP2Tests
                 Coin = 10 * lovelace,
                 MultiAsset = burn_2_token_1_quantity.Build()
             },
-            OutputPurpose = OutputPurpose.Burn,
+            OutputPurpose = OutputPurpose.Mint,
         };
 
         output_10_ada_200_burned_assets = new TransactionOutput()
@@ -542,7 +542,7 @@ public partial class CIP2Tests
                 Coin = 10 * lovelace,
                 MultiAsset = burn_2_token_100_quantity.Build()
             },
-            OutputPurpose = OutputPurpose.Burn,
+            OutputPurpose = OutputPurpose.Mint,
         };
 
         output_10_ada_1_already_minted_assets = new TransactionOutput()

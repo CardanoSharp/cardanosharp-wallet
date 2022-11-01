@@ -73,7 +73,7 @@ public partial class CIP2Tests
         try
         {
             //act
-            var response = coinSelection.GetCoinSelection(outputs, utxos, address, 5);
+            var response = coinSelection.GetCoinSelection(outputs, utxos, address, limit: 5);
         }
         catch (Exception e)
         {
@@ -97,7 +97,7 @@ public partial class CIP2Tests
         try
         {
             //act
-            var response = coinSelection.GetCoinSelection(outputs, utxos, address, 5);
+            var response = coinSelection.GetCoinSelection(outputs, utxos, address, limit: 5);
         }
         catch (Exception e)
         {

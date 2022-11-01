@@ -5,6 +5,5 @@
         Spend,
         Change,
         Mint,
-        Burn,
     }
 }
