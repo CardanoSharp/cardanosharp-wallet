@@ -6,6 +6,7 @@ using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.TransactionBuilding;
 using Xunit;
 
 namespace CardanoSharp.Wallet.Test.CIPs;
@@ -23,7 +24,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_1_token_1_quantity);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -44,7 +45,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_1_token_1_quantity);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_50_ada_no_assets.TxHash);
@@ -64,7 +65,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_1_token_1_quantity);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -88,7 +89,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_1_token_1_quantity);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_50_ada_no_assets.TxHash);
@@ -114,7 +115,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_1_token_1_quantity);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_50_tokens.TxHash);
@@ -162,8 +163,12 @@ public partial class CIP2Tests
             utxo_40_ada_no_assets,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 1);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -183,8 +188,12 @@ public partial class CIP2Tests
             utxo_50_ada_no_assets
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 1);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_50_ada_no_assets.TxHash);
@@ -203,8 +212,12 @@ public partial class CIP2Tests
             utxo_40_ada_no_assets
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -229,8 +242,12 @@ public partial class CIP2Tests
             utxo_10_ada_10_tokens,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_40_tokens.TxHash);
@@ -285,8 +302,11 @@ public partial class CIP2Tests
             utxo_10_ada_1_owned_mint_asset,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -309,7 +329,7 @@ public partial class CIP2Tests
         };
 
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_3_token_1_quantity);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);        
@@ -329,8 +349,12 @@ public partial class CIP2Tests
             utxo_10_ada_1_owned_mint_asset,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -353,8 +377,12 @@ public partial class CIP2Tests
             utxo_10_ada_1_owned_mint_asset_two,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -382,8 +410,12 @@ public partial class CIP2Tests
             utxo_10_ada_30_tokens
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -409,10 +441,14 @@ public partial class CIP2Tests
             utxo_10_ada_1_owned_mint_asset,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         try
         {
             //act            
-            var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+            var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
         }
         catch (Exception e)
         {
@@ -436,8 +472,12 @@ public partial class CIP2Tests
             utxo_10_ada_20_tokens,            
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_40_tokens.TxHash);        
@@ -472,8 +512,12 @@ public partial class CIP2Tests
             utxo_90_ada_no_assets,           
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -500,8 +544,11 @@ public partial class CIP2Tests
             utxo_40_ada_no_assets
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -521,8 +568,11 @@ public partial class CIP2Tests
             utxo_50_ada_no_assets
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_50_ada_no_assets.TxHash);
@@ -541,8 +591,11 @@ public partial class CIP2Tests
             utxo_40_ada_no_assets
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -565,8 +618,11 @@ public partial class CIP2Tests
             utxo_30_ada_no_assets,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_50_ada_no_assets.TxHash);
@@ -591,8 +647,11 @@ public partial class CIP2Tests
             utxo_50_ada_no_assets,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_50_tokens.TxHash);
@@ -638,8 +697,12 @@ public partial class CIP2Tests
             utxo_40_ada_no_assets,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 1);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -659,8 +722,12 @@ public partial class CIP2Tests
             utxo_50_ada_no_assets
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 1);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_50_ada_no_assets.TxHash);
@@ -679,8 +746,12 @@ public partial class CIP2Tests
             utxo_40_ada_no_assets
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);
@@ -705,8 +776,12 @@ public partial class CIP2Tests
             utxo_10_ada_10_tokens,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_40_tokens.TxHash);
@@ -761,8 +836,11 @@ public partial class CIP2Tests
             utxo_10_ada_1_owned_mint_asset,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -784,8 +862,12 @@ public partial class CIP2Tests
             utxo_10_ada_1_owned_mint_asset,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_40_ada_no_assets.TxHash);        
@@ -805,8 +887,12 @@ public partial class CIP2Tests
             utxo_10_ada_1_owned_mint_asset,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -829,8 +915,12 @@ public partial class CIP2Tests
             utxo_10_ada_1_owned_mint_asset_two,
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -858,8 +948,12 @@ public partial class CIP2Tests
             utxo_10_ada_30_tokens
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
@@ -889,8 +983,12 @@ public partial class CIP2Tests
             utxo_10_ada_20_tokens,            
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_40_tokens.TxHash);        
@@ -925,8 +1023,12 @@ public partial class CIP2Tests
             utxo_90_ada_no_assets,           
         };
 
+        TokenBundleBuilder mint_tokens = (TokenBundleBuilder)TokenBundleBuilder.Create;
+        mint_tokens.AddToken(mint_policy_1.HexToByteArray(), mint_policy_1_asset_1.ToBytes(), 2);
+        mint_tokens.AddToken(mint_policy_2.HexToByteArray(), mint_policy_2_asset_1.ToBytes(), 1);
+
         //act
-        var response = coinSelection.GetCoinSelection(outputs, utxos, address);
+        var response = coinSelection.GetCoinSelection(outputs, utxos, address, mint_tokens);
 
         //assert
         Assert.Equal(response.SelectedUtxos[0].TxHash, utxo_10_ada_1_owned_mint_asset.TxHash);        
