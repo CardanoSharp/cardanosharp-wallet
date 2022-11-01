@@ -8,7 +8,7 @@ using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
-using CardanoSharp.Wallet.TransactionBuilding;
+using CardanoSharp.Wallet.Models.Addresses;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
 {
@@ -70,7 +70,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                 //add if doesnt exist
                 changeUtxo = new TransactionOutput()
                 {
-                    Address = changeAddress.ToBytes(),
+                    Address = new Address(changeAddress).GetBytes(),
                     Value = new TransactionOutputValue()
                     {
                         MultiAsset = new Dictionary<byte[], NativeAsset>()
@@ -111,6 +111,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             //this is for lovelaces
             coinSelection.ChangeOutputs.Add(new TransactionOutput()
             {
+                Address = new Address(address).GetBytes(),
                 Value = new TransactionOutputValue()
                 {
                     Coin = (ulong)changeValue,

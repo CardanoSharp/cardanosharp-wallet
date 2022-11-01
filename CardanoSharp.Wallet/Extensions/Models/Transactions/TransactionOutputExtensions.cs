@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.Models.Addresses;
 using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
@@ -109,11 +110,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
 			// Set a dummy address if this function is called with Address == null
 			if (output.Address == null)
-				output.Address = dummyAddress.ToBytes();
+				output.Address = new Address(dummyAddress).GetBytes();
 
 			byte[] serializedOutput = output.Serialize();
 			ulong outputLength = (ulong)serializedOutput.Length;
-			ulong minUTxO = coinsPerUtxOByte * (160 + outputLength);
+			ulong minUTxO = coinsPerUtxOByte * (160 + outputLength + 4); // Adding 4 as the transaction output for babbage has a datum_option and ref_script parameter that are 2+2 = 4 extra bytes that we have not added yet
 			if (minUTxO < adaOnlyMinUTxO)
 				minUTxO = adaOnlyMinUTxO;
 
