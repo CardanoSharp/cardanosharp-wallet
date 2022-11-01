@@ -7,12 +7,13 @@ using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.TransactionBuilding;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2
 {
     public interface ICoinSelectionService
     {
-        CoinSelection GetCoinSelection(IEnumerable<TransactionOutput> outputs, IEnumerable<Utxo> utxos, string changeAddress, int limit = 20, ulong fee = 0);
+        CoinSelection GetCoinSelection(IEnumerable<TransactionOutput> outputs, IEnumerable<Utxo> utxos, string changeAddress, ITokenBundleBuilder mint = null, int limit = 20, ulong fee = 0);
     }
     
     public class CoinSelectionService: ICoinSelectionService
@@ -26,13 +27,13 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             _changeCreation = changeCreation;
         }
 
-        public CoinSelection GetCoinSelection(IEnumerable<TransactionOutput> outputs, IEnumerable<Utxo> utxos, string changeAddress, int limit = 20, ulong feeBuffer = 0)
+        public CoinSelection GetCoinSelection(IEnumerable<TransactionOutput> outputs, IEnumerable<Utxo> utxos, string changeAddress, ITokenBundleBuilder mint = null, int limit = 20, ulong feeBuffer = 0)
         {
             var coinSelection = new CoinSelection();
             var availableUTxOs = new List<Utxo>(utxos);
 
             //use balance with mint to select change outputs and balancing without mint to select inputs
-            var balance = outputs.AggregateAssets(feeBuffer);            
+            var balance = outputs.AggregateAssets(mint, feeBuffer);            
 
             foreach (var asset in balance.Assets)
             {
