@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <PackageId>Orion.CardanoSharp.Wallet</PackageId>
     <LangVersion>9.0</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.0.1</Version>
-    <PackageProjectUrl>https://github.com/CardanoSharp/cardanosharp-wallet</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/CardanoSharp/cardanosharp-wallet</RepositoryUrl>
+    <Version>3.0.7</Version>
+    <PackageProjectUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</RepositoryUrl>
   </PropertyGroup>
   
   <ItemGroup>
