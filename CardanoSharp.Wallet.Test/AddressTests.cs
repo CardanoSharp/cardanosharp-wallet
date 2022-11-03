@@ -13,13 +13,11 @@ namespace CardanoSharp.Wallet.Test
 {
     public class AddressTests
     {
-        private readonly IAddressService _addressService;
         private readonly IMnemonicService _keyService;
         const string __mnemonic = "art forum devote street sure rather head chuckle guard poverty release quote oak craft enemy";
 
         public AddressTests()
         {
-            _addressService = new AddressService();
             _keyService = new MnemonicService();
         }
 
@@ -103,9 +101,9 @@ namespace CardanoSharp.Wallet.Test
             ////get stake keys
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
             
-            var baseAddr1 = _addressService.GetBaseAddress(paymentPub1, stakePub, NetworkType.Testnet);
-            var baseAddr2 = _addressService.GetBaseAddress(paymentPub2, stakePub, NetworkType.Testnet);
-            var baseAddr3 = _addressService.GetBaseAddress(paymentPub3, stakePub, NetworkType.Testnet);
+            var baseAddr1 = AddressUtility.GetBaseAddress(paymentPub1, stakePub, NetworkType.Testnet);
+            var baseAddr2 = AddressUtility.GetBaseAddress(paymentPub2, stakePub, NetworkType.Testnet);
+            var baseAddr3 = AddressUtility.GetBaseAddress(paymentPub3, stakePub, NetworkType.Testnet);
 
             //act
             var hex1 = baseAddr1.ToStringHex(); 
@@ -137,7 +135,7 @@ namespace CardanoSharp.Wallet.Test
         {
             var baseAddress = new Address(baseAddressBech32);
 
-            var rewardAddress = _addressService.ExtractRewardAddress(baseAddress);
+            var rewardAddress = baseAddress.ExtractRewardAddress();
 
             Assert.Equal(expectedRewardAddressBech32, rewardAddress.ToString());
         }
@@ -151,7 +149,7 @@ namespace CardanoSharp.Wallet.Test
         {
             var nonBaseAddress = new Address(invalidAddress);
 
-            Assert.Throws<ArgumentException>("basePaymentAddress", () => _addressService.ExtractRewardAddress(nonBaseAddress));
+            Assert.Throws<ArgumentException>("address", () => nonBaseAddress.ExtractRewardAddress());
         }
 
         /// <summary>
@@ -183,6 +181,30 @@ namespace CardanoSharp.Wallet.Test
         {
             string addr = "addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp";
             Assert.True(new Address(addr).Equals(new Address(addr)));
+        }
+
+        [Theory]
+        [InlineData("addr_test1vzy9d4w4n0k23hgjxctf8v9vjdmwxh5nal4cwudadztdksg3fs5d9",
+            "8856d5d59beca8dd12361693b0ac9376e35e93efeb8771bd6896db41")]
+        [InlineData("addr_test1vqmmd65u4uk6y7k5ukpt9v3ddxxs762s8x9jldvpm7ussgqwnpmq0",
+            "37b6ea9caf2da27ad4e582b2b22d698d0f6950398b2fb581dfb90820")]
+        public void GetPublicKeyHashTest(string addr, string pkh)
+        {
+            var address = addr.ToAddress();
+            var publicKeyHash = address.GetPublicKeyHash();
+            Assert.Equal(pkh.HexToByteArray(), publicKeyHash);
+        }
+
+        [Theory]
+        [InlineData("addr_test1qzy9d4w4n0k23hgjxctf8v9vjdmwxh5nal4cwudadztdksd55anusmk7cxstn59p5zdr76a408z9hgaa4g7lcs20dapqw228xx",
+            "b4a767c86edec1a0b9d0a1a09a3f6bb579c45ba3bdaa3dfc414f6f42")]
+        [InlineData("addr_test1qqmmd65u4uk6y7k5ukpt9v3ddxxs762s8x9jldvpm7ussgynyhy8vnem4jzv76m4fna06yh440y0qz2jz8f7aydwy64sap6v6v",
+            "9325c8764f3bac84cf6b754cfafd12f5abc8f0095211d3ee91ae26ab")]
+        public void GetStakeKeyHashTest(string addr, string skh)
+        {
+            var address = addr.ToAddress();
+            var stakeKeyHash = address.GetStakeKeyHash();
+            Assert.Equal(skh.HexToByteArray(), stakeKeyHash);
         }
     }
 }
