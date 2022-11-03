@@ -20,7 +20,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             coinSelection.ChangeOutputs.Clear();
 
             var inputBalance = coinSelection.SelectedUtxos.AggregateAssets();
-            
+
             //calculate change for token bundle
             foreach (var asset in inputBalance.Assets)
             {
@@ -35,7 +35,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                 coinSelection.ChangeOutputs.First().Value.Coin = minLovelaces;
             }
 
-            //calculate ada utxo accounting for selected, requested, and token bundle min 
+            //calculate ada utxo accounting for selected, requested, and token bundle min
             CalculateAdaUtxo(coinSelection, inputBalance.Lovelaces, minLovelaces, outputBalance, changeAddress, feeBuffer);
         }
 
@@ -46,10 +46,10 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
                 .Where(x => x.Balance.Assets is not null)
                 .SelectMany(x => x.Balance.Assets
                     .Where(al =>
-                        al.PolicyId.SequenceEqual(asset.PolicyId) 
+                        al.PolicyId.SequenceEqual(asset.PolicyId)
                         && al.Name.Equals(asset.Name))
                     .Select(x => (long) x.Quantity))
-                .Sum();       
+                .Sum();
 
             var outputQuantity = outputBalance.Assets
                 .Where(x => x.PolicyId.SequenceEqual(asset.PolicyId)
@@ -61,7 +61,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
             var changeValue = currentQuantity - outputQuantity;
             if (changeValue <= 0)
                 return;
-            
+
             //since this is our token bundle change utxo, it could already exist from previous assets
             var changeUtxo = coinSelection.ChangeOutputs.FirstOrDefault(x => x.Value.MultiAsset is not null);
 
@@ -104,7 +104,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies
         public void CalculateAdaUtxo(CoinSelection coinSelection, ulong ada, ulong tokenBundleMin, Balance outputBalance, string address, ulong feeBuffer = 0)
         {
             // determine change value for current asset based on requested and how much is selected
-            var changeValue = Math.Abs((long)(ada - tokenBundleMin - outputBalance.Lovelaces) + (long)feeBuffer);
+            var changeValue = Math.Abs((long)(ada - tokenBundleMin - outputBalance.Lovelaces)) + (long)feeBuffer;
             if (changeValue <= 0)
                 return;
 

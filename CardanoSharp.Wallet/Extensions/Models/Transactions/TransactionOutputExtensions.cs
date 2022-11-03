@@ -108,17 +108,38 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 			if (output.Value.MultiAsset == null || output.Value.MultiAsset.Count <= 0)
 				return adaOnlyMinUTxO;
 
+			// Set a dummy coin value if coin is 0
+			bool setDummyCoin = false;
+			if (output.Value.Coin == 0)
+			{
+				setDummyCoin = true;
+				output.Value.Coin = adaOnlyMinUTxO;
+			}
+
 			// Set a dummy address if this function is called with Address == null
 			if (output.Address == null)
 				output.Address = new Address(dummyAddress).GetBytes();
 
 			byte[] serializedOutput = output.Serialize();
 			ulong outputLength = (ulong)serializedOutput.Length;
-			ulong minUTxO = coinsPerUtxOByte * (160 + outputLength + 4); // Adding 4 as the transaction output for babbage has a datum_option and ref_script parameter that are 2+2 = 4 extra bytes that we have not added yet
+			ulong minUTxO = coinsPerUtxOByte * (160 + outputLength);
 			if (minUTxO < adaOnlyMinUTxO)
 				minUTxO = adaOnlyMinUTxO;
 
+			if (setDummyCoin) {
+				output.Value.Coin = 0;
+			}
+
 			return minUTxO;
+		}
+
+		//maxOutputBytesSize is a Protocol Parameter and may change in the future
+		public static bool IsValid(this TransactionOutput output, ulong maxOutputBytesSize = 5000) {
+			byte[] serializedOutput = output.Serialize();
+			ulong outputLength = (ulong)serializedOutput.Length;
+			if (outputLength > maxOutputBytesSize)
+				return false;
+			return true;
 		}
 	}
 }

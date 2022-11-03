@@ -139,10 +139,10 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_Simple_Test()
+    public void RandomImprove_BasicChange_Simple_Test()
     {
         //arrange
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_100_ada_no_assets };
         var utxos = new List<Utxo>()
         {
@@ -164,10 +164,10 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_SingleUtxo_Test()
+    public void RandomImprove_BasicChange_SingleUtxo_Test()
     {
         //arrange
-        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_no_assets };
         var utxos = new List<Utxo>()
         {
@@ -184,10 +184,10 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_WithTokens_Test()
+    public void RandomImprove_BasicChange_WithTokens_Test()
     {
         //arrange 
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_50_tokens };
         var utxos = new List<Utxo>();
         for (var x = 0; x < 10; x++)
@@ -225,10 +225,10 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_WithTokensAndAda_Test()
+    public void RandomImprove_BasicChange_WithTokensAndAda_Test()
     {
         //arrange 
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_50_tokens, output_100_ada_no_assets };
         var utxos = new List<Utxo>();
         for (var x = 0; x < 20; x++)

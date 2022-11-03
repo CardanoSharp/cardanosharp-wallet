@@ -24,7 +24,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
 
                 //aggregate native assets
                 if(o.Value.MultiAsset is null) continue;
-                
+
                 foreach (var ma in o.Value.MultiAsset)
                 {
                     foreach (var na in ma.Value.Token)
@@ -42,18 +42,18 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
                             balance.Assets.Add(nativeAsset);
                         }
 
-                        nativeAsset.Quantity = nativeAsset.Quantity + na.Value;                       
+                        nativeAsset.Quantity = nativeAsset.Quantity + na.Value;
                     }
                 }
             }
 
-             // remove / add assets from balance based on mint / burn token bundle
+            // remove / add assets from balance based on mint / burn token bundle
             if (mint is not null) {
                 var mintAssets = mint.Build();
                 foreach (var ma  in mintAssets) {
                     foreach (var na in ma.Value.Token) {
                         var nativeAsset = balance.Assets.FirstOrDefault(x =>
-                            x.PolicyId.SequenceEqual(ma.Key.ToStringHex()) && 
+                            x.PolicyId.SequenceEqual(ma.Key.ToStringHex()) &&
                             x.Name.Equals(na.Key.ToStringHex()));
                         if (nativeAsset is not null)
                         {
@@ -76,10 +76,10 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
                                 balance.Assets.Add(nativeAsset);
                             }
                         }
-                    }                
+                    }
                 }
-            }   
-            
+            }
+
             return balance;
         }
     }
