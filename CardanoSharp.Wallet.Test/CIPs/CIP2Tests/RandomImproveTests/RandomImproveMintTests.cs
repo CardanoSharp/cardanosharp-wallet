@@ -826,9 +826,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_SingleUTXO_SingleOutput_Mint_Test()
+    public void RandomImprove_BasicChange_SingleUTXO_SingleOutput_Mint_Test()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_1_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -864,9 +864,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_SingleUTXO_MultiOutput_Mint_Test()
+    public void RandomImprove_BasicChange_SingleUTXO_MultiOutput_Mint_Test()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_no_assets, output_10_ada_1_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -902,9 +902,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_MultiUTXO_MultiOutput_Mint_Test()
+    public void RandomImprove_BasicChange_MultiUTXO_MultiOutput_Mint_Test()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_100_ada_no_assets, output_10_ada_1_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -944,9 +944,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_WithTokens_Mint_Test()
+    public void RandomImprove_BasicChange_WithTokens_Mint_Test()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_50_tokens, output_10_ada_1_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -998,9 +998,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_SingleUTXO_SingleOutput_MultiMint_Test()
+    public void RandomImprove_BasicChange_SingleUTXO_SingleOutput_MultiMint_Test()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -1050,9 +1050,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_MultiUTXO_SingleOutput_MultiMint_Test()
+    public void RandomImprove_BasicChange_MultiUTXO_SingleOutput_MultiMint_Test()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -1103,9 +1103,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_SingleUTXO_MultiOutput_MultiMint_Test()
+    public void RandomImprove_BasicChange_SingleUTXO_MultiOutput_MultiMint_Test()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -1155,9 +1155,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_MultiUTXO_MultiOutput_MultiMint_Test()
+    public void RandomImprove_BasicChange_MultiUTXO_MultiOutput_MultiMint_Test()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_100_ada_no_assets, output_10_ada_50_tokens, output_10_ada_2_minted_assets, output_10_ada_1_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -1227,9 +1227,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_MintAndOwned_Test()
+    public void RandomImprove_BasicChange_MintAndOwned_Test()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_1_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_already_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -1270,9 +1270,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_MintAndOwned_Test_2()
+    public void RandomImprove_BasicChange_MintAndOwned_Test_2()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -1325,7 +1325,7 @@ public partial class CIP2Tests
     [Fact]
     public void RandomImprove_MulitChange_MintAndOwned_Test_3()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_already_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -1377,9 +1377,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_MintAndOwned_Test_4()
+    public void RandomImprove_BasicChange_MintAndOwned_Test_4()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_2_already_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -1432,9 +1432,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_MintAndOwned_Test_Fail()
+    public void RandomImprove_BasicChange_MintAndOwned_Test_Fail()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_already_minted_assets, output_10_ada_1_already_minted_assets };
         var utxos = new List<Utxo>()
         {
@@ -1455,9 +1455,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_MultiOption_Test()
+    public void RandomImprove_BasicChange_MultiOption_Test()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_100_ada_no_assets, output_10_ada_50_tokens };
         var utxos = new List<Utxo>()
         {
@@ -1526,9 +1526,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void RandomImprove_MultiChange_MultiOption_Test_2()
+    public void RandomImprove_BasicChange_MultiOption_Test_2()
     {
-        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new RandomImproveStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_2_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_already_minted_assets, output_100_ada_no_assets, output_10_ada_50_tokens };
         var utxos = new List<Utxo>()
         {

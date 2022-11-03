@@ -191,10 +191,10 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void LargestFirst_MultiChange_Simple_Test()
+    public void LargestFirst_BasicChange_Simple_Test()
     {
         //arrange
-        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_100_ada_no_assets };
         var utxos = new List<Utxo>()
         {
@@ -218,10 +218,10 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void LargestFirst_MultiChange_SingleUtxo_Test()
+    public void LargestFirst_BasicChange_SingleUtxo_Test()
     {
         //arrange
-        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_no_assets };
         var utxos = new List<Utxo>()
         {
@@ -238,10 +238,10 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void LargestFirst_MultiChange_WithTokens_Test()
+    public void LargestFirst_BasicChange_WithTokens_Test()
     {
         //arrange 
-        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_50_tokens };
         var utxos = new List<Utxo>()
         {
@@ -257,7 +257,7 @@ public partial class CIP2Tests
         //assert
         //assert that selected utxo ada value is greater than the requested outputs' ada value
         Assert.True(response.SelectedUtxos.Sum(x => (long)x.Balance.Lovelaces) > outputs.Sum(x => (long)x.Value.Coin));
-        Assert.Equal(response.ChangeOutputs.Count, 2);
+        Assert.Equal(response.ChangeOutputs.Count, 1);
 
         //assert that selected utxo assets equal output + change asset values
         Assert.Equal(
@@ -282,10 +282,10 @@ public partial class CIP2Tests
     }
     
     [Fact]
-    public void LargestFirst_MultiChange_WithTokensAndAda_Test()
+    public void LargestFirst_BasicChange_WithTokensAndAda_Test()
     {
         //arrange 
-        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_50_tokens, output_100_ada_no_assets };
         var utxos = new List<Utxo>();
         for (var x = 0; x < 20; x++)
@@ -299,7 +299,7 @@ public partial class CIP2Tests
         //assert
         //assert that selected utxo ada value is greater than the requested outputs' ada value
         Assert.True(response.SelectedUtxos.Sum(x => (long)x.Balance.Lovelaces) > outputs.Sum(x => (long)x.Value.Coin));
-        Assert.Equal(response.ChangeOutputs.Count, 2);
+        Assert.Equal(response.ChangeOutputs.Count, 1);
 
         //assert that selected utxo assets equal output + change asset values
         Assert.Equal(

@@ -390,9 +390,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void LargestFirst_MultiChange_SingleOutput_Burn_Test()
+    public void LargestFirst_BasicChange_SingleOutput_Burn_Test()
     {
-        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_no_assets };
         var utxos = new List<Utxo>()
         {
@@ -428,9 +428,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void LargestFirst_MultiChange_MultiOutput_Burn_Test()
+    public void LargestFirst_BasicChange_MultiOutput_Burn_Test()
     {
-        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_1_ada_no_assets, output_10_ada_no_assets, output_1_ada_no_assets, output_1_ada_no_assets };
         var utxos = new List<Utxo>()
         {
@@ -467,9 +467,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void LargestFirst_MultiChange_SingleOutput_MultiBurn_Test()
+    public void LargestFirst_BasicChange_SingleOutput_MultiBurn_Test()
     {
-        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_no_assets };
         var utxos = new List<Utxo>()
         {
@@ -519,9 +519,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void LargestFirst_MultiChange_MultiOutput_MultiBurn_Test()
+    public void LargestFirst_BasicChange_MultiOutput_MultiBurn_Test()
     {
-        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_10_ada_no_assets, output_10_ada_no_assets, output_10_ada_no_assets };
         var utxos = new List<Utxo>()
         {
@@ -580,9 +580,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void LargestFirst_MultiChange_MultiUtxo_MultiOutput_MultiBurn_Test()
+    public void LargestFirst_BasicChange_MultiUtxo_MultiOutput_MultiBurn_Test()
     {
-        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_100_ada_no_assets, output_10_ada_50_tokens, output_10_ada_no_assets, output_10_ada_1_already_minted_assets, output_10_ada_no_assets, output_10_ada_no_assets };
         var utxos = new List<Utxo>()
         {
@@ -629,7 +629,7 @@ public partial class CIP2Tests
         Assert.Equal(response.SelectedUtxos[9].TxHash, utxo_60_ada_no_assets.TxHash);
         Assert.Equal(response.Inputs[9].TransactionId, utxo_60_ada_no_assets.TxHash.HexToByteArray());
         Assert.Equal(response.SelectedUtxos.Count, 10);
-        Assert.Equal(response.ChangeOutputs.Count, 2);
+        Assert.Equal(response.ChangeOutputs.Count, 1);
 
         var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
             x.Balance.Assets.Where(y => 
@@ -658,9 +658,9 @@ public partial class CIP2Tests
     }
 
     [Fact]
-    public void LargestFirst_MultiChange_MultiUtxo_MultiOutput_MultiMint_MultiBurn_Test()
+    public void LargestFirst_BasicChange_MultiUtxo_MultiOutput_MultiMint_MultiBurn_Test()
     {
-        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new MultiTokenBundleStrategy());
+        var coinSelection = new CoinSelectionService(new LargestFirstStrategy(), new BasicChangeSelectionStrategy());
         var outputs = new List<TransactionOutput>() { output_100_ada_no_assets, output_10_ada_50_tokens, output_10_ada_no_assets, output_10_ada_1_already_minted_assets, output_10_ada_100_minted_assets, output_10_ada_1_minted_assets, output_10_ada_1_minted_assets, output_10_ada_no_assets, output_10_ada_no_assets };
         var utxos = new List<Utxo>()
         {
@@ -711,7 +711,7 @@ public partial class CIP2Tests
         Assert.Equal(response.SelectedUtxos[9].TxHash, utxo_70_ada_no_assets.TxHash);
         Assert.Equal(response.Inputs[9].TransactionId, utxo_70_ada_no_assets.TxHash.HexToByteArray());
         Assert.Equal(response.SelectedUtxos.Count, 10);
-        Assert.Equal(response.ChangeOutputs.Count, 2);
+        Assert.Equal(response.ChangeOutputs.Count, 1);
 
         var selectedUTXOsSumAsset1 = response.SelectedUtxos.Where(x => x.Balance.Assets is not null).Sum(x => 
             x.Balance.Assets.Where(y => 
