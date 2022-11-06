@@ -5,9 +5,9 @@ using CardanoSharp.Wallet.CIPs.CIP2.ChangeCreationStrategies;
 using CardanoSharp.Wallet.CIPs.CIP2.Extensions;
 using CardanoSharp.Wallet.CIPs.CIP2.Models;
 using CardanoSharp.Wallet.Extensions;
-using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models;
 using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.TransactionBuilding;
 
 namespace CardanoSharp.Wallet.CIPs.CIP2
 {
@@ -32,8 +32,9 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             var coinSelection = new CoinSelection();
             var availableUTxOs = new List<Utxo>(utxos);
 
-            var balance = outputs.AggregateAssets();
-            
+            //use balance with mint to select change outputs and balancing without mint to select inputs
+            var balance = outputs.AggregateAssets();            
+
             foreach (var asset in balance.Assets)
             {
                 _coinSelection.SelectInputs(coinSelection, availableUTxOs, asset.Quantity, asset, limit);
@@ -69,11 +70,11 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 }
                 else
                 {
-                    quantity = su.Balance.Assets
-                        .First(ma =>
+                    quantity = (long)(su.Balance.Assets
+                        .FirstOrDefault(ma =>
                             ma.PolicyId.SequenceEqual(asset.PolicyId)
-                            && ma.Name.Equals(asset.Name))
-                        .Quantity;
+                            && ma.Name.Equals(asset.Name))?
+                        .Quantity ?? 0);
                 }
 
                 totalInput = totalInput + quantity;

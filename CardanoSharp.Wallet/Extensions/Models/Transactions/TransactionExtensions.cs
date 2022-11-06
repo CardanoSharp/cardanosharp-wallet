@@ -3,6 +3,8 @@ using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
 using CardanoSharp.Wallet.Models.Transactions;
 using PeterO.Cbor2;
 using System;
+using System.Linq;
+using CardanoSharp.Wallet.Enums;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {

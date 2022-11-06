@@ -34,7 +34,7 @@ namespace CardanoSharp.Wallet.Test
                 .AddToken(getGenesisPolicyId(), "00010203".HexToByteArray(), 60)
                 .AddToken(getGenesisPolicyId(), "00010204".HexToByteArray(), 240);
 
-            Assert.Equal((ulong)1413762, tokenBundle1.Build().CalculateMinUtxoLovelace());
+            Assert.Equal((ulong)1374890, tokenBundle1.Build().CalculateMinUtxoLovelace());
 
             var tokenBundle2 = TokenBundleBuilder.Create
                 .AddToken(getGenesisPolicyId(), "00010205".HexToByteArray(), 60)
@@ -42,7 +42,7 @@ namespace CardanoSharp.Wallet.Test
                 .AddToken(getGenesisPolicyId(), "00010207".HexToByteArray(), 180)
                 .AddToken(getGenesisPolicyId(), "00010208".HexToByteArray(), 240);
 
-            Assert.Equal((ulong)1551690, tokenBundle2.Build().CalculateMinUtxoLovelace());
+            Assert.Equal((ulong)1435230, tokenBundle2.Build().CalculateMinUtxoLovelace());
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace CardanoSharp.Wallet.Test
             var txOut = new TransactionOutput() { Value = txOutValue };
 
             var minValue = txOut.CalculateMinUtxoLovelace();
-            Assert.Equal((ulong)999978, minValue);
+            Assert.Equal((ulong)1000000, minValue);
         }
     }
 }

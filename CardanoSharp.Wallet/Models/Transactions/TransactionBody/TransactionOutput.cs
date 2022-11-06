@@ -1,5 +1,7 @@
-﻿using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+using CardanoSharp.Wallet.Enums;
+
 
 namespace CardanoSharp.Wallet.Models.Transactions
 {
@@ -25,6 +27,7 @@ namespace CardanoSharp.Wallet.Models.Transactions
         public byte[]? DatumHash { get; set; }
         public DatumOption? DatumOption { get; set; }
         public ScriptReference? ScriptReference { get; set; }
+        public OutputPurpose OutputPurpose { get; set; }
     }
 
     
