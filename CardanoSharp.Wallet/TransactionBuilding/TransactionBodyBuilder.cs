@@ -135,9 +135,11 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             if (datumHash is not null)
             {
                 output.DatumHash = datumHash;
-            }else if (datumOption is not null)
-            {
-                output.DatumOption = datumOption;
+            }
+            else {
+                if (datumOption is not null)
+                    output.DatumOption = datumOption;
+            
                 if (scriptReference is not null)
                     output.ScriptReference = scriptReference;
             }

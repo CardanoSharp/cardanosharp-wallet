@@ -16,16 +16,13 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 		{
 			CBORObject cborTransactionOutput;
 
-			if (transactionOutput.DatumOption is null
-			    && transactionOutput.ScriptReference is null)
+			if (transactionOutput.DatumHash is not null)
 			{
 				//start the cbor transaction output object with the address we are sending
 				cborTransactionOutput = CBORObject.NewArray()
 					.Add(transactionOutput.Address)
-					.Add(transactionOutput.Value.GetCBOR());
-
-				if (transactionOutput.DatumHash is not null)
-					cborTransactionOutput.Add(transactionOutput.DatumHash);
+					.Add(transactionOutput.Value.GetCBOR())
+					.Add(transactionOutput.DatumHash);
 			}
 			else
 			{
