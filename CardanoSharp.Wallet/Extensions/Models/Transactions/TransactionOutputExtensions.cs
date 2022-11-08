@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.Models.Addresses;
 using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
@@ -107,9 +108,17 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 			if (output.Value.MultiAsset == null || output.Value.MultiAsset.Count <= 0)
 				return adaOnlyMinUTxO;
 
+			// Set a dummy coin value if coin is 0
+			bool setDummyCoin = false;
+			if (output.Value.Coin == 0)
+			{
+				setDummyCoin = true;
+				output.Value.Coin = adaOnlyMinUTxO;
+			}
+
 			// Set a dummy address if this function is called with Address == null
 			if (output.Address == null)
-				output.Address = dummyAddress.ToBytes();
+				output.Address = new Address(dummyAddress).GetBytes();
 
 			byte[] serializedOutput = output.Serialize();
 			ulong outputLength = (ulong)serializedOutput.Length;
@@ -117,7 +126,20 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 			if (minUTxO < adaOnlyMinUTxO)
 				minUTxO = adaOnlyMinUTxO;
 
+			if (setDummyCoin) {
+				output.Value.Coin = 0;
+			}
+
 			return minUTxO;
+		}
+
+		//maxOutputBytesSize is a Protocol Parameter and may change in the future
+		public static bool IsValid(this TransactionOutput output, ulong maxOutputBytesSize = 5000) {
+			byte[] serializedOutput = output.Serialize();
+			ulong outputLength = (ulong)serializedOutput.Length;
+			if (outputLength > maxOutputBytesSize)
+				return false;
+			return true;
 		}
 	}
 }
