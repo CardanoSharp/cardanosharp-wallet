@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.Utilities;
 using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts
@@ -22,10 +25,13 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     // int
     public class PlutusDataInt : IPlutusData
     {
-        public int Value { get; set; }
+        public uint Value { get; set; }
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromSimpleValue(Value);
+            return CBORObject.FromObject(
+                CBORObject.FromObject(Value)
+                    .EncodeToBytes()
+                ).WithTag(24);
         }
     }
     
@@ -35,7 +41,10 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         public byte[] Value { get; set; }
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromJSONBytes(Value).WithTag(2);
+            return CBORObject.FromObject(
+                CBORObject.FromObject(Value)
+                    .EncodeToBytes()
+            ).WithTag(24);
         }
     }
     
@@ -45,7 +54,10 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         public byte[] Value { get; set; }
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromJSONBytes(Value).WithTag(3);
+            return CBORObject.FromObject(
+                CBORObject.FromObject(Value)
+                    .EncodeToBytes()
+            ).WithTag(24);
         }
     }
     
@@ -55,7 +67,10 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         public byte[] Value { get; set; }
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromJSONBytes(Value);
+            return CBORObject.FromObject(
+                CBORObject.FromObject(Value)
+                    .EncodeToBytes()
+            ).WithTag(24);
         }
     }
     
@@ -65,7 +80,10 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         public Dictionary<IPlutusData, IPlutusData> Value { get; set; }
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromObject(Value);
+            return CBORObject.FromObject(
+                CBORObject.FromObject(Value)
+                    .EncodeToBytes()
+            ).WithTag(24);
         }
     }
     
@@ -75,7 +93,10 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         public IPlutusData[] Value { get; set; }
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromObject(Value);
+            return CBORObject.FromObject(
+                CBORObject.FromObject(Value)
+                    .EncodeToBytes()
+            ).WithTag(24);
         }
     }
 }

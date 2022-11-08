@@ -1,9 +1,12 @@
-﻿using CardanoSharp.Wallet.Extensions;
+﻿using System;
+using System.Linq;
+using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using CardanoSharp.Wallet.TransactionBuilding;
+using CardanoSharp.Wallet.Utilities;
 using PeterO.Cbor2;
 using Xunit;
 
@@ -31,8 +34,8 @@ public class PlutusScriptTests
     private readonly long lovelace1 = 10000000;
     private readonly long lovelace2 = 10835340;
     private readonly string datum = "{\"int\":42}";
-    
-    
+
+
     [Fact]
     public void CreateReferenceScriptTest1()
     {
@@ -41,15 +44,18 @@ public class PlutusScriptTests
 
         var transactionBody = TransactionBodyBuilder.Create
             .AddInput(createTxHash.HexToByteArray(), createTxIndex)
-            .AddOutput(readonlyAddress.ToAddress().GetBytes(),10000000,
+            .AddOutput(readonlyAddress.ToAddress().GetBytes(), 10000000,
                 datumOption: new DatumOption()
-                {   
-                    Data = new PlutusDataInt(){ Value = 42 }
+                {
+                    Data = new PlutusDataInt() { Value = 42 }
                 },
                 scriptReference: new ScriptReference()
                 {
-                     PlutusV2Script = ((string)CBORObject.DecodeFromBytes(stakeScriptCbor.HexToByteArray())[1].DecodeValueByCborType()).HexToByteArray()
+                    PlutusV2Script =
+                        ((string)CBORObject.DecodeFromBytes(stakeScriptCbor.HexToByteArray())[1]
+                            .DecodeValueByCborType()).HexToByteArray()
                 });
+            //.AddOutput(utxoAddress);
         var cborTransactionBody = transactionBody.Build().Serialize(null).ToStringHex();
     }
 
