@@ -146,11 +146,46 @@ public class PlutusScriptTests
     private readonly int mintQuantity = 5;
     private readonly string dummyAddress2 = "addr_test1vqmmd65u4uk6y7k5ukpt9v3ddxxs762s8x9jldvpm7ussgqwnpmq0";
     
+    // cardano-cli transaction build \
+    // --babbage-era \
+    // --cardano-mode \
+    // --testnet-magic 1 \
+    // --change-address "addr_test1vp7yptd2khhc0jf2vspj40ul6kgkff3wx7hdrhuqejjlfzquzf422" \
+    // --read-only-tx-in-reference "eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f63#1" \
+    // --tx-in "eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f63#0" \
+    // --tx-in-collateral "c0a9b46de581b8d8bafea22b171500c6d82a157b4ab6f7b2be6d20395e4ecd4d#0" \
+    // --tx-total-collateral 527973 \
+    // --tx-out-return-collateral "addr_test1vp7yptd2khhc0jf2vspj40ul6kgkff3wx7hdrhuqejjlfzquzf422+4472027" \
+    // --out-file "test-alonzo-ref-script.body" \
+    // --tx-in "eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f63#3" \
+    // --spending-tx-in-reference "eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f63#4" \
+    // --spending-plutus-script-v2 \
+    // --spending-reference-tx-in-inline-datum-present \
+    // --spending-reference-tx-in-redeemer-file "42.redeemer" \
+    // --mint "5 9c8e9da7f81e3ca90485f32ebefc98137c8ac260a072a00c4aaf142d.4D696C6C6172436F696E" \
+    // --mint-tx-in-reference "eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f63#5" \
+    // --mint-plutus-script-v2 \
+    // --mint-reference-tx-in-redeemer-file "42.redeemer" \
+    // --policy-id "9c8e9da7f81e3ca90485f32ebefc98137c8ac260a072a00c4aaf142d" \
+    // --tx-out "addr_test1vqmmd65u4uk6y7k5ukpt9v3ddxxs762s8x9jldvpm7ussgqwnpmq0+10000000 + 5 9c8e9da7f81e3ca90485f32ebefc98137c8ac260a072a00c4aaf142d.4D696C6C6172436F696E" \
+    // --protocol-params-file "pparams.json"
+    //
+    // cardano-cli transaction sign \
+    // --tx-body-file test-alonzo-ref-script.body \
+    // --testnet-magic 1 \
+    // --signing-key-file sKey.prv \
+    // --out-file alonzo-ref-script.tx
     [Fact]
     public void CallReferenceScriptTest1()
     {
         var expectedSignedTxCbor =
             "84a90082825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f6300825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f63030d81825820c0a9b46de581b8d8bafea22b171500c6d82a157b4ab6f7b2be6d20395e4ecd4d001283825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f6301825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f6304825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f63050182a200581d607c40adaab5ef87c92a64032abf9fd59164a62e37aed1df80cca5f488011a367b39b0a200581d6037b6ea9caf2da27ad4e582b2b22d698d0f6950398b2fb581dfb9082001821a00989680a1581c9c8e9da7f81e3ca90485f32ebefc98137c8ac260a072a00c4aaf142da14a4d696c6c6172436f696e0510a200581d607c40adaab5ef87c92a64032abf9fd59164a62e37aed1df80cca5f488011a00443cdb111a00080e65021a00055eee09a1581c9c8e9da7f81e3ca90485f32ebefc98137c8ac260a072a00c4aaf142da14a4d696c6c6172436f696e050b5820ad5bced580b5a94bc1241213a906e57a923e4826f428c2bb83ae29af8fc93a14a200818258200f34e81e6ffcf01b14358dad56866cd62e925135d16f915b40a93369202c1f8a58406cce1b657581f58b676e101c92819318828d1ef91c69df827559a8fb886daa06f17cfeb2760c67d0dd25e6d76cff43d331f730e6d42d5da6fa0db12d2927ff080582840001182a821a0011217e1a1491ded6840100182a821a000e3e721a1181c132f5f6";
+
+        var cbor = CBORObject.FromObject(
+            CBORObject.FromObject(42)
+                .EncodeToBytes()
+        ).WithTag(24);
         
+        var hash2 = (HashUtility.Blake2b256(cbor.EncodeToBytes())).ToStringHex();
     }
 }
