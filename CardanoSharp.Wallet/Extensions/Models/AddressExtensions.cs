@@ -35,7 +35,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             return pkh;
         }
         
-        public static Address ExtractRewardAddress(this Address address)
+        public static Address GetStakeAddress(this Address address)
         {
             if (address.AddressType != AddressType.Base)
                 throw new ArgumentException($"{nameof(address)}:{address} is not a base address", nameof(address));

@@ -135,7 +135,7 @@ namespace CardanoSharp.Wallet.Test
         {
             var baseAddress = new Address(baseAddressBech32);
 
-            var rewardAddress = baseAddress.ExtractRewardAddress();
+            var rewardAddress = baseAddress.GetStakeAddress();
 
             Assert.Equal(expectedRewardAddressBech32, rewardAddress.ToString());
         }
@@ -149,7 +149,7 @@ namespace CardanoSharp.Wallet.Test
         {
             var nonBaseAddress = new Address(invalidAddress);
 
-            Assert.Throws<ArgumentException>("address", () => nonBaseAddress.ExtractRewardAddress());
+            Assert.Throws<ArgumentException>("address", () => nonBaseAddress.GetStakeAddress());
         }
 
         /// <summary>
