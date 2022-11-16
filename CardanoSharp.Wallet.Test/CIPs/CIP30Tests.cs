@@ -3,7 +3,9 @@ using CardanoSharp.Wallet.CIPs.CIP30.Models;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models;
+using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Models.Transactions;
+using PeterO.Cbor2;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -126,5 +128,26 @@ public class CIP30Tests
 		Assert.Equal("635da8872ab583e67993c69e67f50f12cc34ef8e1e1d93da9a9fe0cd", utxo.Balance.Assets.First().PolicyId);
 		Assert.Equal("TMON", utxo.Balance.Assets.First().Name);
 		Assert.Equal((long)6000, utxo.Balance.Assets.First().Quantity);
+	}
+
+	[Fact]
+	public void DataSignature_Verification_Test()
+	{
+		var dataSig = new DataSignature()
+		{
+			Key = "a4010103272006215820069459f11edf67ae33bb6c3642bd0e69b405c50dbea5c7bf4cfbdf60059e5fce",
+			Signature = "844ca20127676164647265737340a166686173686564f4588250726f6f66206f66206f776e657273686970207374616b655f746573743175716874643566636c6b336c6a7061366866786e757978616372383333657067306a7a67776b76797279797537716730767878686320666f7220636c61696d2030373237393131642d623862632d343233382d383739302d653761316535333735643966584062896789c02aba913dbdb0fb9a16c4ecf35e32a06659c57def12a1d226c905dceef48fa0d6513e01a0cafc1b54108bd02d036af409fedbe82f1201b709232c02"
+		};
+
+		var coseKeyCbor = CBORObject.DecodeFromBytes(dataSig.Key.HexToByteArray());
+		var coseSign1Cbor = CBORObject.DecodeFromBytes(dataSig.Signature.HexToByteArray());
+
+		var coseKey = coseKeyCbor.GetCOSEKey();
+		var coseSign1 = coseSign1Cbor.GetCOSESign1();
+
+		var pubKey = new PublicKey(coseKey.Key, null);
+
+		var verified = pubKey.Verify(coseSign1.GetSigStructure(), coseSign1.Signature);
+		Assert.True(verified);
 	}
 }
