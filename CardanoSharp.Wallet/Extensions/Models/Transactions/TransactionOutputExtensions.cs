@@ -1,12 +1,17 @@
-﻿using CardanoSharp.Wallet.Models.Transactions;
-using PeterO.Cbor2;
+﻿
 using System;
 using System.Collections.Generic;
+using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.Models.Addresses;
+using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {
 	public static partial class TransactionOutputExtensions
 	{
+		private static ulong adaOnlyMinUTxO = 1000000;
+		private static string dummyAddress = "addr_test1qpu5vlrf4xkxv2qpwngf6cjhtw542ayty80v8dyr49rf5ewvxwdrt70qlcpeeagscasafhffqsxy36t90ldv06wqrk2qum8x5w";
+
 		public static CBORObject GetCBOR(this TransactionOutput transactionOutput)
 		{
 			//start the cbor transaction output object with the address we are sending
@@ -97,20 +102,44 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
 		public static ulong CalculateMinUtxoLovelace(
 			this TransactionOutput output,
-			int lovelacePerUtxoWord = 34482, // utxoCostPerWord in protocol params (could change in the future)
-			int policyIdSizeBytes = 28, // 224 bit policyID (won't change in forseeable future)
-			bool hasDataHash = false) // for UTxOs with a smart contract datum
+			ulong coinsPerUtxOByte = 4310 // coinsPerUtxoByte in protocol params
+			)
 		{
-			const int fixedUtxoEntryWithoutValueSizeWords = 27; // The static parts of a UTxO: 6 + 7 + 14 words
-			const int coinSizeWords = 2; // since updated from 0 in docs.cardano.org/native-tokens/minimum-ada-value-requirement
-			const int adaOnlyUtxoSizeWords = fixedUtxoEntryWithoutValueSizeWords + coinSizeWords;
+			if (output.Value.MultiAsset == null || output.Value.MultiAsset.Count <= 0)
+				return adaOnlyMinUTxO;
 
-			var nativeAssets = (output.Value.MultiAsset != null && output.Value.MultiAsset.Count > 0);
+			// Set a dummy coin value if coin is 0
+			bool setDummyCoin = false;
+			if (output.Value.Coin == 0)
+			{
+				setDummyCoin = true;
+				output.Value.Coin = adaOnlyMinUTxO;
+			}
 
-			if (!nativeAssets)
-				return (ulong)lovelacePerUtxoWord * adaOnlyUtxoSizeWords; // 999978 lovelaces or 0.999978 ADA
+			// Set a dummy address if this function is called with Address == null
+			if (output.Address == null)
+				output.Address = new Address(dummyAddress).GetBytes();
 
-			return output.Value.MultiAsset.CalculateMinUtxoLovelace(lovelacePerUtxoWord, policyIdSizeBytes, hasDataHash);
+			byte[] serializedOutput = output.Serialize();
+			ulong outputLength = (ulong)serializedOutput.Length;
+			ulong minUTxO = coinsPerUtxOByte * (160 + outputLength);
+			if (minUTxO < adaOnlyMinUTxO)
+				minUTxO = adaOnlyMinUTxO;
+
+			if (setDummyCoin) {
+				output.Value.Coin = 0;
+			}
+
+			return minUTxO;
+		}
+
+		//maxOutputBytesSize is a Protocol Parameter and may change in the future
+		public static bool IsValid(this TransactionOutput output, ulong maxOutputBytesSize = 5000) {
+			byte[] serializedOutput = output.Serialize();
+			ulong outputLength = (ulong)serializedOutput.Length;
+			if (outputLength > maxOutputBytesSize)
+				return false;
+			return true;
 		}
 	}
 }

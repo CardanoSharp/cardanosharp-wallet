@@ -21,7 +21,6 @@ namespace CardanoSharp.Wallet.Test
     {
         private readonly TransactionSerializer _transactionSerializer;
         private readonly IMnemonicService _keyService;
-        private readonly IAddressService _addressService;
         private static string __projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
         private static DirectoryInfo __dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
         private static JsonSerializerOptions __jsonSerializerOptions = new JsonSerializerOptions() { WriteIndented = true };
@@ -29,7 +28,6 @@ namespace CardanoSharp.Wallet.Test
         public TransactionTests()
         {
             _keyService = new MnemonicService();
-            _addressService = new AddressService();
             _transactionSerializer = new TransactionSerializer();
             DirectoryInfo dat = new DirectoryInfo(__projectDirectory).CreateSubdirectory("dat");
         }
@@ -303,7 +301,7 @@ namespace CardanoSharp.Wallet.Test
             var expectedTrans = TransactionBuilder.Create
                 .SetBody(TransactionBodyBuilder.Create
                     .AddInput(input1TxHash, 1)
-                    .AddOutput(payment1Addr, 1, tokenBundle1)
+                    .AddOutput(payment1Addr, 1, tokenBundle1, OutputPurpose.Spend)
                     .SetFee(171397)
                     .SetTtl(57910820)
                     .SetCertificate(CertificateBuilder.Create
@@ -355,7 +353,7 @@ namespace CardanoSharp.Wallet.Test
             var expected = TransactionBuilder.Create
                 .SetBody(TransactionBodyBuilder.Create
                     .AddInput(input1TxHash, 1)
-                    .AddOutput(payment1Addr, 1, tokenBundle1)
+                    .AddOutput(payment1Addr, 1, tokenBundle1, OutputPurpose.Spend)
                     .SetFee(171397)
                     .SetTtl(57910820)
                     .SetCertificate(CertificateBuilder.Create
@@ -562,8 +560,8 @@ namespace CardanoSharp.Wallet.Test
             //get stake keys
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
-            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = AddressUtility.GetBaseAddress(paymentPub, stakePub, NetworkType.Testnet);
+            var changeAddr = AddressUtility.GetBaseAddress(changePub, stakePub, NetworkType.Testnet);
 
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(new byte[32], 0)
@@ -597,8 +595,8 @@ namespace CardanoSharp.Wallet.Test
             //get stake keys
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
-            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = AddressUtility.GetBaseAddress(paymentPub, stakePub, NetworkType.Testnet);
+            var changeAddr = AddressUtility.GetBaseAddress(changePub, stakePub, NetworkType.Testnet);
 
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(new byte[32], 0)
@@ -632,7 +630,7 @@ namespace CardanoSharp.Wallet.Test
             //get stake keys
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = AddressUtility.GetBaseAddress(paymentPub, stakePub, NetworkType.Testnet);
 
             var bodyBuilder = TransactionBodyBuilder.Create
                 .AddInput("3b40265111d8bb3c3c608d95b3a0bf83461ace32d79336579a1939b3aad1c0b7", 0)
@@ -670,7 +668,7 @@ namespace CardanoSharp.Wallet.Test
             //get stake keys
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
-            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var changeAddr = AddressUtility.GetBaseAddress(changePub, stakePub, NetworkType.Testnet);
             var stakeHash = HashUtility.Blake2b224(stakePub.Key);
 
             var transactionBody = TransactionBodyBuilder.Create
@@ -705,8 +703,8 @@ namespace CardanoSharp.Wallet.Test
             //get stake keys
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
-            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = AddressUtility.GetBaseAddress(paymentPub, stakePub, NetworkType.Testnet);
+            var changeAddr = AddressUtility.GetBaseAddress(changePub, stakePub, NetworkType.Testnet);
 
             var tokenBundle1 = TokenBundleBuilder.Create
                 .AddToken(getGenesisPolicyId(), "00010203".HexToByteArray(), 60);
@@ -717,8 +715,8 @@ namespace CardanoSharp.Wallet.Test
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(getGenesisTransaction(), 0)
                 .AddInput(getGenesisTransaction(), 0)
-                .AddOutput(baseAddr, 1, tokenBundle1)
-                .AddOutput(changeAddr, 18, tokenBundle2)
+                .AddOutput(baseAddr, 1, tokenBundle1, OutputPurpose.Spend)
+                .AddOutput(changeAddr, 18, tokenBundle2, OutputPurpose.Spend)
                 .SetFee(1)
                 .Build();
 
@@ -741,7 +739,7 @@ namespace CardanoSharp.Wallet.Test
             //get stake keys
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = AddressUtility.GetBaseAddress(paymentPub, stakePub, NetworkType.Testnet);
 
             //This is the baseline
             var withNoTokenBundle = TransactionBodyBuilder.Create
@@ -752,7 +750,7 @@ namespace CardanoSharp.Wallet.Test
             //This should do the same
             var withEmptyTokenBundle = TransactionBodyBuilder.Create
                 .AddInput(getGenesisTransaction(), 0)
-                .AddOutput(baseAddr, 1, TokenBundleBuilder.Create)
+                .AddOutput(baseAddr, 1, TokenBundleBuilder.Create, OutputPurpose.Spend)
                 .Build();
 
             //act
@@ -781,8 +779,8 @@ namespace CardanoSharp.Wallet.Test
             //get stake keys
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
-            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = AddressUtility.GetBaseAddress(paymentPub, stakePub, NetworkType.Testnet);
+            var changeAddr = AddressUtility.GetBaseAddress(changePub, stakePub, NetworkType.Testnet);
 
             var tokenBundle1 = TokenBundleBuilder.Create
                 .AddToken(getGenesisPolicyId(), "00010203".HexToByteArray(), 60)
@@ -792,7 +790,7 @@ namespace CardanoSharp.Wallet.Test
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(getGenesisTransaction(), 0)
                 .AddInput(getGenesisTransaction(), 0)
-                .AddOutput(baseAddr, 1, tokenBundle1)
+                .AddOutput(baseAddr, 1, tokenBundle1, OutputPurpose.Spend)
                 .SetFee(1)
                 .Build();
 
@@ -819,8 +817,8 @@ namespace CardanoSharp.Wallet.Test
             //get stake keys
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
-            var changeAddr = _addressService.GetAddress(changePub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = AddressUtility.GetBaseAddress(paymentPub, stakePub, NetworkType.Testnet);
+            var changeAddr = AddressUtility.GetBaseAddress(changePub, stakePub, NetworkType.Testnet);
 
             var tokenBundle1 = TokenBundleBuilder.Create
                 .AddToken(getGenesisPolicyId(), "00010203".HexToByteArray(), 60)
@@ -830,7 +828,7 @@ namespace CardanoSharp.Wallet.Test
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(getGenesisTransaction(), 0)
                 .AddInput(getGenesisTransaction(), 0)
-                .AddOutput(baseAddr, 1, tokenBundle1)
+                .AddOutput(baseAddr, 1, tokenBundle1, OutputPurpose.Spend)
                 .SetFee(1)
                 .Build();
 
@@ -1014,7 +1012,7 @@ namespace CardanoSharp.Wallet.Test
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
             //get delegation address
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = AddressUtility.GetBaseAddress(paymentPub, stakePub, NetworkType.Testnet);
 
             //policy info
             var policySkey = getGenesisTransaction();
@@ -1038,7 +1036,7 @@ namespace CardanoSharp.Wallet.Test
 
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(txInAddr.HexToByteArray(), txInIndex)
-                .AddOutput(baseAddr, 1, mintAsset)
+                .AddOutput(baseAddr, 1,  mintAsset, OutputPurpose.Mint)
                 .SetMint(mintAsset)
                 .SetTtl(1000)
                 .SetFee(0);
@@ -1077,7 +1075,7 @@ namespace CardanoSharp.Wallet.Test
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
             //get delegation address
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = AddressUtility.GetBaseAddress(paymentPub, stakePub, NetworkType.Testnet);
 
             //policy info
             var policySkey = getGenesisTransaction();
@@ -1138,7 +1136,7 @@ namespace CardanoSharp.Wallet.Test
             (var stakePrv, var stakePub) = getKeyPairFromPath("m/1852'/1815'/0'/2/0", rootKey);
 
             //get delegation address
-            var baseAddr = _addressService.GetAddress(paymentPub, stakePub, NetworkType.Testnet, AddressType.Base);
+            var baseAddr = AddressUtility.GetBaseAddress(paymentPub, stakePub, NetworkType.Testnet);
 
             //policy info
             var policySkey = getGenesisTransaction();
@@ -1165,7 +1163,7 @@ namespace CardanoSharp.Wallet.Test
 
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(txInAddr.HexToByteArray(), txInIndex)
-                .AddOutput(baseAddr, 1, mintAsset)
+                .AddOutput(baseAddr, 1, mintAsset, OutputPurpose.Mint)
                 .SetMint(mintAsset)
                 .SetTtl(1000)
                 .SetMetadataHash(auxData)
