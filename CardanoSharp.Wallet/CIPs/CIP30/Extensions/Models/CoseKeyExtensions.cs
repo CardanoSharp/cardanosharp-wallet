@@ -8,61 +8,61 @@ namespace CardanoSharp.Wallet.CIPs.CIP30.Extensions.Models
 {
 	public static class CoseKeyExtensions
 	{
-		public static CoseKey GetCOSEKey(this CBORObject COSEKeyCbor)
+		public static CoseKey GetCoseKey(this CBORObject coseKeyCbor)
 		{
 			//validation
-			if (COSEKeyCbor == null)
+			if (coseKeyCbor == null)
 			{
-				throw new ArgumentNullException(nameof(COSEKeyCbor));
+				throw new ArgumentNullException(nameof(coseKeyCbor));
 			}
-			if (COSEKeyCbor.Type != CBORType.Map)
+			if (coseKeyCbor.Type != CBORType.Map)
 			{
-				throw new ArgumentException("COSEKeyCbor is not expected type CBORType.Map");
+				throw new ArgumentException($"{nameof(coseKeyCbor)} is not expected type CBORType.Map");
 			}
-			if (COSEKeyCbor.Keys.Count < 4)
+			if (coseKeyCbor.Keys.Count < 4)
 			{
-				throw new ArgumentException("COSEKeyCbor does not contain expected at least 4 keys");
+				throw new ArgumentException($"{nameof(coseKeyCbor)} does not contain expected at least 4 keys");
 			}
-			if (COSEKeyCbor.Keys.Count > 5)
+			if (coseKeyCbor.Keys.Count > 5)
 			{
-				throw new ArgumentException("COSEKeyCbor does not contain expected at most 5 keys");
+				throw new ArgumentException($"{nameof(coseKeyCbor)} does not contain expected at most 5 keys");
 			}
-			if (!COSEKeyCbor.ContainsKey(1))
+			if (!coseKeyCbor.ContainsKey(1))
 			{
-				throw new ArgumentException("COSEKeyCbor does not contain '1' key (kty)");
+				throw new ArgumentException($"{nameof(coseKeyCbor)} does not contain '1' key (kty)");
 			}
-			if (!COSEKeyCbor.ContainsKey(3))
+			if (!coseKeyCbor.ContainsKey(3))
 			{
-				throw new ArgumentException("COSEKeyCbor does not contain '3' key (alg)");
+				throw new ArgumentException($"{nameof(coseKeyCbor)} does not contain '3' key (alg)");
 			}
-			if (!COSEKeyCbor.ContainsKey(-1))
+			if (!coseKeyCbor.ContainsKey(-1))
 			{
-				throw new ArgumentException("COSEKeyCbor does not contain '-1' key (crv)");
+				throw new ArgumentException($"{nameof(coseKeyCbor)} does not contain '-1' key (crv)");
 			}
-			if (!COSEKeyCbor.ContainsKey(-2))
+			if (!coseKeyCbor.ContainsKey(-2))
 			{
-				throw new ArgumentException("COSEKeyCbor does not contain -2 key (pub key index)");
+				throw new ArgumentException($"{nameof(coseKeyCbor)} does not contain -2 key (pub key index)");
 			}
-			if (COSEKeyCbor[1].DecodeValueToInt32() != 1)
+			if (coseKeyCbor[1].DecodeValueToInt32() != 1)
 			{
-				throw new ArgumentException("COSEKeyCbor[1] does not match expected value '1' (OKP)");
+				throw new ArgumentException($"{nameof(coseKeyCbor)}[1] does not match expected value '1' (OKP)");
 			}
-			if (COSEKeyCbor[3].DecodeValueToInt32() != -8)
+			if (coseKeyCbor[3].DecodeValueToInt32() != -8)
 			{
-				throw new ArgumentException("COSEKeyCbor[3] does not match expected value '-8' (EdDSA)");
+				throw new ArgumentException($"{nameof(coseKeyCbor)}[3] does not match expected value '-8' (EdDSA)");
 			}
-			if (COSEKeyCbor[-1].DecodeValueToInt32() != 6)
+			if (coseKeyCbor[-1].DecodeValueToInt32() != 6)
 			{
-				throw new ArgumentException("COSEKeyCbor[-1] does not match expected value '6' (Ed25519)");
+				throw new ArgumentException($"{nameof(coseKeyCbor)}[-1] does not match expected value '6' (Ed25519)");
 			}
 
 			var key = new CoseKey()
 			{
-				Key = ((string)COSEKeyCbor[-2].DecodeValueByCborType()).HexToByteArray(),
+				Key = ((string)coseKeyCbor[-2].DecodeValueByCborType()).HexToByteArray(),
 			};
 
-			if (COSEKeyCbor.ContainsKey(2))
-				key.Kid = ((string)COSEKeyCbor[2].DecodeValueByCborType()).HexToByteArray();
+			if (coseKeyCbor.ContainsKey(2))
+				key.Kid = ((string)coseKeyCbor[2].DecodeValueByCborType()).HexToByteArray();
 
 			return key;
 		}

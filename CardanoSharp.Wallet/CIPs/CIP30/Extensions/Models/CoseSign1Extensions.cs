@@ -9,37 +9,37 @@ namespace CardanoSharp.Wallet.CIPs.CIP30.Extensions.Models
 {
 	public static class CoseSign1Extensions
 	{
-		public static CoseSign1 GetCOSESign1(this CBORObject COSESign1Cbor)
+		public static CoseSign1 GetCoseSign1(this CBORObject coseSign1Cbor)
 		{
 			//validation
-			if (COSESign1Cbor == null)
+			if (coseSign1Cbor == null)
 			{
-				throw new ArgumentNullException(nameof(COSESign1Cbor));
+				throw new ArgumentNullException(nameof(coseSign1Cbor));
 			}
-			if (COSESign1Cbor.Type != CBORType.Array)
+			if (coseSign1Cbor.Type != CBORType.Array)
 			{
-				throw new ArgumentException("COSESign1Cbor is not expected type CBORType.Array");
+				throw new ArgumentException($"{nameof(coseSign1Cbor)} is not expected type CBORType.Array");
 			}
-			if (COSESign1Cbor.Count != 4)
+			if (coseSign1Cbor.Count != 4)
 			{
-				throw new ArgumentException("COSESign1Cbor does not contain expected 4 keys");
+				throw new ArgumentException($"{nameof(coseSign1Cbor)} does not contain expected 4 keys");
 			}
-			if (COSESign1Cbor[1].Type != CBORType.Map)
+			if (coseSign1Cbor[1].Type != CBORType.Map)
 			{
-				throw new ArgumentException("COSESign1Cbor[1] 'headers' is not expected type CBORType.Map");
+				throw new ArgumentException($"{nameof(coseSign1Cbor)}[1] 'headers' is not expected type CBORType.Map");
 			}
-			if (!COSESign1Cbor[1].ContainsKey("hashed"))
+			if (!coseSign1Cbor[1].ContainsKey("hashed"))
 			{
-				throw new ArgumentException("COSESign1Cbor[1] 'headers' does not contain mandatory header 'hashed'");
+				throw new ArgumentException($"{nameof(coseSign1Cbor)}[1] 'headers' does not contain mandatory header 'hashed'");
 			}
 
-			var payload = (string)COSESign1Cbor[2].DecodeValueByCborType();
-			var sig = (string)COSESign1Cbor[3].DecodeValueByCborType();
-			bool hashed = (bool)COSESign1Cbor[1]["hashed"].DecodeValueByCborType();
+			var payload = (string)coseSign1Cbor[2].DecodeValueByCborType();
+			var sig = (string)coseSign1Cbor[3].DecodeValueByCborType();
+			bool hashed = (bool)coseSign1Cbor[1]["hashed"].DecodeValueByCborType();
 			string? hashedPayload = null;
 			if (hashed)
 				hashedPayload = HashUtility.Blake2b224(payload.HexToByteArray()).ToStringHex();
-			var headers = COSESign1Cbor[0].ToObject<byte[]>();
+			var headers = coseSign1Cbor[0].ToObject<byte[]>();
 
 			return new CoseSign1()
 			{

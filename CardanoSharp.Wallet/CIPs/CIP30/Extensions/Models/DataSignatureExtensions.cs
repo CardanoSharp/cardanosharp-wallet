@@ -13,8 +13,8 @@ namespace CardanoSharp.Wallet.CIPs.CIP30.Extensions.Models
 			var coseKeyCbor = CBORObject.DecodeFromBytes(dataSignature.Key.HexToByteArray());
 			var coseSign1Cbor = CBORObject.DecodeFromBytes(dataSignature.Signature.HexToByteArray());
 
-			var coseKey = coseKeyCbor.GetCOSEKey();
-			var coseSign1 = coseSign1Cbor.GetCOSESign1();
+			var coseKey = coseKeyCbor.GetCoseKey();
+			var coseSign1 = coseSign1Cbor.GetCoseSign1();
 
 			var pubKey = new PublicKey(coseKey.Key, null);
 
@@ -22,17 +22,17 @@ namespace CardanoSharp.Wallet.CIPs.CIP30.Extensions.Models
 			return verified;
 		}
 
-		public static CoseKey GetCOSEKey(this DataSignature dataSignature)
+		public static CoseKey GetCoseKey(this DataSignature dataSignature)
 		{
 			var coseKeyCbor = CBORObject.DecodeFromBytes(dataSignature.Key.HexToByteArray());
-			var coseKey = coseKeyCbor.GetCOSEKey();
+			var coseKey = coseKeyCbor.GetCoseKey();
 			return coseKey;
 		}
 
-		public static CoseSign1 GetCOSESign1(this DataSignature dataSignature)
+		public static CoseSign1 GetCoseSign1(this DataSignature dataSignature)
 		{
 			var coseSign1Cbor = CBORObject.DecodeFromBytes(dataSignature.Signature.HexToByteArray());
-			var coseSign1 = coseSign1Cbor.GetCOSESign1();
+			var coseSign1 = coseSign1Cbor.GetCoseSign1();
 			return coseSign1;
 		}
 	}
