@@ -1,6 +1,6 @@
 ﻿namespace CardanoSharp.Wallet.CIPs.CIP30.Models
 {
-	public class COSESign1
+	public class CoseSign1
 	{
 		public byte[] Signature { get; set; } = null!;
 

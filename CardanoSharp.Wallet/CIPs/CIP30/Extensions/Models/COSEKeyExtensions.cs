@@ -6,9 +6,9 @@ using System;
 
 namespace CardanoSharp.Wallet.CIPs.CIP30.Extensions.Models
 {
-	public static class COSEKeyExtensions
+	public static class CoseKeyExtensions
 	{
-		public static COSEKey GetCOSEKey(this CBORObject COSEKeyCbor)
+		public static CoseKey GetCOSEKey(this CBORObject COSEKeyCbor)
 		{
 			//validation
 			if (COSEKeyCbor == null)
@@ -56,7 +56,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP30.Extensions.Models
 				throw new ArgumentException("COSEKeyCbor[-1] does not match expected value '6' (Ed25519)");
 			}
 
-			var key = new COSEKey()
+			var key = new CoseKey()
 			{
 				Key = ((string)COSEKeyCbor[-2].DecodeValueByCborType()).HexToByteArray(),
 			};

@@ -7,9 +7,9 @@ using System;
 
 namespace CardanoSharp.Wallet.CIPs.CIP30.Extensions.Models
 {
-	public static class COSESign1Extensions
+	public static class CoseSign1Extensions
 	{
-		public static COSESign1 GetCOSESign1(this CBORObject COSESign1Cbor)
+		public static CoseSign1 GetCOSESign1(this CBORObject COSESign1Cbor)
 		{
 			//validation
 			if (COSESign1Cbor == null)
@@ -41,7 +41,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP30.Extensions.Models
 				hashedPayload = HashUtility.Blake2b224(payload.HexToByteArray()).ToStringHex();
 			var headers = COSESign1Cbor[0].ToObject<byte[]>();
 
-			return new COSESign1()
+			return new CoseSign1()
 			{
 				Signature = sig.HexToByteArray(),
 				Payload = payload.HexToByteArray(),
@@ -51,7 +51,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP30.Extensions.Models
 			};
 		}
 
-		public static byte[] GetSigStructure(this COSESign1 coseSign1)
+		public static byte[] GetSigStructure(this CoseSign1 coseSign1)
 		{
 			return CBORObject.NewArray()
 				.Add("Signature1")
