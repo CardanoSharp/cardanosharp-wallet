@@ -58,64 +58,21 @@ namespace CardanoSharp.Wallet.Utilities
         
         public static Address GetBaseAddress(PublicKey payment, PublicKey stake, NetworkType networkType)
         {
-            var addressType = AddressType.Base;
-            var networkInfo = GetNetworkInfo(networkType);
             var paymentEncoded = HashUtility.Blake2b224(payment.Key);
             var stakeEncoded = HashUtility.Blake2b224(stake.Key);
-
-            //get prefix
-            var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
-
-            //get header
-            var header = GetHeader(networkInfo, addressType);
-            
-            //get body
-            byte[] addressArray = new byte[1 + paymentEncoded.Length + stakeEncoded.Length];
-            addressArray[0] = header;
-            Buffer.BlockCopy(paymentEncoded, 0, addressArray, 1, paymentEncoded.Length);
-            Buffer.BlockCopy(stakeEncoded, 0, addressArray, paymentEncoded.Length + 1, stakeEncoded.Length);
-
-            return new Address(prefix, addressArray);
+            return GetBaseAddress(paymentEncoded, stakeEncoded, networkType);
         }
 
         public static Address GetRewardAddress(PublicKey stake, NetworkType networkType)
         {
             var stakeEncoded = HashUtility.Blake2b224(stake.Key);
-            var addressType = AddressType.Reward;
-            var networkInfo = GetNetworkInfo(networkType);
-
-            //get prefix
-            var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
-
-            //get header
-            var header = GetHeader(networkInfo, addressType);
-            
-            //get body
-            byte[] addressArray = new byte[1 + stakeEncoded.Length];
-            addressArray[0] = header;
-            Buffer.BlockCopy(stakeEncoded, 0, addressArray, 1, stakeEncoded.Length);
-
-            return new Address(prefix, addressArray);
+            return GetRewardAddress(stakeEncoded, networkType);
         }
 
         public static Address GetEnterpriseAddress(PublicKey payment, NetworkType networkType)
         {
-            var addressType = AddressType.Enterprise;
-            var networkInfo = GetNetworkInfo(networkType);
             var paymentEncoded = HashUtility.Blake2b224(payment.Key);
-
-            //get prefix
-            var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
-
-            //get header
-            var header = GetHeader(networkInfo, addressType);
-            
-            //get body
-            byte[] addressArray = new byte[1 + paymentEncoded.Length];
-            addressArray[0] = header;
-            Buffer.BlockCopy(paymentEncoded, 0, addressArray, 1, paymentEncoded.Length);
-
-            return new Address(prefix, addressArray);
+            return GetEnterpriseAddress(paymentEncoded, networkType);
         }
 
         public static Address GetEnterpriseScriptAddress<T>(T paymentPolicy, NetworkType networkType)
@@ -183,6 +140,64 @@ namespace CardanoSharp.Wallet.Utilities
             addressArray[0] = header;
             Buffer.BlockCopy(paymentPolicyId, 0, addressArray, 1, paymentPolicyId.Length);
             Buffer.BlockCopy(stakePolicyId, 0, addressArray, paymentPolicyId.Length + 1, stakePolicyId.Length);
+
+            return new Address(prefix, addressArray);
+        }
+        
+        public static Address GetBaseAddress(byte[] paymentEncoded, byte[] stakeEncoded, NetworkType networkType)
+        {
+            var addressType = AddressType.Base;
+            var networkInfo = GetNetworkInfo(networkType);
+
+            //get prefix
+            var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
+
+            //get header
+            var header = GetHeader(networkInfo, addressType);
+            
+            //get body
+            byte[] addressArray = new byte[1 + paymentEncoded.Length + stakeEncoded.Length];
+            addressArray[0] = header;
+            Buffer.BlockCopy(paymentEncoded, 0, addressArray, 1, paymentEncoded.Length);
+            Buffer.BlockCopy(stakeEncoded, 0, addressArray, paymentEncoded.Length + 1, stakeEncoded.Length);
+
+            return new Address(prefix, addressArray);
+        }
+
+        public static Address GetRewardAddress(byte[] stakeEncoded, NetworkType networkType)
+        {
+            var addressType = AddressType.Reward;
+            var networkInfo = GetNetworkInfo(networkType);
+
+            //get prefix
+            var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
+
+            //get header
+            var header = GetHeader(networkInfo, addressType);
+            
+            //get body
+            byte[] addressArray = new byte[1 + stakeEncoded.Length];
+            addressArray[0] = header;
+            Buffer.BlockCopy(stakeEncoded, 0, addressArray, 1, stakeEncoded.Length);
+
+            return new Address(prefix, addressArray);
+        }
+
+        public static Address GetEnterpriseAddress(byte[] paymentEncoded, NetworkType networkType)
+        {
+            var addressType = AddressType.Enterprise;
+            var networkInfo = GetNetworkInfo(networkType);
+
+            //get prefix
+            var prefix = $"{GetPrefixHeader(addressType)}{GetPrefixTail(networkType)}";
+
+            //get header
+            var header = GetHeader(networkInfo, addressType);
+            
+            //get body
+            byte[] addressArray = new byte[1 + paymentEncoded.Length];
+            addressArray[0] = header;
+            Buffer.BlockCopy(paymentEncoded, 0, addressArray, 1, paymentEncoded.Length);
 
             return new Address(prefix, addressArray);
         }
