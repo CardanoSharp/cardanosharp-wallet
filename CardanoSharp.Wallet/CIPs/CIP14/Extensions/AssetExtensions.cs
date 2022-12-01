@@ -26,5 +26,10 @@ namespace CardanoSharp.Wallet.CIPs.CIP14.Extensions
                 Quantity = quantity
             };
         }
+
+        public static string GetFingerprint(this string tokenTypeId)
+        {
+            return Bech32.Encode(HashUtility.Blake2b160(tokenTypeId.HexToByteArray()), "asset");
+        }
     }
 }
