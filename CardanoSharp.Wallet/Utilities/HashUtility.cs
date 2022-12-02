@@ -13,5 +13,10 @@ namespace CardanoSharp.Wallet.Utilities
         {
             return Blake2b.ComputeHash(32, data);
         }
+
+        public static byte[] Blake2b160(byte[] data)
+        {
+            return Blake2b.ComputeHash(20, data);
+        }
     }
 }
