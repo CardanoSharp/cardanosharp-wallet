@@ -9,6 +9,28 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {
     public static class TransactionBodyExtensions
     {
+        /*
+        transaction_body =
+        { 0 : set<transaction_input>    ; inputs
+        , 1 : [* transaction_output]
+        , 2 : coin                      ; fee
+        , ? 3 : uint                    ; time to live
+        , ? 4 : [* certificate]
+        , ? 5 : withdrawals
+        , ? 6 : update
+        , ? 7 : auxiliary_data_hash
+        , ? 8 : uint                    ; validity interval start
+        , ? 9 : mint
+        , ? 11 : script_data_hash
+        , ? 13 : set<transaction_input> ; collateral inputs
+        , ? 14 : required_signers
+        , ? 15 : network_id
+        , ? 16 : transaction_output     ; collateral return; New
+        , ? 17 : coin                   ; total collateral; New
+        , ? 18 : set<transaction_input> ; reference inputs; New
+        }
+        */
+
         public static CBORObject GetCBOR(this TransactionBody transactionBody, AuxiliaryData auxiliaryData)
         {
             CBORObject cborInputs = null;
@@ -53,6 +75,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 cborBody.Add(4, transactionBody.Certificate.GetCBOR());
             }
 
+            // 5) Withdrawals
+            // 6) Update
+
             //add metadata
             if (auxiliaryData != null || transactionBody.MetadataHash != default)
             {
@@ -63,6 +88,8 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                     cborBody.Add(7, transactionBody.MetadataHash.HexToByteArray());
                 }
             }
+
+            // 8) validity interval start
 
             //add tokens for minting
             if(transactionBody.Mint.Any())
@@ -79,6 +106,20 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 }
                 cborBody.Add(9, cborTransactionMint);
             }
+
+            // 11) script_data_hash
+
+            // 13) collateral inputs
+
+            // 14) required_signers
+
+            // 15) network_id
+
+            // 16) collateral return
+
+            // 17) total collateral
+
+            // 18) reference inputs
 
             return cborBody;
         }

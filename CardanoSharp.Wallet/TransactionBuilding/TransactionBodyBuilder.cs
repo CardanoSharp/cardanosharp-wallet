@@ -57,13 +57,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public static ITransactionBodyBuilder Create
         {
             get => new TransactionBodyBuilder();
-        }
-
-        public ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder)
-        {
-            _model.Certificate = certificateBuilder.Build();
-            return this;
-        }
+        }        
 
         public ITransactionBodyBuilder AddInput(TransactionInput transactionInput)
         {
@@ -160,6 +154,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
+        public ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder)
+        {
+            _model.Certificate = certificateBuilder.Build();
+            return this;
+        }
+
         public ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder) {
             _model.MetadataHash = HashUtility.Blake2b256(auxiliaryDataBuilder.Build().GetCBOR().EncodeToBytes()).ToStringHex();
             return this;
@@ -170,6 +170,43 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             _model.Mint = tokenBuilder.Build();
             return this;
         }
+
+        public ITransactionBodyBuilder SetScriptDataHash(byte[] scriptDataHash) 
+        {
+            _model.ScriptDataHash = scriptDataHash;
+            return this;
+        }
+
+        public ITransactionBodyBuilder AddCollateralInput(TransactionInput transactionInput)
+        {
+
+            _model.TransactionInputs.Add(transactionInput);
+            return this;
+        }
+
+        public ITransactionBodyBuilder AddCollateralInput(byte[] transactionId, uint transactionIndex)
+        {
+
+            _model.TransactionInputs.Add(new TransactionInput()
+            {
+                TransactionId = transactionId,
+                TransactionIndex = transactionIndex
+            });
+            return this;
+        }
+
+        public ITransactionBodyBuilder AddCollateralInput(string transactionIdStr, uint transactionIndex)
+        {
+            byte[] transactionId = transactionIdStr.HexToByteArray();
+            _model.TransactionInputs.Add(new TransactionInput()
+            {
+                TransactionId = transactionId,
+                TransactionIndex = transactionIndex
+            });
+            return this;
+        }
+
+        // Helper Functions
 
         public ITransactionBodyBuilder RemoveFeeFromChange(ulong? fee = null)
         {

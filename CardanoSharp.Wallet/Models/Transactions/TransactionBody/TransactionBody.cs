@@ -42,5 +42,12 @@ namespace CardanoSharp.Wallet.Models.Transactions
         public string MetadataHash { get; set; }
         public uint? TransactionStartInterval { get; set; }
         public Dictionary<byte[], NativeAsset> Mint { get; set; }
+        public byte[] ScriptDataHash { get; set; }
+        public virtual IList<TransactionInput> Collateral { get; set; }
+        public virtual IList<byte[]> RequiredSigners { get; set; }
+        public uint NetworkId { get; set; }
+        public TransactionOutput CollateralReturn { get; set; }
+        public ulong TotalCollateral { get; set; }
+        public IList<TransactionInput> ReferenceInputs { get; set; } 
     }
 }
