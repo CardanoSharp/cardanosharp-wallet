@@ -19,9 +19,9 @@ public class CIP14Tests
         string expected)
     {
         var asset = tokenTypeId.ToAsset();
-        var actual = asset.GetFingerprint();
+        var actual = asset.ToAssetFingerprint();
         Assert.Equal(expected, actual);
-        var fingerprint = tokenTypeId.GetFingerprint();
+        var fingerprint = tokenTypeId.ToAssetFingerprint();
         Assert.Equal(expected, fingerprint);
     }
 }
