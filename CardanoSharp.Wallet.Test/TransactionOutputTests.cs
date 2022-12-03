@@ -8,13 +8,11 @@ namespace CardanoSharp.Wallet.Test
 {
     public class TransactionOutputTests
     {
-        private readonly IAddressService _addressService;
         private readonly IMnemonicService _keyService;
 
         public TransactionOutputTests()
         {
             _keyService = new MnemonicService();
-            _addressService = new AddressService();
         }
 
         private byte[] getGenesisPolicyId()

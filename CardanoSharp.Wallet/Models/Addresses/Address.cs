@@ -3,6 +3,7 @@ using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
 using System;
 using System.Collections.Generic;
+using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.Models.Addresses
 {
@@ -21,7 +22,7 @@ namespace CardanoSharp.Wallet.Models.Addresses
             _bytes = address;
             AddressType = GetAddressType();
             NetworkType = GetNetworkType();
-            Prefix = AddressService.GetPrefix(AddressType, NetworkType);
+            Prefix = AddressUtility.GetPrefix(AddressType, NetworkType);
             _address = Bech32.Encode(address, Prefix);
         }
 
