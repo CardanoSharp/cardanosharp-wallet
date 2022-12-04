@@ -14,18 +14,18 @@ namespace CardanoSharp.Wallet.Extensions.Models
         {
             BigEndianBuffer buffer = new BigEndianBuffer();
             buffer.Write(new byte[] { 0x01 });
-            buffer.Write(plutusScriptV1.bytes);
+            buffer.Write(plutusScriptV1.script);
             return HashUtility.Blake2b224(buffer.ToArray());
         }
 
         public static byte[] Serialize(this PlutusV1Script plutusScriptV1)
         {
-            return plutusScriptV1.bytes;
+            return plutusScriptV1.script;
         }
 
         public static PlutusV1Script Deserialize(this byte[] bytes)
         {
-            return new PlutusV1Script { bytes = bytes };
+            return new PlutusV1Script { script = bytes };
         }
     }
 }

@@ -1,8 +1,6 @@
 using CardanoSharp.Wallet.Common;
-using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using CardanoSharp.Wallet.Utilities;
-using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {
@@ -11,22 +9,22 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
         // IS THIS CORRECT??
         //https://cardano.stackexchange.com/questions/4573/how-to-generate-the-address-of-a-plutus-script-using-cardano-serialization-lib/8820#8820
-        public static byte[] GetPolicyId(this PlutusScriptV2 plutusScriptV2)
+        public static byte[] GetPolicyId(this PlutusV2Script plutusV2Script)
         {
             BigEndianBuffer buffer = new BigEndianBuffer();
             buffer.Write(new byte[] { 0x02 });
-            buffer.Write(plutusScriptV2.bytes);
+            buffer.Write(plutusV2Script.script);
             return HashUtility.Blake2b224(buffer.ToArray());
         }
 
-        public static byte[] Serialize(this PlutusScriptV2 plutusScriptV2)
+        public static byte[] Serialize(this PlutusV2Script plutusV2Script)
         {
-            return plutusScriptV2.bytes;
+            return plutusV2Script.script;
         }
 
-        public static PlutusScriptV2 Deserialize(this byte[] bytes)
+        public static PlutusV2Script Deserialize(this byte[] bytes)
         {
-            return new PlutusScriptV2 { bytes = bytes };
+            return new PlutusV2Script { script = bytes };
         }
     }
 }

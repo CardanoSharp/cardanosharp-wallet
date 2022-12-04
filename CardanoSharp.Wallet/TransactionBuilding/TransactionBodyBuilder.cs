@@ -17,14 +17,14 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex);
         ITransactionBodyBuilder AddInput(string transactionId, uint transactionIndex);
         ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput);
-        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null,
-            DatumOption? datumOption = null, 
-            ScriptReference? scriptReference = null, 
-            OutputPurpose outputPurpose = OutputPurpose.Spend);
         ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null, 
                 DatumOption? datumOption = null, 
                 ScriptReference? scriptReference = null, 
                 OutputPurpose outputPurpose = OutputPurpose.Spend);
+        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null,
+            DatumOption? datumOption = null, 
+            ScriptReference? scriptReference = null, 
+            OutputPurpose outputPurpose = OutputPurpose.Spend);
         ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
         ITransactionBodyBuilder SetFee(ulong fee);
         ITransactionBodyBuilder SetTtl(uint ttl);
@@ -37,6 +37,9 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionBodyBuilder AddRequiredSigner(byte[] requiredSigner);
         ITransactionBodyBuilder SetNetworkId(uint networkId);
         ITransactionBodyBuilder SetCollateralOutput(TransactionOutput transactionOutput);
+        ITransactionBodyBuilder SetCollateralOutput(Address address, ulong coin);
+        ITransactionBodyBuilder SetCollateralOutput(byte[] address, ulong coin);
+        ITransactionBodyBuilder SetTotalCollateral(ulong TotalCollateral);
         ITransactionBodyBuilder AddReferenceInput(TransactionInput transactionInput);
         ITransactionBodyBuilder AddReferenceInput(byte[] transactionId, uint transactionIndex);
         ITransactionBodyBuilder AddReferenceInput(string transactionIdStr, uint transactionIndex);
@@ -221,6 +224,35 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionBodyBuilder SetCollateralOutput(TransactionOutput transactionOutput)
         {
             _model.CollateralReturn = transactionOutput;
+            return this;
+        }
+
+        public ITransactionBodyBuilder SetCollateralOutput(Address address, ulong coin)
+        {
+            return AddOutput(address.GetBytes(), coin);
+        }
+
+        public ITransactionBodyBuilder SetCollateralOutput(byte[] address, ulong coin)
+        {
+            var outputValue = new TransactionOutputValue()
+            {
+                Coin = coin
+            };
+
+            var output = new TransactionOutput()
+            {
+                Address = address,
+                Value = outputValue,
+                OutputPurpose = OutputPurpose.Collateral
+            };
+
+            _model.CollateralReturn = output;
+            return this;
+        }
+
+        public ITransactionBodyBuilder SetTotalCollateral(ulong totalCollateral)
+        {
+            _model.TotalCollateral = totalCollateral;
             return this;
         }
 

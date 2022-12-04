@@ -138,13 +138,13 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 				else if (scriptReferenceCbor.ContainsKey(1)) 
 				{
 					byte[] plutusV1ScriptBytes = ((string)scriptReferenceCbor[1].DecodeValueByCborType()).HexToByteArray();
-					PlutusV1Script plutusV1Script = new PlutusV1Script { bytes = plutusV1ScriptBytes };
+					PlutusV1Script plutusV1Script = new PlutusV1Script { script = plutusV1ScriptBytes };
 					scriptReference.PlutusV1Script = plutusV1Script;
 				}
 				else if (scriptReferenceCbor.ContainsKey(2)) 
 				{
-					byte[] plutusScriptV2Bytes = ((string)scriptReferenceCbor[2].DecodeValueByCborType()).HexToByteArray();
-					PlutusScriptV2 plutusV2Script = new PlutusScriptV2 { bytes = plutusScriptV2Bytes };
+					byte[] plutusV2ScriptBytes = ((string)scriptReferenceCbor[2].DecodeValueByCborType()).HexToByteArray();
+					PlutusV2Script plutusV2Script = new PlutusV2Script { script = plutusV2ScriptBytes };
 					scriptReference.PlutusV2Script = plutusV2Script;
 				}
 				transactionOutput.ScriptReference = scriptReference;

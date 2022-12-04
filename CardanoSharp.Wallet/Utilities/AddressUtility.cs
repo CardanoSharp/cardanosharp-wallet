@@ -118,7 +118,7 @@ namespace CardanoSharp.Wallet.Utilities
                 nameof(ScriptAll) => ((ScriptAll)Convert.ChangeType(paymentPolicy, typeof(ScriptAll))).GetPolicyId(),
                 nameof(ScriptNofK) => ((ScriptNofK)Convert.ChangeType(paymentPolicy, typeof(ScriptNofK))).GetPolicyId(),
                 nameof(PlutusV1Script) => ((PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))).GetPolicyId(),
-                nameof(PlutusScriptV2) => ((PlutusScriptV2)Convert.ChangeType(paymentPolicy, typeof(PlutusScriptV2))).GetPolicyId(),
+                nameof(PlutusV2Script) => ((PlutusV2Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV2Script))).GetPolicyId(),
                 _ => throw new Exception("Unknown script type for payment script")
             };
             
@@ -130,7 +130,7 @@ namespace CardanoSharp.Wallet.Utilities
                 nameof(ScriptAll) => ((ScriptAll)Convert.ChangeType(stakePolicy, typeof(ScriptAll))).GetPolicyId(),
                 nameof(ScriptNofK) => ((ScriptNofK)Convert.ChangeType(stakePolicy, typeof(ScriptNofK))).GetPolicyId(),
                 nameof(PlutusV1Script) => ((PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))).GetPolicyId(),
-                nameof(PlutusScriptV2) => ((PlutusScriptV2)Convert.ChangeType(paymentPolicy, typeof(PlutusScriptV2))).GetPolicyId(),
+                nameof(PlutusV2Script) => ((PlutusV2Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV2Script))).GetPolicyId(),
                 _ => throw new Exception("Unknown script type for stake script")
             };
 
@@ -166,7 +166,7 @@ namespace CardanoSharp.Wallet.Utilities
                 nameof(ScriptAll) => ((ScriptAll)Convert.ChangeType(paymentPolicy, typeof(ScriptAll))).GetPolicyId(),
                 nameof(ScriptNofK) => ((ScriptNofK)Convert.ChangeType(paymentPolicy, typeof(ScriptNofK))).GetPolicyId(),
                 nameof(PlutusV1Script) => ((PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))).GetPolicyId(),
-                nameof(PlutusScriptV2) => ((PlutusScriptV2)Convert.ChangeType(paymentPolicy, typeof(PlutusScriptV2))).GetPolicyId(),
+                nameof(PlutusV2Script) => ((PlutusV2Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV2Script))).GetPolicyId(),
                 _ => throw new Exception("Unknown script type for payment script")
             };
 

@@ -19,6 +19,8 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionWitnessSetBuilder SetScriptAllNativeScript(IScriptAllBuilder scriptAllBuilder);
         ITransactionWitnessSetBuilder SetScriptAnyNativeScript(IScriptAnyBuilder scriptAnyBuilder);
         ITransactionWitnessSetBuilder SetScriptNofKNativeScript(IScriptNofKBuilder scriptNofKBuilder);
+        ITransactionWitnessSetBuilder AddPlutusV1Script(PlutusV1ScriptBuilder plutusV1ScriptBuilder);
+        ITransactionWitnessSetBuilder AddPlutusV2Script(PlutusV2ScriptBuilder plutusV2ScriptBuilder);
     }
 
     public class TransactionWitnessSetBuilder: ABuilder<TransactionWitnessSet>, ITransactionWitnessSetBuilder
@@ -127,5 +129,18 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             };
             return this;
         }
-    }
+
+        public ITransactionWitnessSetBuilder AddPlutusV1Script(PlutusV1ScriptBuilder plutusV1ScriptBuilder)
+        {
+            _model.PlutusV1Scripts.Add(plutusV1ScriptBuilder.Build());
+            return this;
+        }
+
+        public ITransactionWitnessSetBuilder AddPlutusV2Script(PlutusV2ScriptBuilder plutusV2ScriptBuilder)
+        {
+            _model.PlutusV2Scripts.Add(plutusV2ScriptBuilder.Build());
+            return this;
+        }
+
+     }
 }
