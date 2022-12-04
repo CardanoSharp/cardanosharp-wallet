@@ -87,8 +87,8 @@ public class PlutusScriptTests
                 },
                 scriptReference: new ScriptReference()
                 {
-                    PlutusV2Script = ((string)CBORObject.DecodeFromBytes(stakeScriptCbor.HexToByteArray())[1]
-                            .DecodeValueByCborType()).HexToByteArray()
+                    PlutusV2Script = new PlutusScriptV2 { bytes = ((string)CBORObject.DecodeFromBytes(stakeScriptCbor.HexToByteArray())[1]
+                            .DecodeValueByCborType()).HexToByteArray() }
                 })
             .AddOutput(utxoAddress.ToAddress().GetBytes(), 10000000)
             .AddOutput(plutusSpendingScriptAddress.ToAddress().GetBytes(), 10000000,
@@ -99,12 +99,12 @@ public class PlutusScriptTests
             .AddOutput(dummyAddress1.ToAddress().GetBytes(), 10835340,
                 scriptReference: new ScriptReference()
                 {
-                    PlutusV2Script = ((string)CBORObject.DecodeFromBytes(redeemerScriptCbor.HexToByteArray()).DecodeValueByCborType()).HexToByteArray()
+                    PlutusV2Script = new PlutusScriptV2 { bytes = ((string)CBORObject.DecodeFromBytes(redeemerScriptCbor.HexToByteArray()).DecodeValueByCborType()).HexToByteArray() }
                 })
             .AddOutput(mintingRefScriptAddress.ToAddress().GetBytes(), 10000000,
                 scriptReference: new ScriptReference()
                 {
-                    PlutusV2Script = ((string)CBORObject.DecodeFromBytes(mintingScriptCbor.HexToByteArray()).DecodeValueByCborType()).HexToByteArray()
+                    PlutusV2Script = new PlutusScriptV2 { bytes = ((string)CBORObject.DecodeFromBytes(mintingScriptCbor.HexToByteArray()).DecodeValueByCborType()).HexToByteArray() }
                 })
             ;
 

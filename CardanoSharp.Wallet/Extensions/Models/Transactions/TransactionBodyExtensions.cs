@@ -96,7 +96,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
 
             // 13) collateral_inputs
-            if (transactionBody.Collateral.Any())
+            if (transactionBody.Collateral != null && transactionBody.Collateral.Any())
             {
                 cborCollateralInputs = CBORObject.NewArray();
                 foreach (var txInput in transactionBody.Collateral)
@@ -107,7 +107,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (cborCollateralInputs != null) cborBody.Add(13, cborCollateralInputs);
 
             // 14) required_signers
-            if (transactionBody.RequiredSigners.Any()) {
+            if (transactionBody.RequiredSigners != null && transactionBody.RequiredSigners.Any()) {
                 cborRequiredSigners = CBORObject.NewArray();
                 foreach (var requireSigners in transactionBody.RequiredSigners)
                 {
@@ -117,7 +117,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (cborRequiredSigners != null) cborBody.Add(14, cborRequiredSigners);
 
             // 15) network_id
-            if (transactionBody.NetworkId.HasValue) 
+            if (transactionBody.NetworkId != null && transactionBody.NetworkId.HasValue) 
             {
                 cborBody.Add(15, transactionBody.NetworkId);
             }
@@ -129,13 +129,13 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             }
 
             // 17) total collateral
-            if (transactionBody.TotalCollateral.HasValue)
+            if (transactionBody.TotalCollateral != null && transactionBody.TotalCollateral.HasValue)
             {
                 cborBody.Add(17, transactionBody.TotalCollateral);
             }
 
             // 18) reference inputs
-            if (transactionBody.ReferenceInputs.Any()) 
+            if (transactionBody.ReferenceInputs != null && transactionBody.ReferenceInputs.Any()) 
             {
                 cborReferenceInputs = CBORObject.NewArray();
                 foreach (var referenceInputs in transactionBody.ReferenceInputs)

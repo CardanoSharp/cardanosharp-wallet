@@ -102,7 +102,6 @@ namespace CardanoSharp.Wallet.Utilities
             byte[] addressArray = new byte[1 + policyId.Length];
             addressArray[0] = header;
             Buffer.BlockCopy(policyId, 0, addressArray, 1, policyId.Length);
-
             return new Address(prefix, addressArray);
         }
 
@@ -118,7 +117,7 @@ namespace CardanoSharp.Wallet.Utilities
                 nameof(ScriptAny) => ((ScriptAny)Convert.ChangeType(paymentPolicy, typeof(ScriptAny))).GetPolicyId(),
                 nameof(ScriptAll) => ((ScriptAll)Convert.ChangeType(paymentPolicy, typeof(ScriptAll))).GetPolicyId(),
                 nameof(ScriptNofK) => ((ScriptNofK)Convert.ChangeType(paymentPolicy, typeof(ScriptNofK))).GetPolicyId(),
-                nameof(PlutusScriptV1) => ((PlutusScriptV1)Convert.ChangeType(paymentPolicy, typeof(PlutusScriptV1))).GetPolicyId(),
+                nameof(PlutusV1Script) => ((PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))).GetPolicyId(),
                 nameof(PlutusScriptV2) => ((PlutusScriptV2)Convert.ChangeType(paymentPolicy, typeof(PlutusScriptV2))).GetPolicyId(),
                 _ => throw new Exception("Unknown script type for payment script")
             };
@@ -130,7 +129,7 @@ namespace CardanoSharp.Wallet.Utilities
                 nameof(ScriptAny) => ((ScriptAny)Convert.ChangeType(stakePolicy, typeof(ScriptAny))).GetPolicyId(),
                 nameof(ScriptAll) => ((ScriptAll)Convert.ChangeType(stakePolicy, typeof(ScriptAll))).GetPolicyId(),
                 nameof(ScriptNofK) => ((ScriptNofK)Convert.ChangeType(stakePolicy, typeof(ScriptNofK))).GetPolicyId(),
-                nameof(PlutusScriptV1) => ((PlutusScriptV1)Convert.ChangeType(paymentPolicy, typeof(PlutusScriptV1))).GetPolicyId(),
+                nameof(PlutusV1Script) => ((PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))).GetPolicyId(),
                 nameof(PlutusScriptV2) => ((PlutusScriptV2)Convert.ChangeType(paymentPolicy, typeof(PlutusScriptV2))).GetPolicyId(),
                 _ => throw new Exception("Unknown script type for stake script")
             };
@@ -146,7 +145,6 @@ namespace CardanoSharp.Wallet.Utilities
             addressArray[0] = header;
             Buffer.BlockCopy(paymentPolicyId, 0, addressArray, 1, paymentPolicyId.Length);
             Buffer.BlockCopy(stakePolicyId, 0, addressArray, paymentPolicyId.Length + 1, stakePolicyId.Length);
-
             return new Address(prefix, addressArray);
         }
 
@@ -167,7 +165,7 @@ namespace CardanoSharp.Wallet.Utilities
                 nameof(ScriptAny) => ((ScriptAny)Convert.ChangeType(paymentPolicy, typeof(ScriptAny))).GetPolicyId(),
                 nameof(ScriptAll) => ((ScriptAll)Convert.ChangeType(paymentPolicy, typeof(ScriptAll))).GetPolicyId(),
                 nameof(ScriptNofK) => ((ScriptNofK)Convert.ChangeType(paymentPolicy, typeof(ScriptNofK))).GetPolicyId(),
-                nameof(PlutusScriptV1) => ((PlutusScriptV1)Convert.ChangeType(paymentPolicy, typeof(PlutusScriptV1))).GetPolicyId(),
+                nameof(PlutusV1Script) => ((PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))).GetPolicyId(),
                 nameof(PlutusScriptV2) => ((PlutusScriptV2)Convert.ChangeType(paymentPolicy, typeof(PlutusScriptV2))).GetPolicyId(),
                 _ => throw new Exception("Unknown script type for payment script")
             };

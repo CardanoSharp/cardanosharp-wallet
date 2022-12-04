@@ -17,13 +17,11 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex);
         ITransactionBodyBuilder AddInput(string transactionId, uint transactionIndex);
         ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput);
-        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null, 
-            byte[]? datumHash = null, 
+        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null,
             DatumOption? datumOption = null, 
             ScriptReference? scriptReference = null, 
             OutputPurpose outputPurpose = OutputPurpose.Spend);
         ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null, 
-                byte[]? datumHash = null, 
                 DatumOption? datumOption = null, 
                 ScriptReference? scriptReference = null, 
                 OutputPurpose outputPurpose = OutputPurpose.Spend);
@@ -108,16 +106,14 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public ITransactionBodyBuilder AddOutput(Address address, ulong coin, 
             ITokenBundleBuilder? tokenBundleBuilder = null, 
-            byte[]? datumHash = null, 
             DatumOption? datumOption = null, 
             ScriptReference? scriptReference = null, OutputPurpose outputPurpose = OutputPurpose.Spend)
         {
-            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, datumHash, datumOption, scriptReference);
+            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, datumOption, scriptReference);
         }
 
         public ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, 
-            ITokenBundleBuilder? tokenBundleBuilder = null, 
-            byte[]? datumHash = null, 
+            ITokenBundleBuilder? tokenBundleBuilder = null,
             DatumOption? datumOption = null, 
             ScriptReference? scriptReference = null, OutputPurpose outputPurpose = OutputPurpose.Spend)
         {
@@ -137,18 +133,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
                 Value = outputValue,
                 OutputPurpose = outputPurpose
             };
-
-            if (datumHash is not null)
-            {
-                output.DatumHash = datumHash;
-            }
-            else {
-                if (datumOption is not null)
-                    output.DatumOption = datumOption;
             
-                if (scriptReference is not null)
-                    output.ScriptReference = scriptReference;
-            }
+            if (datumOption is not null)
+                output.DatumOption = datumOption;
+        
+            if (scriptReference is not null)
+                output.ScriptReference = scriptReference;
 
             _model.TransactionOutputs.Add(output);
             return this;

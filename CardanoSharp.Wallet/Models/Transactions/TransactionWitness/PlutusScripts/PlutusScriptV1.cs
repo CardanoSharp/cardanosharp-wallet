@@ -1,9 +1,9 @@
 namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts
 {
     // plutus_v1_script = bytes
-    public class PlutusScriptV1
+    public class PlutusV1Script
     {
         public byte[] bytes { get; set; }
-        public PlutusScriptV1() { }
+        public PlutusV1Script() { }
     }
 }

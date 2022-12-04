@@ -3,7 +3,7 @@
     public partial class ScriptReference
     {
         public NativeScript? NativeScript { get; set; }
-        public byte[]? PlutusV1Script { get; set; }
-        public byte[]? PlutusV2Script { get; set; }
+        public PlutusV1Script? PlutusV1Script { get; set; }
+        public PlutusScriptV2? PlutusV2Script { get; set; }
     }
 }

@@ -14,43 +14,30 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
 		public static CBORObject GetCBOR(this TransactionOutput transactionOutput)
 		{
-			CBORObject cborTransactionOutput;
+			CBORObject cborTransactionOutput = CBORObject.NewMap()
+				.Add(0, transactionOutput.Address)
+				.Add(1, transactionOutput.Value.GetCBOR());
 
-			if (transactionOutput.DatumHash is not null)
+			if (transactionOutput.DatumOption is not null)
 			{
-				//start the cbor transaction output object with the address we are sending
-				cborTransactionOutput = CBORObject.NewArray()
-					.Add(transactionOutput.Address)
-					.Add(transactionOutput.Value.GetCBOR())
-					.Add(transactionOutput.DatumHash);
+				var cborDatumOption = CBORObject.NewArray();
+				if (transactionOutput.DatumOption.Hash is not null)
+				{
+					cborDatumOption.Add(0);
+					cborDatumOption.Add(transactionOutput.DatumOption.Hash);
+				}else if (transactionOutput.DatumOption.Data is not null)
+				{
+					cborDatumOption.Add(1);
+					cborDatumOption.Add(transactionOutput.DatumOption.Data.GetCBOR());
+				}
+
+				cborTransactionOutput.Add(2, cborDatumOption);
 			}
-			else
+
+			if (transactionOutput.ScriptReference is not null)
 			{
-				cborTransactionOutput = CBORObject.NewMap()
-					.Add(0, transactionOutput.Address)
-					.Add(1, transactionOutput.Value.GetCBOR());
-
-				if (transactionOutput.DatumOption is not null)
-				{
-					var cborDatumOption = CBORObject.NewArray();
-					if (transactionOutput.DatumOption.Hash is not null)
-					{
-						cborDatumOption.Add(0);
-						cborDatumOption.Add(transactionOutput.DatumOption.Hash);
-					}else if (transactionOutput.DatumOption.Data is not null)
-					{
-						cborDatumOption.Add(1);
-						cborDatumOption.Add(transactionOutput.DatumOption.Data.GetCBOR());
-					}
-
-					cborTransactionOutput.Add(2, cborDatumOption);
-				}
-
-				if (transactionOutput.ScriptReference is not null)
-				{
-					var cborScriptReference = transactionOutput.ScriptReference.Serialize();
-					cborTransactionOutput.Add(3, cborScriptReference);
-				}
+				var cborScriptReference = transactionOutput.ScriptReference.Serialize();
+				cborTransactionOutput.Add(3, cborScriptReference);
 			}
 
 			return cborTransactionOutput;
@@ -63,7 +50,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 			{
 				throw new ArgumentNullException(nameof(transactionOutputCbor));
 			}
-			if (transactionOutputCbor.Type != CBORType.Array)
+			if (transactionOutputCbor.Type != CBORType.Map)
 			{
 				throw new ArgumentException("transactionOutputCbor is not expected type CBORType.Map");
 			}

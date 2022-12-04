@@ -24,11 +24,8 @@ namespace CardanoSharp.Wallet.Models.Transactions
     {
         public byte[] Address { get; set; }
         public TransactionOutputValue Value { get; set; }
-        public byte[]? DatumHash { get; set; }
         public DatumOption? DatumOption { get; set; }
         public ScriptReference? ScriptReference { get; set; }
         public OutputPurpose OutputPurpose { get; set; }
     }
-
-    
 }
