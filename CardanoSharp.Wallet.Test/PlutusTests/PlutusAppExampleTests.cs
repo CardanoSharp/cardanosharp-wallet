@@ -127,6 +127,11 @@ public class PlutusScriptTests
         //act
         var cborTranaction = transaction.Build().Serialize().ToStringHex();
         
+
+        // Testing to see if we can view cbor
+        var expected = CBORObject.DecodeFromBytes(expectedSignedTxCbor.HexToByteArray());
+        var actual = CBORObject.DecodeFromBytes(cborTranaction.HexToByteArray());
+
         //assert
         Assert.Equal(expectedSignedTxCbor, cborTranaction);
     }

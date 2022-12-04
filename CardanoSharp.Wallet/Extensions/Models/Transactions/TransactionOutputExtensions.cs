@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Addresses;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
@@ -54,9 +57,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 			{
 				throw new ArgumentException("transactionOutputCbor is not expected type CBORType.Map");
 			}
-			if (transactionOutputCbor.Count != 2)
+			if (transactionOutputCbor.Count < 2)
 			{
-				throw new ArgumentException("transactionOutputCbor unexpected number elements (expected 2)");
+				throw new ArgumentException("transactionOutputCbor unexpected number elements (expected at least 2)");
 			}
 			if (transactionOutputCbor[0].Type != CBORType.ByteString)
 			{
@@ -105,6 +108,46 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
 					transactionOutput.Value.MultiAsset.Add(policyKeyBytes, nativeAsset);
 				}
+			}
+
+			// Datum Option
+			if (transactionOutputCbor.ContainsKey(2)) 
+			{
+				// How do we support datum hash here as well for contracts with secret data?
+				var datumOptionCbor = transactionOutputCbor[2];
+
+				// Does this work?
+				IPlutusData plutusData = (IPlutusData)datumOptionCbor.DecodeValueByCborType();
+				
+				DatumOption datumOption = new DatumOption { Data = plutusData };
+				transactionOutput.DatumOption = (DatumOption?)datumOption;
+			}
+
+			// Script Reference
+			if (transactionOutputCbor.ContainsKey(3)) 
+			{
+
+				ScriptReference scriptReference = new ScriptReference();
+				var scriptReferenceCbor = transactionOutputCbor[3];
+				if (scriptReferenceCbor.ContainsKey(0)) 
+				{
+					// Is this correct for native script?
+					NativeScript nativeScript = (NativeScript)scriptReferenceCbor[0].DecodeValueByCborType();
+					scriptReference.NativeScript = nativeScript;
+				}
+				else if (scriptReferenceCbor.ContainsKey(1)) 
+				{
+					byte[] plutusV1ScriptBytes = ((string)scriptReferenceCbor[1].DecodeValueByCborType()).HexToByteArray();
+					PlutusV1Script plutusV1Script = new PlutusV1Script { bytes = plutusV1ScriptBytes };
+					scriptReference.PlutusV1Script = plutusV1Script;
+				}
+				else if (scriptReferenceCbor.ContainsKey(2)) 
+				{
+					byte[] plutusScriptV2Bytes = ((string)scriptReferenceCbor[2].DecodeValueByCborType()).HexToByteArray();
+					PlutusScriptV2 plutusV2Script = new PlutusScriptV2 { bytes = plutusScriptV2Bytes };
+					scriptReference.PlutusV2Script = plutusV2Script;
+				}
+				transactionOutput.ScriptReference = scriptReference;
 			}
 
 			//return

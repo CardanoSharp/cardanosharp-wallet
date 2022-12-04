@@ -21,10 +21,6 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             DatumOption? datumOption = null, 
             ScriptReference? scriptReference = null, 
             OutputPurpose outputPurpose = OutputPurpose.Spend);
-        ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null, 
-                DatumOption? datumOption = null, 
-                ScriptReference? scriptReference = null, 
-                OutputPurpose outputPurpose = OutputPurpose.Spend);
         ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
         ITransactionBodyBuilder SetFee(ulong fee);
         ITransactionBodyBuilder SetTtl(uint ttl);
@@ -102,14 +98,6 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         {
             _model.TransactionOutputs.Add(transactionOutput);
             return this;
-        }
-
-        public ITransactionBodyBuilder AddOutput(Address address, ulong coin, 
-            ITokenBundleBuilder? tokenBundleBuilder = null, 
-            DatumOption? datumOption = null, 
-            ScriptReference? scriptReference = null, OutputPurpose outputPurpose = OutputPurpose.Spend)
-        {
-            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, datumOption, scriptReference);
         }
 
         public ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, 
