@@ -121,7 +121,7 @@ namespace CardanoSharp.Wallet.Utilities
                 _ => throw new Exception("Unknown native script type for payment script")
             };
             
-            Type stakePolicyType = typeof(T);
+            Type stakePolicyType = typeof(K);
             byte[] stakePolicyId = stakePolicyType.Name switch
             {
                 nameof(NativeScript) => ((NativeScript)Convert.ChangeType(stakePolicy, typeof(NativeScript))).GetPolicyId(),
