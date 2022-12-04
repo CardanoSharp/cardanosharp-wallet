@@ -87,8 +87,7 @@ public class PlutusScriptTests
                 },
                 scriptReference: new ScriptReference()
                 {
-                    PlutusV2Script = new PlutusScriptV2 { bytes = ((string)CBORObject.DecodeFromBytes(stakeScriptCbor.HexToByteArray())[1]
-                            .DecodeValueByCborType()).HexToByteArray() }
+                    PlutusV2Script = new PlutusScriptV2 { bytes = ((string)CBORObject.DecodeFromBytes(stakeScriptCbor.HexToByteArray())[1].DecodeValueByCborType()).HexToByteArray()  }
                 })
             .AddOutput(utxoAddress.ToAddress().GetBytes(), 10000000)
             .AddOutput(plutusSpendingScriptAddress.ToAddress().GetBytes(), 10000000,
@@ -125,15 +124,10 @@ public class PlutusScriptTests
             .SetWitnesses(witness);
         
         //act
-        var cborTranaction = transaction.Build().Serialize().ToStringHex();
-        
-
-        // Testing to see if we can view cbor
-        var expected = CBORObject.DecodeFromBytes(expectedSignedTxCbor.HexToByteArray());
-        var actual = CBORObject.DecodeFromBytes(cborTranaction.HexToByteArray());
+        var cborTransaction = transaction.Build().Serialize().ToStringHex();
 
         //assert
-        Assert.Equal(expectedSignedTxCbor, cborTranaction);
+        Assert.Equal(expectedSignedTxCbor, cborTransaction);
     }
 
     private readonly string spendTxHash = "eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f63";

@@ -18,13 +18,13 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (scriptReference.PlutusV1Script is not null)
             {
                 cborScriptReference.Add(1);
-                cborScriptReference.Add(scriptReference.PlutusV1Script);
+                cborScriptReference.Add(scriptReference.PlutusV1Script.bytes);
             }
 
             if (scriptReference.PlutusV2Script is not null)
             {
                 cborScriptReference.Add(2);
-                cborScriptReference.Add(scriptReference.PlutusV2Script);
+                cborScriptReference.Add(scriptReference.PlutusV2Script.bytes);
             }
             
             return CBORObject.FromObject(cborScriptReference.EncodeToBytes()).WithTag(24);
