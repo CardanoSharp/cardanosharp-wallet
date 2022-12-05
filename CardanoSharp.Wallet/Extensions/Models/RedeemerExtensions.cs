@@ -42,5 +42,15 @@ namespace CardanoSharp.Wallet.Extensions.Models
             redeemer.ExUnits = (ExUnits)redeemerCbor[3].GetExUnits();
             return redeemer;          
         }
+
+        public static byte[] Serialize(this Redeemer redeemer)
+        {
+            return redeemer.GetCBOR().EncodeToBytes();
+        }
+
+        public static Redeemer Deserialize(this byte[] bytes)
+        {
+            return CBORObject.DecodeFromBytes(bytes).GetRedeemer();
+        }
     }
 }
