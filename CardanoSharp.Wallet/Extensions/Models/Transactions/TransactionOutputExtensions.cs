@@ -31,7 +31,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 				}else if (transactionOutput.DatumOption.Data is not null)
 				{
 					cborDatumOption.Add(1);
-					cborDatumOption.Add(transactionOutput.DatumOption.Data.GetCBOR());
+					cborDatumOption.Add(transactionOutput.DatumOption.GetCBOR());
 				}
 
 				cborTransactionOutput.Add(2, cborDatumOption);
