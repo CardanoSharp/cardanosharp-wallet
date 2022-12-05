@@ -6,7 +6,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     {
         public RedeemerTag Tag { get; set; }
         public uint Index { get; set; }
-        public object PlutusData { get; set; }
+        public IPlutusData PlutusData { get; set; }
         public ExUnits ExUnits { get; set; }
     }
 }

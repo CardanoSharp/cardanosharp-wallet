@@ -1,6 +1,7 @@
-﻿using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
+﻿using System;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
 using PeterO.Cbor2;
-using System;
+
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {

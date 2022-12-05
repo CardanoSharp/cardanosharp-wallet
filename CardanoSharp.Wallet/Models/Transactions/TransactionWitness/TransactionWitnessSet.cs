@@ -23,6 +23,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness
             VKeyWitnesses = new HashSet<VKeyWitness>();
             NativeScripts = new HashSet<NativeScript>();
             PlutusV1Scripts = new HashSet<PlutusV1Script>();
+            PlutusDatas = new HashSet<IPlutusData>();
             Redeemers = new HashSet<Redeemer>();
             PlutusV2Scripts = new HashSet<PlutusV2Script>();
         }

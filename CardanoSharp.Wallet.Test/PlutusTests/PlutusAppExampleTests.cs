@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Encoding;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
@@ -197,8 +198,7 @@ public class PlutusScriptTests
             .SetCollateralOutput(new Address(utxoAddress), (ulong)returnedCollateral)
             .AddReferenceInput(spendTxHash.HexToByteArray(), spendTxIndexReadonly)
             .AddReferenceInput(spendTxHash.HexToByteArray(), spendTxIndexPlutusRefScript)
-            .AddReferenceInput(spendTxHash.HexToByteArray(), spendTxIndexMintingRefScript);
-            
+            .AddReferenceInput(spendTxHash.HexToByteArray(), spendTxIndexMintingRefScript);       
 
         var skeyWithChainCodeBytes = Bech32.Decode(skey, out _, out _);
         var vkeyWithChainCodeBytes = Bech32.Decode(vkey, out _, out _);
@@ -209,10 +209,23 @@ public class PlutusScriptTests
         Buffer.BlockCopy(skeyWithChainCodeBytes, 0, skeyBytes, 0, 64);
         Buffer.BlockCopy(vkeyWithChainCodeBytes, 0, vkeyBytes, 0, 32);
 
+        // ExUnits Require Protocol Parameter Calculates from a Cardano Node
+        RedeemerBuilder spendRedeemerBuilder = (RedeemerBuilder)RedeemerBuilder.Create
+            .SetTag(RedeemerTag.Spend)
+            .SetIndex(spendTxIndexReadonly)
+            .SetPlutusData(new PlutusDataInt { Value = 42 })
+            .SetExUnits(new ExUnits { Mem = 1122686, Steps = 345104086 } );
+
+        RedeemerBuilder mintRedeemerBuilder = (RedeemerBuilder)RedeemerBuilder.Create
+            .SetTag(RedeemerTag.Mint)
+            .SetIndex(spendTxIndexAda)
+            .SetPlutusData(new PlutusDataInt { Value = 42 })
+            .SetExUnits(new ExUnits { Mem = 933490, Steps = 293716274 } );
+        
         var witness = TransactionWitnessSetBuilder.Create
-            .AddVKeyWitness(new PublicKey(vkeyBytes, null), new PrivateKey(skeyBytes, null));
-            // Redeemer in witness set
-            // Mint Redeemer in witnessSet
+            .AddVKeyWitness(new PublicKey(vkeyBytes, null), new PrivateKey(skeyBytes, null))
+            .AddRedeemer(spendRedeemerBuilder)
+            .AddRedeemer(mintRedeemerBuilder);
 
         var transaction = TransactionBuilder.Create
             .SetBody(transactionBody)

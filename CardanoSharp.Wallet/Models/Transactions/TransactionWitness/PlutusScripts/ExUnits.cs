@@ -4,5 +4,7 @@
     {
         public uint Mem { get; set; }
         public uint Steps { get; set; }
+
+        public ExUnits() {}
     }
 }

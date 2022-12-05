@@ -1,10 +1,11 @@
-﻿using CardanoSharp.Wallet.Models.Keys;
-using CardanoSharp.Wallet.Models.Transactions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
+using CardanoSharp.Wallet.Models.Keys;
+using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
@@ -20,6 +21,8 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionWitnessSetBuilder SetScriptAnyNativeScript(IScriptAnyBuilder scriptAnyBuilder);
         ITransactionWitnessSetBuilder SetScriptNofKNativeScript(IScriptNofKBuilder scriptNofKBuilder);
         ITransactionWitnessSetBuilder AddPlutusV1Script(PlutusV1ScriptBuilder plutusV1ScriptBuilder);
+        ITransactionWitnessSetBuilder AddPlutusData(IPlutusData plutusData);
+        ITransactionWitnessSetBuilder AddRedeemer(RedeemerBuilder redeemerBuilder);
         ITransactionWitnessSetBuilder AddPlutusV2Script(PlutusV2ScriptBuilder plutusV2ScriptBuilder);
     }
 
@@ -133,6 +136,18 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionWitnessSetBuilder AddPlutusV1Script(PlutusV1ScriptBuilder plutusV1ScriptBuilder)
         {
             _model.PlutusV1Scripts.Add(plutusV1ScriptBuilder.Build());
+            return this;
+        }
+
+        public ITransactionWitnessSetBuilder AddPlutusData(IPlutusData plutusData)
+        {
+            _model.PlutusDatas.Add(plutusData);
+            return this;
+        }
+
+        public ITransactionWitnessSetBuilder AddRedeemer(RedeemerBuilder redeemerBuilder)
+        {
+            _model.Redeemers.Add(redeemerBuilder.Build());
             return this;
         }
 
