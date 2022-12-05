@@ -181,24 +181,24 @@ public class PlutusScriptTests
         var expectedSignedTxCbor =
             "84a90082825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f6300825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f63030d81825820c0a9b46de581b8d8bafea22b171500c6d82a157b4ab6f7b2be6d20395e4ecd4d001283825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f6301825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f6304825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f63050182a200581d607c40adaab5ef87c92a64032abf9fd59164a62e37aed1df80cca5f488011a367b39b0a200581d6037b6ea9caf2da27ad4e582b2b22d698d0f6950398b2fb581dfb9082001821a00989680a1581c9c8e9da7f81e3ca90485f32ebefc98137c8ac260a072a00c4aaf142da14a4d696c6c6172436f696e0510a200581d607c40adaab5ef87c92a64032abf9fd59164a62e37aed1df80cca5f488011a00443cdb111a00080e65021a00055eee09a1581c9c8e9da7f81e3ca90485f32ebefc98137c8ac260a072a00c4aaf142da14a4d696c6c6172436f696e050b5820ad5bced580b5a94bc1241213a906e57a923e4826f428c2bb83ae29af8fc93a14a200818258200f34e81e6ffcf01b14358dad56866cd62e925135d16f915b40a93369202c1f8a58406cce1b657581f58b676e101c92819318828d1ef91c69df827559a8fb886daa06f17cfeb2760c67d0dd25e6d76cff43d331f730e6d42d5da6fa0db12d2927ff080582840001182a821a0011217e1a1491ded6840100182a821a000e3e721a1181c132f5f6";
 
-        ITokenBundleBuilder mint = TokenBundleBuilder.Create.AddToken(policyId.HexToByteArray(), assetName.HexToByteArray(), (long)mintQuantity);
+        // Add a test to compute the script data hash
+        // Calculate Fee test
 
+        ITokenBundleBuilder mint = TokenBundleBuilder.Create.AddToken(policyId.HexToByteArray(), assetName.HexToByteArray(), (long)mintQuantity);
         var transactionBody = TransactionBodyBuilder.Create
+            .AddOutput(new Address(utxoAddress), 914045360)
             .AddInput(spendTxHash.HexToByteArray(), spendTxIndexAda)
             .AddInput(spendTxHash.HexToByteArray(), spendTxIndexPlutusLockedUtxo)
-            .AddReferenceInput(spendTxHash.HexToByteArray(), spendTxIndexReadonly)
-            .AddReferenceInput(spendTxHash.HexToByteArray(), spendTxIndexPlutusRefScript)
-            .AddReferenceInput(spendTxHash.HexToByteArray(), spendTxIndexMintingRefScript)
+            .AddOutput(new Address(dummyAddress2), (ulong)lovelace1, mint)
+            .SetFee(351982)
+            .SetMint(mint)
             .AddCollateralInput(collateralTxHash.HexToByteArray(), collateralTxIndex)
             .SetTotalCollateral((ulong)collateral)
-            .SetCollateralOutput(utxoAddress.HexToByteArray(), (ulong)returnedCollateral)
-            .SetMint(mint)
-            .AddOutput(new Address(dummyAddress2), (ulong)lovelace1, mint);
-
-
-        // Redeemer in witness set
-        // Mint Redeemer in witnessSet
-        //policy id
+            .SetCollateralOutput(new Address(utxoAddress), (ulong)returnedCollateral)
+            .AddReferenceInput(spendTxHash.HexToByteArray(), spendTxIndexReadonly)
+            .AddReferenceInput(spendTxHash.HexToByteArray(), spendTxIndexPlutusRefScript)
+            .AddReferenceInput(spendTxHash.HexToByteArray(), spendTxIndexMintingRefScript);
+            
 
         var skeyWithChainCodeBytes = Bech32.Decode(skey, out _, out _);
         var vkeyWithChainCodeBytes = Bech32.Decode(vkey, out _, out _);
@@ -211,7 +211,8 @@ public class PlutusScriptTests
 
         var witness = TransactionWitnessSetBuilder.Create
             .AddVKeyWitness(new PublicKey(vkeyBytes, null), new PrivateKey(skeyBytes, null));
-            //.AddRe
+            // Redeemer in witness set
+            // Mint Redeemer in witnessSet
 
         var transaction = TransactionBuilder.Create
             .SetBody(transactionBody)
@@ -220,14 +221,11 @@ public class PlutusScriptTests
         //act
         var cborTransaction = transaction.Build().Serialize().ToStringHex();
 
+        //test
+        var expected = CBORObject.DecodeFromBytes(expectedSignedTxCbor.HexToByteArray());
+        var actual = CBORObject.DecodeFromBytes(cborTransaction.HexToByteArray());
+
         //assert
         Assert.Equal(expectedSignedTxCbor, cborTransaction);
-
-        // var cbor = CBORObject.FromObject(
-        //     CBORObject.FromObject(42)
-        //         .EncodeToBytes()
-        // ).WithTag(24);
-        
-        // var hash2 = (HashUtility.Blake2b256(cbor.EncodeToBytes())).ToStringHex();
     }
 }

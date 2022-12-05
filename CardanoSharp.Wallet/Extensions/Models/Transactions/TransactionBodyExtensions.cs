@@ -125,7 +125,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             // 16) collateral return
             if (transactionBody.CollateralReturn != null) 
             {
-                cborBody.Add(16, transactionBody.CollateralReturn.Serialize());
+                cborBody.Add(16, transactionBody.CollateralReturn.GetCBOR());
             }
 
             // 17) total collateral
@@ -138,9 +138,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (transactionBody.ReferenceInputs != null && transactionBody.ReferenceInputs.Any()) 
             {
                 cborReferenceInputs = CBORObject.NewArray();
-                foreach (var referenceInputs in transactionBody.ReferenceInputs)
+                foreach (var referenceInput in transactionBody.ReferenceInputs)
                 {
-                    cborReferenceInputs.Add(referenceInputs);
+                    cborReferenceInputs.Add(referenceInput.GetCBOR());
                 }                
             }
 
