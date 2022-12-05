@@ -16,6 +16,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     public interface IPlutusData
     {
         CBORObject GetCBOR();
+        byte[] Serialize();
     }
 
     // big_int = int / big_uint / big_nint
@@ -30,6 +31,11 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         {
             return CBORObject.FromObject(Value);
         }
+
+        public byte[] Serialize() 
+        {
+            return GetCBOR().EncodeToBytes();
+        }
     }
     
     // big_uint = #6.2(bounded_bytes)
@@ -42,6 +48,11 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
                 CBORObject.FromObject(Value)
                     .EncodeToBytes()
             ).WithTag(24);
+        }
+
+        public byte[] Serialize() 
+        {
+            return GetCBOR().EncodeToBytes();
         }
     }
     
@@ -56,6 +67,11 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
                     .EncodeToBytes()
             ).WithTag(24);
         }
+
+        public byte[] Serialize() 
+        {
+            return GetCBOR().EncodeToBytes();
+        }
     }
     
     // bounded_bytes
@@ -68,6 +84,11 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
                 CBORObject.FromObject(Value)
                     .EncodeToBytes()
             ).WithTag(24);
+        }
+
+        public byte[] Serialize() 
+        {
+            return GetCBOR().EncodeToBytes();
         }
     }
     
@@ -82,6 +103,11 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
                     .EncodeToBytes()
             ).WithTag(24);
         }
+
+        public byte[] Serialize() 
+        {
+            return GetCBOR().EncodeToBytes();
+        }
     }
     
     // [ * plutus_data ]
@@ -94,6 +120,11 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
                 CBORObject.FromObject(Value)
                     .EncodeToBytes()
             ).WithTag(24);
+        }
+
+        public byte[] Serialize() 
+        {
+            return GetCBOR().EncodeToBytes();
         }
     }
 }

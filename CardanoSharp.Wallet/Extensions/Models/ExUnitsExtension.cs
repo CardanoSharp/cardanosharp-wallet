@@ -7,7 +7,7 @@ using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {
-    public static class ExUnitsExtension
+    public static class ExUnitsExtensions
     {
         public static CBORObject GetCBOR(this ExUnits exUnits)
         {

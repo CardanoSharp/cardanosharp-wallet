@@ -5,7 +5,7 @@ using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Extensions.Models
 {
-    public static class RedeemerExtension
+    public static class RedeemerExtensions
     {
         public static CBORObject GetCBOR(this Redeemer redeemer)
         {

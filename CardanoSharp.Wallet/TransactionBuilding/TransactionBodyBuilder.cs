@@ -2,6 +2,7 @@
 using System.Linq;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
@@ -31,6 +32,8 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder);
         ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
         ITransactionBodyBuilder SetScriptDataHash(byte[] scriptDataHash);
+        ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums);
+        ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums, byte[] languageViews);
         ITransactionBodyBuilder AddCollateralInput(TransactionInput transactionInput);
         ITransactionBodyBuilder AddCollateralInput(byte[] transactionId, uint transactionIndex);
         ITransactionBodyBuilder AddCollateralInput(string transactionIdStr, uint transactionIndex);
@@ -179,6 +182,17 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionBodyBuilder SetScriptDataHash(byte[] scriptDataHash) 
         {
             _model.ScriptDataHash = scriptDataHash;
+            return this;
+        }
+
+        public ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums) 
+        {
+            return SetScriptDataHash(redeemers, datums, CostModelUtility.PlutusV2CostModel.Serialize());
+        }
+
+        public ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums, byte[] languageViews) 
+        {
+            _model.ScriptDataHash = ScriptUtility.GenerateScriptHash(redeemers, datums, languageViews);
             return this;
         }
 
