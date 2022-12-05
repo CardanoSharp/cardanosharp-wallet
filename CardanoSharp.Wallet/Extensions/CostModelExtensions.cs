@@ -22,10 +22,11 @@ namespace CardanoSharp.Wallet.Extensions.Models
             , ? 1 : [ 175*175 int ] ; Plutus v2
             }
             */
+            
             var costModelCostsCbor = CBORObject.NewArray();
             foreach (long cost in costModel.Costs)
             {
-                costModelCostsCbor.Add((uint)cost);
+                costModelCostsCbor.Add(cost); 
             }
 
             var costModelCbor = CBORObject.NewMap();
@@ -49,10 +50,13 @@ namespace CardanoSharp.Wallet.Extensions.Models
             {
                 throw new ArgumentException("costModelCbor has unexpected number of elements (expected at least 1 and at most 2)");
             }
+
+            // Cardanosharp currently only supports V2
             
+            //costModel.Language = (Language)costModelCbor[0].DecodeValueToInt32();
             var costModel = new CostModel();
-            costModel.Language = (Language)costModelCbor[0].DecodeValueToInt32();
-            costModel.Costs = (List<long>)costModelCbor[1].DecodeValueByCborType();
+            costModel.Language = Language.PlutusV2;
+            costModel.Costs = (long[])costModelCbor[1].DecodeValueByCborType();
             return costModel;          
         }
 

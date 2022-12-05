@@ -14,7 +14,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             cborRedeemer.Add((uint)redeemer.Tag);
             cborRedeemer.Add(redeemer.Index);
             cborRedeemer.Add(redeemer.PlutusData.GetCBOR());
-            cborRedeemer.Add(redeemer.ExUnits.GetCBOR());            
+            cborRedeemer.Add(redeemer.ExUnits.GetCBOR());
             return cborRedeemer;
         }
 
@@ -25,7 +25,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
                 throw new ArgumentNullException(nameof(redeemerCbor));
             }
 
-            if (redeemerCbor.Type !=  CBORType.Array)
+            if (redeemerCbor.Type != CBORType.Array)
             {
                 throw new ArgumentException("redeemerCbor is not expected type CBORType.Array");
             }

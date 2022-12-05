@@ -4,13 +4,12 @@ using System.Linq;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
-
-
+using PeterO.Cbor2;
 namespace CardanoSharp.Wallet.Utilities
 {
     public static class ScriptUtility
     {
-        public static byte[] GenerateScriptHash(List<Redeemer> redeemers, List<IPlutusData> datums, byte[] languageViews)
+        public static byte[] GenerateScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums, byte[] languageViews)
         {
             byte[] encodedBytes;
 
@@ -25,27 +24,23 @@ namespace CardanoSharp.Wallet.Utilities
             byte[] plutusDataBytes = new byte[0];
             if (datums != null && datums.Count > 0)
             {
-                plutusDataBytes = new byte[datums.Sum(datum => datum.Serialize().Length)];
-                int offset = 0; 
-                foreach (var datum in datums)
+                var cborPlutusDatas = CBORObject.NewArray();
+                foreach (var plutusData in datums) 
                 {
-                    var datumBytes = datum.Serialize();
-                    Buffer.BlockCopy(datumBytes, 0, plutusDataBytes, offset, datumBytes.Length);
-                    offset += datumBytes.Length;
+                    cborPlutusDatas.Add(plutusData.GetCBOR());
                 }
+                plutusDataBytes = cborPlutusDatas.EncodeToBytes();
             }
             
             byte[] redeemerBytes = new byte[0];
             if (redeemers != null && redeemers.Count > 0)
             {
-                redeemerBytes = new byte[redeemers.Sum(redeemer => redeemer.Serialize().Length)];
-                int offset = 0; 
-                foreach (var redeemer in redeemers)
+                var cborRedeemers = CBORObject.NewArray();
+                foreach (var redeemer in redeemers) 
                 {
-                    var redeemerSerializedBytes = redeemer.Serialize();
-                    Buffer.BlockCopy(redeemerSerializedBytes, 0, redeemerBytes, offset, redeemerSerializedBytes.Length);
-                    offset += redeemerSerializedBytes.Length;
+                    cborRedeemers.Add(redeemer.GetCBOR());
                 }
+                redeemerBytes = cborRedeemers.EncodeToBytes();
             }
             else {
                 /**
@@ -62,7 +57,7 @@ namespace CardanoSharp.Wallet.Utilities
             encodedBytes = new byte[redeemerBytes.Length + plutusDataBytes.Length + languageViews.Length];
             Buffer.BlockCopy(redeemerBytes, 0, encodedBytes, 0, redeemerBytes.Length);
             Buffer.BlockCopy(plutusDataBytes, 0, encodedBytes, redeemerBytes.Length, plutusDataBytes.Length);
-            Buffer.BlockCopy(languageViews, 0, encodedBytes, redeemerBytes.Length + plutusDataBytes.Length, languageViews.Length);            
+            Buffer.BlockCopy(languageViews, 0, encodedBytes, redeemerBytes.Length + plutusDataBytes.Length, languageViews.Length);   
             return HashUtility.Blake2b256(encodedBytes);
         }
     }

@@ -9,12 +9,14 @@ using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 
 namespace CardanoSharp.Wallet.Utilities
 {
+    // Query the Cardano Blockchain for values. The values in the the Cardano Node repo are incorrect
     // From Java Library Cost Model Utility:
     // https://github.com/bloxbean/cardano-client-lib/blob/191675b34fc63f80b165cbac4adec7aab63a28d5/core/src/main/java/com/bloxbean/cardano/client/transaction/util/CostModelUtil.java#L370
     public static class CostModelUtility
     {
         //babbage
-        private static readonly long[] plutusV1Costs = new long[] {
+        private static readonly long[] plutusV1Costs = new long[]
+        { 
             205665,
             812,
             1,
@@ -351,14 +353,14 @@ namespace CardanoSharp.Wallet.Utilities
             32,
             38314,
             32,
-            20000000000L,
-            20000000000L,
+            20000000000,
+            20000000000,
             9462713,
             1021,
             10,
-            20000000000L,
+            20000000000,
             0,
-            20000000000L
+            20000000000
         };
 
         public static CostModel PlutusV1CostModel = new CostModel { Language = Language.PlutusV1, Costs = plutusV1Costs };

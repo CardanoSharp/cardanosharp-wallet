@@ -192,7 +192,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums, byte[] languageViews) 
         {
-            _model.ScriptDataHash = ScriptUtility.GenerateScriptHash(redeemers, datums, languageViews);
+            _model.ScriptDataHash = ScriptUtility.GenerateScriptDataHash(redeemers, datums, languageViews);
             return this;
         }
 
