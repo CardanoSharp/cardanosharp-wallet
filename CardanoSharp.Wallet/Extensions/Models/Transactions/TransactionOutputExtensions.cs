@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Addresses;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
@@ -14,10 +17,31 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
 		public static CBORObject GetCBOR(this TransactionOutput transactionOutput)
 		{
-			//start the cbor transaction output object with the address we are sending
-			var cborTransactionOutput = CBORObject.NewArray()
-				.Add(transactionOutput.Address)
-				.Add(transactionOutput.Value.GetCBOR());
+			CBORObject cborTransactionOutput = CBORObject.NewMap()
+				.Add(0, transactionOutput.Address)
+				.Add(1, transactionOutput.Value.GetCBOR());
+
+			if (transactionOutput.DatumOption is not null)
+			{
+				var cborDatumOption = CBORObject.NewArray();
+				if (transactionOutput.DatumOption.Hash is not null)
+				{
+					cborDatumOption.Add(0);
+					cborDatumOption.Add(transactionOutput.DatumOption.Hash);
+				}else if (transactionOutput.DatumOption.Data is not null)
+				{
+					cborDatumOption.Add(1);
+					cborDatumOption.Add(transactionOutput.DatumOption.GetCBOR());
+				}
+
+				cborTransactionOutput.Add(2, cborDatumOption);
+			}
+
+			if (transactionOutput.ScriptReference is not null)
+			{
+				var cborScriptReference = transactionOutput.ScriptReference.Serialize();
+				cborTransactionOutput.Add(3, cborScriptReference);
+			}
 
 			return cborTransactionOutput;
 		}
@@ -29,13 +53,13 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 			{
 				throw new ArgumentNullException(nameof(transactionOutputCbor));
 			}
-			if (transactionOutputCbor.Type != CBORType.Array)
+			if (transactionOutputCbor.Type != CBORType.Map)
 			{
 				throw new ArgumentException("transactionOutputCbor is not expected type CBORType.Map");
 			}
-			if (transactionOutputCbor.Count != 2)
+			if (transactionOutputCbor.Count < 2)
 			{
-				throw new ArgumentException("transactionOutputCbor unexpected number elements (expected 2)");
+				throw new ArgumentException("transactionOutputCbor unexpected number elements (expected at least 2)");
 			}
 			if (transactionOutputCbor[0].Type != CBORType.ByteString)
 			{
@@ -84,6 +108,46 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
 					transactionOutput.Value.MultiAsset.Add(policyKeyBytes, nativeAsset);
 				}
+			}
+
+			// Datum Option
+			if (transactionOutputCbor.ContainsKey(2)) 
+			{
+				// How do we support datum hash here as well for contracts with secret data?
+				var datumOptionCbor = transactionOutputCbor[2];
+
+				// Does this work?
+				IPlutusData plutusData = (IPlutusData)datumOptionCbor.DecodeValueByCborType();
+				
+				DatumOption datumOption = new DatumOption { Data = plutusData };
+				transactionOutput.DatumOption = (DatumOption?)datumOption;
+			}
+
+			// Script Reference
+			if (transactionOutputCbor.ContainsKey(3)) 
+			{
+
+				ScriptReference scriptReference = new ScriptReference();
+				var scriptReferenceCbor = transactionOutputCbor[3];
+				if (scriptReferenceCbor.ContainsKey(0)) 
+				{
+					// Is this correct for native script?
+					NativeScript nativeScript = (NativeScript)scriptReferenceCbor[0].DecodeValueByCborType();
+					scriptReference.NativeScript = nativeScript;
+				}
+				else if (scriptReferenceCbor.ContainsKey(1)) 
+				{
+					byte[] plutusV1ScriptBytes = ((string)scriptReferenceCbor[1].DecodeValueByCborType()).HexToByteArray();
+					PlutusV1Script plutusV1Script = new PlutusV1Script { script = plutusV1ScriptBytes };
+					scriptReference.PlutusV1Script = plutusV1Script;
+				}
+				else if (scriptReferenceCbor.ContainsKey(2)) 
+				{
+					byte[] plutusV2ScriptBytes = ((string)scriptReferenceCbor[2].DecodeValueByCborType()).HexToByteArray();
+					PlutusV2Script plutusV2Script = new PlutusV2Script { script = plutusV2ScriptBytes };
+					scriptReference.PlutusV2Script = plutusV2Script;
+				}
+				transactionOutput.ScriptReference = scriptReference;
 			}
 
 			//return

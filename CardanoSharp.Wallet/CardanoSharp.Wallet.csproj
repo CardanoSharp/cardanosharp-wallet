@@ -5,9 +5,10 @@
     <PackageId>Orion.CardanoSharp.Wallet</PackageId>
     <LangVersion>9.0</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>3.0.9</Version>
+    <Version>4.0.5</Version>
     <PackageProjectUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</RepositoryUrl>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   
   <ItemGroup>

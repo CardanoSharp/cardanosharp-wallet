@@ -73,7 +73,7 @@ public class CIP1854Tests
         Assert.Equal(controlScriptBytes, policyId);
         
         //Generate Address
-        var actualAddress = new AddressService().GetEnterpriseScriptAddress(policyScript, NetworkType.Testnet);
+        var actualAddress = AddressUtility.GetEnterpriseScriptAddress(policyScript, NetworkType.Testnet);
         var expectedAddress = new Address(expectedBechAddress);
         Assert.Equal(actualAddress.ToString(), expectedAddress.ToString());
     }
@@ -183,7 +183,7 @@ public class CIP1854Tests
         Assert.Equal(controlStakeScriptBytes, statkePolicyId);
         
         //Generate Address
-        var actualAddress = new AddressService().GetBaseScriptAddress(paymentPolicyScript, stakePolicyScript, NetworkType.Testnet);
+        var actualAddress = AddressUtility.GetBaseScriptAddress(paymentPolicyScript, stakePolicyScript, NetworkType.Testnet);
         var expectedAddress = new Address(expectedBechAddress);
         Assert.Equal(actualAddress.ToString(), expectedAddress.ToString());
     }
@@ -259,9 +259,9 @@ public class CIP1854Tests
         
         //Generate Address
         Assert.ThrowsAsync<System.Exception>(() =>
-            Task.Run(() => new AddressService().GetBaseScriptAddress(paymentPolicyId, stakePolicyScript, NetworkType.Testnet)));
+            Task.Run(() => AddressUtility.GetBaseScriptAddress(paymentPolicyId, stakePolicyScript, NetworkType.Testnet)));
         Assert.ThrowsAsync<System.Exception>(() =>
-            Task.Run(() => new AddressService().GetBaseScriptAddress(paymentPolicyScript, statkePolicyId, NetworkType.Testnet)));
+            Task.Run(() => AddressUtility.GetBaseScriptAddress(paymentPolicyScript, statkePolicyId, NetworkType.Testnet)));
     }
 
     public Mnemonic GetActor1() =>

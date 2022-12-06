@@ -11,10 +11,14 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
     {
         public static CBORObject GetCBOR(this TransactionBody transactionBody, AuxiliaryData auxiliaryData)
         {
+            CBORObject cborBody = CBORObject.NewMap();
+
             CBORObject cborInputs = null;
             CBORObject cborOutputs = null;
             CBORObject cborTransactionMint = null;
-            CBORObject cborBody = CBORObject.NewMap();
+            CBORObject cborCollateralInputs = null;
+            CBORObject cborRequiredSigners = null;
+            CBORObject cborReferenceInputs = null;
 
             //add all the transaction inputs
             if (transactionBody.TransactionInputs.Any())
@@ -53,7 +57,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 cborBody.Add(4, transactionBody.Certificate.GetCBOR());
             }
 
-            //add metadata
+            // 5) Withdrawals
+            // 6) Update
+
+            // 7) add metadata
             if (auxiliaryData != null || transactionBody.MetadataHash != default)
             {
                 if (auxiliaryData != null) {
@@ -64,7 +71,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 }
             }
 
-            //add tokens for minting
+            // 8) validity interval start
+
+            // 9) add tokens for minting
             if(transactionBody.Mint.Any())
             {
                 cborTransactionMint = CBORObject.NewMap();
@@ -80,6 +89,66 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 cborBody.Add(9, cborTransactionMint);
             }
 
+            // 11) script_data_hash
+            if (transactionBody.ScriptDataHash != null)
+            {
+                cborBody.Add(11, transactionBody.ScriptDataHash);
+            }
+
+            // 13) collateral_inputs
+            if (transactionBody.Collateral != null && transactionBody.Collateral.Any())
+            {
+                cborCollateralInputs = CBORObject.NewArray();
+                foreach (var txInput in transactionBody.Collateral)
+                {
+                    cborCollateralInputs.Add(txInput.GetCBOR());
+                }
+            }
+            if (cborCollateralInputs != null) cborBody.Add(13, cborCollateralInputs);
+
+            // 14) required_signers
+            if (transactionBody.RequiredSigners != null && transactionBody.RequiredSigners.Any()) {
+                cborRequiredSigners = CBORObject.NewArray();
+                foreach (var requireSigners in transactionBody.RequiredSigners)
+                {
+                    cborRequiredSigners.Add(requireSigners);
+                }
+            }
+            if (cborRequiredSigners != null) cborBody.Add(14, cborRequiredSigners);
+
+            // 15) network_id
+            if (transactionBody.NetworkId != null && transactionBody.NetworkId.HasValue) 
+            {
+                cborBody.Add(15, transactionBody.NetworkId);
+            }
+
+            // 16) collateral return
+            if (transactionBody.CollateralReturn != null) 
+            {
+                cborBody.Add(16, transactionBody.CollateralReturn.GetCBOR());
+            }
+
+            // 17) total collateral
+            if (transactionBody.TotalCollateral != null && transactionBody.TotalCollateral.HasValue)
+            {
+                cborBody.Add(17, transactionBody.TotalCollateral);
+            }
+
+            // 18) reference inputs
+            if (transactionBody.ReferenceInputs != null && transactionBody.ReferenceInputs.Any()) 
+            {
+                cborReferenceInputs = CBORObject.NewArray();
+                foreach (var referenceInput in transactionBody.ReferenceInputs)
+                {
+                    cborReferenceInputs.Add(referenceInput.GetCBOR());
+                }                
+            }
+
+            if (cborReferenceInputs != null)
+            {
+                cborBody.Add(18, cborReferenceInputs);
+            }
+            
             return cborBody;
         }
 
@@ -176,10 +245,65 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 }
             }
 
-            //? 11 : script_data_hash; New
-            //? 13 : set<transaction_input>; Collateral; new
-            //? 14 : required_signers; New
-            //? 15 : network_id; New
+            //? 11 : script_data_hash; 
+            if (transactionBodyCbor.ContainsKey(11)) 
+            {
+                var scriptDataHashCBOR = transactionBodyCbor[11];
+                var scriptDataHash = ((string)scriptDataHashCBOR.DecodeValueByCborType()).HexToByteArray();
+                transactionBody.ScriptDataHash = scriptDataHash;
+            }
+
+            //? 13 : set<transaction_input> ; collateral inputs
+            if (transactionBodyCbor.ContainsKey(13)) {
+                var collateralInputsCbor = transactionBodyCbor[13];
+                foreach (var input in inputsCbor.Values)
+                {
+                    transactionBody.Collateral.Add(input.GetTransactionInput());
+                }
+            }
+
+            //? 14 : required_signers; 
+            if (transactionBodyCbor.ContainsKey(14))
+            {
+                var requiredSignersCbor = transactionBodyCbor[14];
+                foreach (var requiredSignerCbor in requiredSignersCbor.Values) 
+                {
+                    var requiredSigner = ((string)requiredSignerCbor.DecodeValueByCborType()).HexToByteArray();
+                    transactionBody.RequiredSigners.Add(requiredSigner);
+                }
+            }
+
+            //? 15 : network_id; 
+            if (transactionBodyCbor.ContainsKey(15))
+            {
+                transactionBody.NetworkId = transactionBodyCbor[15].DecodeValueToUInt32();                
+            }
+
+            //? 16 : transaction_output     ; collateral return; New
+            if (transactionBodyCbor.ContainsKey(16))
+            {
+                var collateralReturnOutputsCbor = transactionBodyCbor[16];
+                foreach (var collateralReturnOutput in collateralReturnOutputsCbor.Values)
+                {
+                    transactionBody.TransactionOutputs.Add(collateralReturnOutput.GetTransactionOutput());
+                }
+            }
+            
+            //? 17 : coin                   ; total collateral; New
+            if (transactionBodyCbor.ContainsKey(17))
+            {
+                transactionBody.TotalCollateral = transactionBodyCbor[17].DecodeValueToUInt64(); 
+            }
+
+            //? 18 : set<transaction_input> ; reference inputs; New
+            if (transactionBodyCbor.ContainsKey(18))
+            {
+                var referenceInputsCbor = transactionBodyCbor[18];
+                foreach (var referenceInput in referenceInputsCbor.Values)
+                {
+                    transactionBody.TransactionInputs.Add(referenceInput.GetTransactionInput());
+                }
+            }
 
             //return
             return transactionBody;

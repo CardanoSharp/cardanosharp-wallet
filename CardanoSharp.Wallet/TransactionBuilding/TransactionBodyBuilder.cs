@@ -2,9 +2,11 @@
 using System.Linq;
 using CardanoSharp.Wallet.Enums;
 using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using CardanoSharp.Wallet.Utilities;
 
 
@@ -12,15 +14,38 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 {
     public interface ITransactionBodyBuilder: IABuilder<TransactionBody>
     {
-        ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex);
+        ITransactionBodyBuilder AddInput(TransactionInput transactionInput);
         ITransactionBodyBuilder AddInput(string transactionId, uint transactionIndex);
-        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null, OutputPurpose outputPurpose = OutputPurpose.Spend);
-        ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null, OutputPurpose outputPurpose = OutputPurpose.Spend);
+        ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex);
+        ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput);
+        ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null, 
+                DatumOption? datumOption = null, 
+                ScriptReference? scriptReference = null, 
+                OutputPurpose outputPurpose = OutputPurpose.Spend);
+        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null,
+            DatumOption? datumOption = null, 
+            ScriptReference? scriptReference = null, 
+            OutputPurpose outputPurpose = OutputPurpose.Spend);
         ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder);
         ITransactionBodyBuilder SetFee(ulong fee);
         ITransactionBodyBuilder SetTtl(uint ttl);
         ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder);
         ITransactionBodyBuilder SetMint(ITokenBundleBuilder token);
+        ITransactionBodyBuilder SetScriptDataHash(byte[] scriptDataHash);
+        ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums);
+        ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums, byte[] languageViews);
+        ITransactionBodyBuilder AddCollateralInput(TransactionInput transactionInput);
+        ITransactionBodyBuilder AddCollateralInput(byte[] transactionId, uint transactionIndex);
+        ITransactionBodyBuilder AddCollateralInput(string transactionIdStr, uint transactionIndex);
+        ITransactionBodyBuilder AddRequiredSigner(byte[] requiredSigner);
+        ITransactionBodyBuilder SetNetworkId(uint networkId);
+        ITransactionBodyBuilder SetCollateralOutput(TransactionOutput transactionOutput);
+        ITransactionBodyBuilder SetCollateralOutput(Address address, ulong coin);
+        ITransactionBodyBuilder SetCollateralOutput(byte[] address, ulong coin);
+        ITransactionBodyBuilder SetTotalCollateral(ulong TotalCollateral);
+        ITransactionBodyBuilder AddReferenceInput(TransactionInput transactionInput);
+        ITransactionBodyBuilder AddReferenceInput(byte[] transactionId, uint transactionIndex);
+        ITransactionBodyBuilder AddReferenceInput(string transactionIdStr, uint transactionIndex);
         ITransactionBodyBuilder RemoveFeeFromChange(ulong? fee = null);
     }
 
@@ -48,13 +73,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public static ITransactionBodyBuilder Create
         {
             get => new TransactionBodyBuilder();
-        }
-
-        public ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder)
-        {
-            _model.Certificate = certificateBuilder.Build();
-            return this;
-        }
+        }        
 
         public ITransactionBodyBuilder AddInput(TransactionInput transactionInput)
         {
@@ -91,12 +110,18 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
-        public ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null, OutputPurpose outputPurpose = OutputPurpose.Spend)
+        public ITransactionBodyBuilder AddOutput(Address address, ulong coin, 
+            ITokenBundleBuilder? tokenBundleBuilder = null, 
+            DatumOption? datumOption = null, 
+            ScriptReference? scriptReference = null, OutputPurpose outputPurpose = OutputPurpose.Spend)
         {
-            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, outputPurpose);
+            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, datumOption, scriptReference);
         }
 
-        public ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null,  OutputPurpose outputPurpose = OutputPurpose.Spend)
+        public ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, 
+            ITokenBundleBuilder? tokenBundleBuilder = null,
+            DatumOption? datumOption = null, 
+            ScriptReference? scriptReference = null, OutputPurpose outputPurpose = OutputPurpose.Spend)
         {
             var outputValue = new TransactionOutputValue()
             {
@@ -108,12 +133,20 @@ namespace CardanoSharp.Wallet.TransactionBuilding
                 outputValue.MultiAsset = tokenBundleBuilder.Build();
             }
 
-            _model.TransactionOutputs.Add(new TransactionOutput()
+            var output = new TransactionOutput()
             {
                 Address = address,
                 Value = outputValue,
                 OutputPurpose = outputPurpose
-            });
+            };
+            
+            if (datumOption is not null)
+                output.DatumOption = datumOption;
+        
+            if (scriptReference is not null)
+                output.ScriptReference = scriptReference;
+
+            _model.TransactionOutputs.Add(output);
             return this;
         }
 
@@ -129,6 +162,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
+        public ITransactionBodyBuilder SetCertificate(ICertificateBuilder certificateBuilder)
+        {
+            _model.Certificate = certificateBuilder.Build();
+            return this;
+        }
+
         public ITransactionBodyBuilder SetMetadataHash(IAuxiliaryDataBuilder auxiliaryDataBuilder) {
             _model.MetadataHash = HashUtility.Blake2b256(auxiliaryDataBuilder.Build().GetCBOR().EncodeToBytes()).ToStringHex();
             return this;
@@ -140,6 +179,159 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             return this;
         }
 
+        public ITransactionBodyBuilder SetScriptDataHash(byte[] scriptDataHash) 
+        {
+            _model.ScriptDataHash = scriptDataHash;
+            return this;
+        }
+
+        public ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums) 
+        {
+            return SetScriptDataHash(redeemers, datums, CostModelUtility.PlutusV2CostModel.Serialize());
+        }
+
+        public ITransactionBodyBuilder SetScriptDataHash(List<Redeemer> redeemers, List<IPlutusData> datums, byte[] languageViews) 
+        {
+            _model.ScriptDataHash = ScriptUtility.GenerateScriptDataHash(redeemers, datums, languageViews);
+            return this;
+        }
+
+        public ITransactionBodyBuilder AddCollateralInput(TransactionInput transactionInput)
+        {
+            if (_model.Collateral is null) 
+            {
+                _model.Collateral = new List<TransactionInput>();
+            }
+
+            _model.Collateral.Add(transactionInput);
+            return this;
+        }
+
+        public ITransactionBodyBuilder AddCollateralInput(byte[] transactionId, uint transactionIndex)
+        {
+            if (_model.Collateral is null) 
+            {
+                _model.Collateral = new List<TransactionInput>();
+            }
+
+            _model.Collateral.Add(new TransactionInput()
+            {
+                TransactionId = transactionId,
+                TransactionIndex = transactionIndex
+            });
+            return this;
+        }
+
+        public ITransactionBodyBuilder AddCollateralInput(string transactionIdStr, uint transactionIndex)
+        {
+            if (_model.Collateral is null) 
+            {
+                _model.Collateral = new List<TransactionInput>();
+            }
+
+            byte[] transactionId = transactionIdStr.HexToByteArray();
+            _model.Collateral.Add(new TransactionInput()
+            {
+                TransactionId = transactionId,
+                TransactionIndex = transactionIndex
+            });
+            return this;
+        }
+
+        public ITransactionBodyBuilder AddRequiredSigner(byte[] requiredSigner) 
+        {
+            if (_model.RequiredSigners is null) 
+            {
+                _model.RequiredSigners = new List<byte[]>();
+            }
+
+            _model.RequiredSigners.Add(requiredSigner);
+            return this;
+        }
+
+        public ITransactionBodyBuilder SetNetworkId(uint networkId) {
+            _model.NetworkId = networkId;
+            return this;
+        }
+
+        public ITransactionBodyBuilder SetCollateralOutput(TransactionOutput transactionOutput)
+        {
+            _model.CollateralReturn = transactionOutput;
+            return this;
+        }
+
+        public ITransactionBodyBuilder SetCollateralOutput(Address address, ulong coin)
+        {
+            return SetCollateralOutput(address.GetBytes(), coin);
+        }
+
+        public ITransactionBodyBuilder SetCollateralOutput(byte[] address, ulong coin)
+        {
+            var outputValue = new TransactionOutputValue()
+            {
+                Coin = coin
+            };
+
+            var output = new TransactionOutput()
+            {
+                Address = address,
+                Value = outputValue,
+                OutputPurpose = OutputPurpose.Collateral
+            };
+
+            _model.CollateralReturn = output;
+            return this;
+        }
+
+        public ITransactionBodyBuilder SetTotalCollateral(ulong totalCollateral)
+        {
+            _model.TotalCollateral = totalCollateral;
+            return this;
+        }
+
+        public ITransactionBodyBuilder AddReferenceInput(TransactionInput transactionInput)
+        {
+            if (_model.ReferenceInputs is null)
+            {
+                _model.ReferenceInputs = new List<TransactionInput>();
+            }
+
+            _model.ReferenceInputs.Add(transactionInput);
+            return this;
+        }
+
+        public ITransactionBodyBuilder AddReferenceInput(byte[] transactionId, uint transactionIndex)
+        {
+            if (_model.ReferenceInputs is null)
+            {
+                _model.ReferenceInputs = new List<TransactionInput>();
+            }
+
+            _model.ReferenceInputs.Add(new TransactionInput()
+            {
+                TransactionId = transactionId,
+                TransactionIndex = transactionIndex
+            });
+            return this;
+        }
+
+        public ITransactionBodyBuilder AddReferenceInput(string transactionIdStr, uint transactionIndex)
+        {
+            if (_model.ReferenceInputs is null)
+            {
+                _model.ReferenceInputs = new List<TransactionInput>();
+            }
+
+            byte[] transactionId = transactionIdStr.HexToByteArray();
+            _model.ReferenceInputs.Add(new TransactionInput()
+            {
+                TransactionId = transactionId,
+                TransactionIndex = transactionIndex
+            });
+            return this;
+        }
+
+        // Helper Functions
         public ITransactionBodyBuilder RemoveFeeFromChange(ulong? fee = null)
         {
             if (fee is null)

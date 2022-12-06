@@ -47,34 +47,35 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Extensions
                 }
             }
 
+            if (mint is null)
+                return balance;
+
             // remove / add assets from balance based on mint / burn token bundle
-            if (mint is not null) {
-                var mintAssets = mint.Build();
-                foreach (var ma  in mintAssets) {
-                    foreach (var na in ma.Value.Token) {
-                        var nativeAsset = balance.Assets.FirstOrDefault(x =>
-                            x.PolicyId.SequenceEqual(ma.Key.ToStringHex()) &&
-                            x.Name.Equals(na.Key.ToStringHex()));
-                        if (nativeAsset is not null)
-                        {
-                            // remove native asset value from balance, if burning tokens, this will add to the balance
-                            nativeAsset.Quantity = nativeAsset.Quantity - na.Value;
-                            if (nativeAsset.Quantity <= 0) {
-                                balance.Assets.Remove(nativeAsset);
-                            }
+            var mintAssets = mint.Build();
+            foreach (var ma  in mintAssets) {
+                foreach (var na in ma.Value.Token) {
+                    var nativeAsset = balance.Assets.FirstOrDefault(x =>
+                        x.PolicyId.SequenceEqual(ma.Key.ToStringHex()) &&
+                        x.Name.Equals(na.Key.ToStringHex()));
+                    if (nativeAsset is not null)
+                    {
+                        // remove native asset value from balance, if burning tokens, this will add to the balance
+                        nativeAsset.Quantity = nativeAsset.Quantity - na.Value;
+                        if (nativeAsset.Quantity <= 0) {
+                            balance.Assets.Remove(nativeAsset);
                         }
-                        else {
-                            long quantity = -na.Value; // Only add a required balance asset if an NFT is being burned
-                            if (quantity > 0)
+                    }
+                    else {
+                        long quantity = -na.Value; // Only add a required balance asset if an NFT is being burned
+                        if (quantity > 0)
+                        {
+                            nativeAsset = new Asset()
                             {
-                                nativeAsset = new Asset()
-                                {
-                                    PolicyId = ma.Key.ToStringHex(),
-                                    Name = na.Key.ToStringHex(),
-                                    Quantity = quantity
-                                };
-                                balance.Assets.Add(nativeAsset);
-                            }
+                                PolicyId = ma.Key.ToStringHex(),
+                                Name = na.Key.ToStringHex(),
+                                Quantity = quantity
+                            };
+                            balance.Assets.Add(nativeAsset);
                         }
                     }
                 }

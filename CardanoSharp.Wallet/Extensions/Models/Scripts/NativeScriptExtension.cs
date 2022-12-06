@@ -1,5 +1,5 @@
 ﻿using CardanoSharp.Wallet.Common;
-using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
 using PeterO.Cbor2;
 using CardanoSharp.Wallet.Utilities;
 using System;

@@ -3,6 +3,7 @@ using CardanoSharp.Wallet.CIPs.CIP30.Models;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models;
+using CardanoSharp.Wallet.Models.Keys;
 using CardanoSharp.Wallet.Models.Transactions;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,7 +56,7 @@ public class CIP30Tests
 			}
 		};
 		var actualCbor = unspentOutput.Serialize().ToStringHex();
-		var expectedCbor = "82825820e1dbf61f88853bb413ebd4681a5d0dcf7e6d48785463f348b9739ccc4f7d306901825839005a99cb175eb944462d6bfd29d06e0a69defc091d8e5ecab740afac6f1922fcdeeb6df8592d78b20c6e22fdb73fa9446aad05626d78000b7f821a0017ad4aa2581c698a6ea0ca99f315034072af31eaac6ec11fe8558d3f48e9775aab9da14574445249501aee6b279b581ca4a461b1f5c751d4efdff99070ca9faed2293de3578ac7401f0ed5cca145744c61636503";
+		var expectedCbor = "82825820e1dbf61f88853bb413ebd4681a5d0dcf7e6d48785463f348b9739ccc4f7d306901a2005839005a99cb175eb944462d6bfd29d06e0a69defc091d8e5ecab740afac6f1922fcdeeb6df8592d78b20c6e22fdb73fa9446aad05626d78000b7f01821a0017ad4aa2581c698a6ea0ca99f315034072af31eaac6ec11fe8558d3f48e9775aab9da14574445249501aee6b279b581ca4a461b1f5c751d4efdff99070ca9faed2293de3578ac7401f0ed5cca145744c61636503";
 		Assert.Equal(expectedCbor, actualCbor);
 	}
 
@@ -126,5 +127,23 @@ public class CIP30Tests
 		Assert.Equal("635da8872ab583e67993c69e67f50f12cc34ef8e1e1d93da9a9fe0cd", utxo.Balance.Assets.First().PolicyId);
 		Assert.Equal("TMON", utxo.Balance.Assets.First().Name);
 		Assert.Equal((long)6000, utxo.Balance.Assets.First().Quantity);
+	}
+
+	[Fact]
+	public void DataSignature_Verification_Test()
+	{
+		var dataSig = new DataSignature()
+		{
+			Key = "a4010103272006215820069459f11edf67ae33bb6c3642bd0e69b405c50dbea5c7bf4cfbdf60059e5fce",
+			Signature = "844ca20127676164647265737340a166686173686564f4588250726f6f66206f66206f776e657273686970207374616b655f746573743175716874643566636c6b336c6a7061366866786e757978616372383333657067306a7a67776b76797279797537716730767878686320666f7220636c61696d2030373237393131642d623862632d343233382d383739302d653761316535333735643966584062896789c02aba913dbdb0fb9a16c4ecf35e32a06659c57def12a1d226c905dceef48fa0d6513e01a0cafc1b54108bd02d036af409fedbe82f1201b709232c02"
+		};
+
+		var coseKey = dataSig.GetCoseKey();
+		var coseSign1 = dataSig.GetCoseSign1();
+
+		var pubKey = new PublicKey(coseKey.Key, null);
+		var verified = pubKey.Verify(coseSign1.GetSigStructure(), coseSign1.Signature);
+		Assert.True(verified);
+		Assert.True(dataSig.Verify());
 	}
 }
