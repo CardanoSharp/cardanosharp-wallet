@@ -22,12 +22,12 @@ namespace CardanoSharp.Wallet.CIPs.CIP8.Models
             Unprotected = unprotected ?? new HeaderMap();
         }
 
-        public CBORObject[] GetCBOR()
+        public CBORObject[] GetCbor()
         {
             var cbor = new CBORObject[2];
             if (Protected != null)
             {
-                cbor[0] = Protected.GetCBOR();
+                cbor[0] = Protected.GetCbor();
             }
             else
             {
@@ -36,7 +36,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP8.Models
 
             if (Unprotected != null)
             {
-                cbor[1] = Unprotected.GetCBOR();
+                cbor[1] = Unprotected.GetCbor();
             }
             else
             {

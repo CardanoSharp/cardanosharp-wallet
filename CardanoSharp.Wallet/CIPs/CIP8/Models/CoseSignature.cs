@@ -24,10 +24,10 @@ namespace CardanoSharp.Wallet.CIPs.CIP8.Models
             Signature = signature ?? throw new ArgumentNullException(nameof(signature));
         }
 
-        public CBORObject GetCBOR()
+        public CBORObject GetCbor()
         {
             var cbor = CBORObject.NewArray();
-            foreach (var headerItem in Headers.GetCBOR())
+            foreach (var headerItem in Headers.GetCbor())
             {
                 cbor.Add(headerItem);
             }

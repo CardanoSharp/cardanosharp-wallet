@@ -6,7 +6,7 @@
     public enum AlgorithmId
     {
         /// EdDSA (Pure EdDSA, not HashedEdDSA) - the algorithm used for Cardano addresses
-        EdDSA = -8,
+        EdDsa = -8,
         /// ChaCha20/Poly1305 w/ 256-bit key, 128-bit tag
         ChaCha20Poly1305 = 24,
     }
@@ -14,16 +14,16 @@
     public enum KeyType
     {
         /// octet key pair
-        OKP = 1,
+        Okp = 1,
         /// 2-coord EC
-        EC2 = 2,
+        Ec2 = 2,
         Symmetric = 4,
     }
 
     public enum EcKey
     {
         // EC identifier
-        CRV = -1,
+        Crv = -1,
         // x coord (OKP) / pubkey (EC2)
         X = -2,
         // y coord (only for EC2 - not present in OKP)
@@ -39,8 +39,7 @@
         P521 = 3,
         X25519 = 4,
         X448 = 5,
-        // the EdDSA variant used for cardano addresses
-        Ed25519 = 6,
+        Ed25519 = 6, // the EdDSA variant used for cardano addresses
         Ed448 = 7,
     }
 

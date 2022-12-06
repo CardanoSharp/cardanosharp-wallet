@@ -40,7 +40,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP8.Models
             OtherHeaders.Add(key, value);
         }
 
-        public CBORObject GetCBOR()
+        public CBORObject GetCbor()
         {
             var map = CBORObject.NewMap();
             map.Add(1, (int)KeyType);
@@ -49,7 +49,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP8.Models
                 map.Add(2, KeyId);
             }
             map.Add(3, (int)AlgorithmId);
-            map.Add((int)EcKey.CRV, (int)CurveType);
+            map.Add((int)EcKey.Crv, (int)CurveType);
             map.Add((int)EcKey.X, VerificationKey);
             return map;
         }

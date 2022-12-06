@@ -39,7 +39,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP8.Models
             Payload = payload;
         }
 
-        public CBORObject GetCBOR()
+        public CBORObject GetCbor()
         {
             var cbor = CBORObject.NewArray();
             cbor.Add(SigContext.ToString());

@@ -1,5 +1,4 @@
-﻿using CardanoSharp.Wallet.CIPs.CIP8.Extensions;
-using PeterO.Cbor2;
+﻿using PeterO.Cbor2;
 using System;
 
 namespace CardanoSharp.Wallet.CIPs.CIP8.Models
@@ -32,38 +31,22 @@ namespace CardanoSharp.Wallet.CIPs.CIP8.Models
             if (coseSignCbor.Type != CBORType.Array)
                 throw new ArgumentException($"{nameof(coseSignCbor)} must be an array");
 
-            var protectedHeader = coseSignCbor[0].DecodeProtectedHeaderMap();
-            var unprotectedHeader = coseSignCbor[1].DecodeHeaderMap();
+            var protectedHeader = new ProtectedHeaderMap(coseSignCbor[0]);
+            var unprotectedHeader = new HeaderMap(coseSignCbor[1]);
             Headers = new Headers(protectedHeader, unprotectedHeader);
             Payload = coseSignCbor[2].GetByteString();
             Signature = coseSignCbor[3].GetByteString();
         }
 
-        public CBORObject GetCBOR()
+        public CBORObject GetCbor()
         {
             var cbor = CBORObject.NewArray();
-            foreach (var headerItem in Headers.GetCBOR())
+            foreach (var headerItem in Headers.GetCbor())
             {
                 cbor.Add(headerItem);
             }
-
-            if (Payload != null && Payload.Length > 0)
-            {
-                cbor.Add(CBORObject.FromObject(Payload));
-            }
-            else
-            {
-                cbor.Add(CBORObject.Null);
-            }
-
-            if (Signature != null && Signature.Length > 0)
-            {
-                cbor.Add(CBORObject.FromObject(Signature));
-            }
-            else
-            {
-                cbor.Add(CBORObject.FromObject(Array.Empty<byte>()));
-            }
+            cbor.Add(Payload is { Length: > 0 } ? CBORObject.FromObject(Payload) : CBORObject.Null);
+            cbor.Add(Signature is { Length: > 0 }? CBORObject.FromObject(Signature) : CBORObject.FromObject(Array.Empty<byte>()));
             return cbor;
         }
     }
