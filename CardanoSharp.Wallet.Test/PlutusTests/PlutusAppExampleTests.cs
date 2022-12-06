@@ -130,10 +130,6 @@ public class PlutusScriptTests
         //act
         var cborTransaction = transaction.Build().Serialize().ToStringHex();
 
-        //test
-        var expected = CBORObject.DecodeFromBytes(expectedSignedTxCbor.HexToByteArray());
-        var actual = CBORObject.DecodeFromBytes(cborTransaction.HexToByteArray());
-
         //assert
         Assert.Equal(expectedSignedTxCbor, cborTransaction);
     }
@@ -185,7 +181,7 @@ public class PlutusScriptTests
     [Fact]
     public void CallReferenceScriptTest1()
     {
-        var expectedSignedTxCbor =
+        var expectedSignedTxCbor = 
             "84a90082825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f6300825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f63030d81825820c0a9b46de581b8d8bafea22b171500c6d82a157b4ab6f7b2be6d20395e4ecd4d001283825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f6301825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f6304825820eb15dc2bf48cd92bb4217068119122673e4964371cbaeb6a1f06398b94cf8f63050182a200581d607c40adaab5ef87c92a64032abf9fd59164a62e37aed1df80cca5f488011a367b39b0a200581d6037b6ea9caf2da27ad4e582b2b22d698d0f6950398b2fb581dfb9082001821a00989680a1581c9c8e9da7f81e3ca90485f32ebefc98137c8ac260a072a00c4aaf142da14a4d696c6c6172436f696e0510a200581d607c40adaab5ef87c92a64032abf9fd59164a62e37aed1df80cca5f488011a00443cdb111a00080e65021a00055eee09a1581c9c8e9da7f81e3ca90485f32ebefc98137c8ac260a072a00c4aaf142da14a4d696c6c6172436f696e050b5820ad5bced580b5a94bc1241213a906e57a923e4826f428c2bb83ae29af8fc93a14a200818258200f34e81e6ffcf01b14358dad56866cd62e925135d16f915b40a93369202c1f8a58406cce1b657581f58b676e101c92819318828d1ef91c69df827559a8fb886daa06f17cfeb2760c67d0dd25e6d76cff43d331f730e6d42d5da6fa0db12d2927ff080582840001182a821a0011217e1a1491ded6840100182a821a000e3e721a1181c132f5f6";
 
         ITokenBundleBuilder mint = TokenBundleBuilder.Create.AddToken(policyId.HexToByteArray(), assetName.HexToByteArray(), (long)mintQuantity);
