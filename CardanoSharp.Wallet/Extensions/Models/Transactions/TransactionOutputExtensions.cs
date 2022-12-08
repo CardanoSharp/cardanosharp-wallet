@@ -55,7 +55,10 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             {
                 throw new ArgumentNullException(nameof(transactionOutputCbor));
             }
-            if (transactionOutputCbor.Type != CBORType.Map)
+            if (
+                transactionOutputCbor.Type != CBORType.Map
+                && transactionOutputCbor.Type != CBORType.Array
+            ) // We must support both pre and post alonzo format
             {
                 throw new ArgumentException(
                     "transactionOutputCbor is not expected type CBORType.Map"
@@ -129,7 +132,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                 }
             }
 
-            // Datum Option
+            // Datum Option, this does not support legacy V1 datum hash
             if (transactionOutputCbor.ContainsKey(2))
             {
                 // How do we support datum hash here as well for contracts with secret data?
@@ -153,7 +156,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
                     var scriptReferenceCbor = scriptReferenceCborWithTag.Untag();
 
                     // Must decode the object after removing the tag
-                    var decodedScriptReferenceCbor = CBORObject.DecodeObjectFromBytes<CBORObject>(
+                    var decodedScriptReferenceCbor = CBORObject.DecodeFromBytes(
                         ((string)scriptReferenceCbor.DecodeValueByCborType()).HexToByteArray()
                     );
                     var scriptKey = decodedScriptReferenceCbor[0].DecodeValueToUInt32();
