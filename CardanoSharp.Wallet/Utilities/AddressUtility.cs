@@ -8,7 +8,6 @@ using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 
-
 namespace CardanoSharp.Wallet.Utilities
 {
     public static class AddressUtility
@@ -57,8 +56,12 @@ namespace CardanoSharp.Wallet.Utilities
                 NetworkType.Mainnet => "",
                 _ => throw new Exception("Unknown address type")
             };
-        
-        public static Address GetBaseAddress(PublicKey payment, PublicKey stake, NetworkType networkType)
+
+        public static Address GetBaseAddress(
+            PublicKey payment,
+            PublicKey stake,
+            NetworkType networkType
+        )
         {
             var paymentEncoded = HashUtility.Blake2b224(payment.Key);
             var stakeEncoded = HashUtility.Blake2b224(stake.Key);
@@ -77,18 +80,41 @@ namespace CardanoSharp.Wallet.Utilities
             return GetEnterpriseAddress(paymentEncoded, networkType);
         }
 
-        public static Address GetEnterpriseScriptAddress<T>(T paymentPolicy, NetworkType networkType)
+        public static Address GetEnterpriseScriptAddress<T>(
+            T paymentPolicy,
+            NetworkType networkType
+        )
         {
             var addressType = AddressType.EnterpriseScript;
             var networkInfo = GetNetworkInfo(networkType);
-            
+
             Type paymentPolicyType = typeof(T);
             byte[] policyId = paymentPolicyType.Name switch
             {
-                nameof(NativeScript) => ((NativeScript)Convert.ChangeType(paymentPolicy, typeof(NativeScript))).GetPolicyId(),
-                nameof(ScriptAny) => ((ScriptAny)Convert.ChangeType(paymentPolicy, typeof(ScriptAny))).GetPolicyId(),
-                nameof(ScriptAll) => ((ScriptAll)Convert.ChangeType(paymentPolicy, typeof(ScriptAll))).GetPolicyId(),
-                nameof(ScriptNofK) => ((ScriptNofK)Convert.ChangeType(paymentPolicy, typeof(ScriptNofK))).GetPolicyId(),
+                nameof(NativeScript)
+                    => (
+                        (NativeScript)Convert.ChangeType(paymentPolicy, typeof(NativeScript))
+                    ).GetPolicyId(),
+                nameof(ScriptAny)
+                    => (
+                        (ScriptAny)Convert.ChangeType(paymentPolicy, typeof(ScriptAny))
+                    ).GetPolicyId(),
+                nameof(ScriptAll)
+                    => (
+                        (ScriptAll)Convert.ChangeType(paymentPolicy, typeof(ScriptAll))
+                    ).GetPolicyId(),
+                nameof(ScriptNofK)
+                    => (
+                        (ScriptNofK)Convert.ChangeType(paymentPolicy, typeof(ScriptNofK))
+                    ).GetPolicyId(),
+                nameof(PlutusV1Script)
+                    => (
+                        (PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))
+                    ).GetPolicyId(),
+                nameof(PlutusV2Script)
+                    => (
+                        (PlutusV2Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV2Script))
+                    ).GetPolicyId(),
                 _ => throw new Exception("Unknown native script type for payment script")
             };
 
@@ -97,7 +123,7 @@ namespace CardanoSharp.Wallet.Utilities
 
             //get header
             var header = GetHeader(networkInfo, addressType);
-            
+
             //get body
             byte[] addressArray = new byte[1 + policyId.Length];
             addressArray[0] = header;
@@ -105,32 +131,72 @@ namespace CardanoSharp.Wallet.Utilities
             return new Address(prefix, addressArray);
         }
 
-        public static Address GetBaseScriptAddress<T, K>(T paymentPolicy, K stakePolicy, NetworkType networkType)
+        public static Address GetBaseScriptAddress<T, K>(
+            T paymentPolicy,
+            K stakePolicy,
+            NetworkType networkType
+        )
         {
             var addressType = AddressType.BaseScript;
             var networkInfo = GetNetworkInfo(networkType);
-            
+
             Type paymentPolicyType = typeof(T);
             byte[] paymentPolicyId = paymentPolicyType.Name switch
             {
-                nameof(NativeScript) => ((NativeScript)Convert.ChangeType(paymentPolicy, typeof(NativeScript))).GetPolicyId(),
-                nameof(ScriptAny) => ((ScriptAny)Convert.ChangeType(paymentPolicy, typeof(ScriptAny))).GetPolicyId(),
-                nameof(ScriptAll) => ((ScriptAll)Convert.ChangeType(paymentPolicy, typeof(ScriptAll))).GetPolicyId(),
-                nameof(ScriptNofK) => ((ScriptNofK)Convert.ChangeType(paymentPolicy, typeof(ScriptNofK))).GetPolicyId(),
-                nameof(PlutusV1Script) => ((PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))).GetPolicyId(),
-                nameof(PlutusV2Script) => ((PlutusV2Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV2Script))).GetPolicyId(),
+                nameof(NativeScript)
+                    => (
+                        (NativeScript)Convert.ChangeType(paymentPolicy, typeof(NativeScript))
+                    ).GetPolicyId(),
+                nameof(ScriptAny)
+                    => (
+                        (ScriptAny)Convert.ChangeType(paymentPolicy, typeof(ScriptAny))
+                    ).GetPolicyId(),
+                nameof(ScriptAll)
+                    => (
+                        (ScriptAll)Convert.ChangeType(paymentPolicy, typeof(ScriptAll))
+                    ).GetPolicyId(),
+                nameof(ScriptNofK)
+                    => (
+                        (ScriptNofK)Convert.ChangeType(paymentPolicy, typeof(ScriptNofK))
+                    ).GetPolicyId(),
+                nameof(PlutusV1Script)
+                    => (
+                        (PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))
+                    ).GetPolicyId(),
+                nameof(PlutusV2Script)
+                    => (
+                        (PlutusV2Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV2Script))
+                    ).GetPolicyId(),
                 _ => throw new Exception("Unknown script type for payment script")
             };
-            
+
             Type stakePolicyType = typeof(K);
             byte[] stakePolicyId = stakePolicyType.Name switch
             {
-                nameof(NativeScript) => ((NativeScript)Convert.ChangeType(stakePolicy, typeof(NativeScript))).GetPolicyId(),
-                nameof(ScriptAny) => ((ScriptAny)Convert.ChangeType(stakePolicy, typeof(ScriptAny))).GetPolicyId(),
-                nameof(ScriptAll) => ((ScriptAll)Convert.ChangeType(stakePolicy, typeof(ScriptAll))).GetPolicyId(),
-                nameof(ScriptNofK) => ((ScriptNofK)Convert.ChangeType(stakePolicy, typeof(ScriptNofK))).GetPolicyId(),
-                nameof(PlutusV1Script) => ((PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))).GetPolicyId(),
-                nameof(PlutusV2Script) => ((PlutusV2Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV2Script))).GetPolicyId(),
+                nameof(NativeScript)
+                    => (
+                        (NativeScript)Convert.ChangeType(stakePolicy, typeof(NativeScript))
+                    ).GetPolicyId(),
+                nameof(ScriptAny)
+                    => (
+                        (ScriptAny)Convert.ChangeType(stakePolicy, typeof(ScriptAny))
+                    ).GetPolicyId(),
+                nameof(ScriptAll)
+                    => (
+                        (ScriptAll)Convert.ChangeType(stakePolicy, typeof(ScriptAll))
+                    ).GetPolicyId(),
+                nameof(ScriptNofK)
+                    => (
+                        (ScriptNofK)Convert.ChangeType(stakePolicy, typeof(ScriptNofK))
+                    ).GetPolicyId(),
+                nameof(PlutusV1Script)
+                    => (
+                        (PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))
+                    ).GetPolicyId(),
+                nameof(PlutusV2Script)
+                    => (
+                        (PlutusV2Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV2Script))
+                    ).GetPolicyId(),
                 _ => throw new Exception("Unknown script type for stake script")
             };
 
@@ -139,34 +205,66 @@ namespace CardanoSharp.Wallet.Utilities
 
             //get header
             var header = GetHeader(networkInfo, addressType);
-            
+
             //get body
             byte[] addressArray = new byte[1 + paymentPolicyId.Length + stakePolicyId.Length];
             addressArray[0] = header;
             Buffer.BlockCopy(paymentPolicyId, 0, addressArray, 1, paymentPolicyId.Length);
-            Buffer.BlockCopy(stakePolicyId, 0, addressArray, paymentPolicyId.Length + 1, stakePolicyId.Length);
+            Buffer.BlockCopy(
+                stakePolicyId,
+                0,
+                addressArray,
+                paymentPolicyId.Length + 1,
+                stakePolicyId.Length
+            );
             return new Address(prefix, addressArray);
         }
 
-        public static Address GetBaseScriptAddress<T>(T paymentPolicy, PublicKey stake, NetworkType networkType)
+        public static Address GetBaseScriptAddress<T>(
+            T paymentPolicy,
+            PublicKey stake,
+            NetworkType networkType
+        )
         {
             return GetBaseScriptAddress<T>(paymentPolicy, stake.Key, networkType);
         }
 
-        public static Address GetBaseScriptAddress<T>(T paymentPolicy, byte[] stakeEncoded, NetworkType networkType)
+        public static Address GetBaseScriptAddress<T>(
+            T paymentPolicy,
+            byte[] stakeEncoded,
+            NetworkType networkType
+        )
         {
             var addressType = AddressType.BaseScript;
             var networkInfo = GetNetworkInfo(networkType);
-            
+
             Type paymentPolicyType = typeof(T);
             byte[] paymentPolicyId = paymentPolicyType.Name switch
             {
-                nameof(NativeScript) => ((NativeScript)Convert.ChangeType(paymentPolicy, typeof(NativeScript))).GetPolicyId(),
-                nameof(ScriptAny) => ((ScriptAny)Convert.ChangeType(paymentPolicy, typeof(ScriptAny))).GetPolicyId(),
-                nameof(ScriptAll) => ((ScriptAll)Convert.ChangeType(paymentPolicy, typeof(ScriptAll))).GetPolicyId(),
-                nameof(ScriptNofK) => ((ScriptNofK)Convert.ChangeType(paymentPolicy, typeof(ScriptNofK))).GetPolicyId(),
-                nameof(PlutusV1Script) => ((PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))).GetPolicyId(),
-                nameof(PlutusV2Script) => ((PlutusV2Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV2Script))).GetPolicyId(),
+                nameof(NativeScript)
+                    => (
+                        (NativeScript)Convert.ChangeType(paymentPolicy, typeof(NativeScript))
+                    ).GetPolicyId(),
+                nameof(ScriptAny)
+                    => (
+                        (ScriptAny)Convert.ChangeType(paymentPolicy, typeof(ScriptAny))
+                    ).GetPolicyId(),
+                nameof(ScriptAll)
+                    => (
+                        (ScriptAll)Convert.ChangeType(paymentPolicy, typeof(ScriptAll))
+                    ).GetPolicyId(),
+                nameof(ScriptNofK)
+                    => (
+                        (ScriptNofK)Convert.ChangeType(paymentPolicy, typeof(ScriptNofK))
+                    ).GetPolicyId(),
+                nameof(PlutusV1Script)
+                    => (
+                        (PlutusV1Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV1Script))
+                    ).GetPolicyId(),
+                nameof(PlutusV2Script)
+                    => (
+                        (PlutusV2Script)Convert.ChangeType(paymentPolicy, typeof(PlutusV2Script))
+                    ).GetPolicyId(),
                 _ => throw new Exception("Unknown script type for payment script")
             };
 
@@ -180,11 +278,21 @@ namespace CardanoSharp.Wallet.Utilities
             byte[] addressArray = new byte[1 + paymentPolicyId.Length + stakeEncoded.Length];
             addressArray[0] = header;
             Buffer.BlockCopy(paymentPolicyId, 0, addressArray, 1, paymentPolicyId.Length);
-            Buffer.BlockCopy(stakeEncoded, 0, addressArray, paymentPolicyId.Length + 1, stakeEncoded.Length);
+            Buffer.BlockCopy(
+                stakeEncoded,
+                0,
+                addressArray,
+                paymentPolicyId.Length + 1,
+                stakeEncoded.Length
+            );
             return new Address(prefix, addressArray);
         }
-        
-        public static Address GetBaseAddress(byte[] paymentEncoded, byte[] stakeEncoded, NetworkType networkType)
+
+        public static Address GetBaseAddress(
+            byte[] paymentEncoded,
+            byte[] stakeEncoded,
+            NetworkType networkType
+        )
         {
             var addressType = AddressType.Base;
             var networkInfo = GetNetworkInfo(networkType);
@@ -194,12 +302,18 @@ namespace CardanoSharp.Wallet.Utilities
 
             //get header
             var header = GetHeader(networkInfo, addressType);
-            
+
             //get body
             byte[] addressArray = new byte[1 + paymentEncoded.Length + stakeEncoded.Length];
             addressArray[0] = header;
             Buffer.BlockCopy(paymentEncoded, 0, addressArray, 1, paymentEncoded.Length);
-            Buffer.BlockCopy(stakeEncoded, 0, addressArray, paymentEncoded.Length + 1, stakeEncoded.Length);
+            Buffer.BlockCopy(
+                stakeEncoded,
+                0,
+                addressArray,
+                paymentEncoded.Length + 1,
+                stakeEncoded.Length
+            );
 
             return new Address(prefix, addressArray);
         }
@@ -214,7 +328,7 @@ namespace CardanoSharp.Wallet.Utilities
 
             //get header
             var header = GetHeader(networkInfo, addressType);
-            
+
             //get body
             byte[] addressArray = new byte[1 + stakeEncoded.Length];
             addressArray[0] = header;
@@ -233,7 +347,7 @@ namespace CardanoSharp.Wallet.Utilities
 
             //get header
             var header = GetHeader(networkInfo, addressType);
-            
+
             //get body
             byte[] addressArray = new byte[1 + paymentEncoded.Length];
             addressArray[0] = header;
