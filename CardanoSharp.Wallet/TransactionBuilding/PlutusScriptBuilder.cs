@@ -1,10 +1,14 @@
-﻿using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+﻿using PeterO.Cbor2;
+using CardanoSharp.Wallet.Extensions;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+using CardanoSharp.Wallet.Extensions.Models;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
     public interface IPlutusScriptBuilder
     {
         IPlutusScriptBuilder SetScript(byte[] script);
+        IPlutusScriptBuilder SetScript(string scriptCBOR);
     }
 
     public class PlutusV1ScriptBuilder : ABuilder<PlutusV1Script>, IPlutusScriptBuilder
@@ -29,6 +33,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             _model.script = script;
             return this;
         }
+
+        public IPlutusScriptBuilder SetScript(string scriptCBOR)
+        {
+            _model.script = ((string)CBORObject.DecodeFromBytes(scriptCBOR.HexToByteArray()).DecodeValueByCborType()).HexToByteArray();
+            return this;
+        }
     }
 
     public class PlutusV2ScriptBuilder : ABuilder<PlutusV2Script>, IPlutusScriptBuilder
@@ -50,7 +60,14 @@ namespace CardanoSharp.Wallet.TransactionBuilding
 
         public IPlutusScriptBuilder SetScript(byte[] script) 
         {
+            // This must be the decoded CBOR byte array
             _model.script = script;
+            return this;
+        }
+
+        public IPlutusScriptBuilder SetScript(string scriptCBOR)
+        {
+            _model.script = ((string)CBORObject.DecodeFromBytes(scriptCBOR.HexToByteArray()).DecodeValueByCborType()).HexToByteArray();
             return this;
         }
     }

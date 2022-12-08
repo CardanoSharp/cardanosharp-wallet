@@ -12,12 +12,12 @@ namespace CardanoSharp.Wallet.Extensions.Models
         //https://cardano.stackexchange.com/questions/4573/how-to-generate-the-address-of-a-plutus-script-using-cardano-serialization-lib/8820#8820
         public static byte[] GetPolicyId(this PlutusV1Script plutusV1Script)
         {
-            var unwrappedScript = CBORObject.DecodeFromBytes(plutusV1Script.script);
-            var decodedScript = ((string)unwrappedScript.DecodeValueByCborType()).HexToByteArray();
+            // var unwrappedScript = CBORObject.DecodeFromBytes(plutusV1Script.script);
+            // var decodedScript = ((string)unwrappedScript.DecodeValueByCborType()).HexToByteArray();
 
             BigEndianBuffer buffer = new BigEndianBuffer();
             buffer.Write(new byte[] { 0x01 });
-            buffer.Write(decodedScript);
+            buffer.Write(plutusV1Script.script);
             return HashUtility.Blake2b224(buffer.ToArray());
         }
 

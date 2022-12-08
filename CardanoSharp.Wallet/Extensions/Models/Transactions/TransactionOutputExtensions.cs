@@ -17,6 +17,16 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
         public static CBORObject GetCBOR(this TransactionOutput transactionOutput)
         {
+            // Support Legacy Alonzo Transaction format
+            if (transactionOutput.DatumOption == null && transactionOutput.ScriptReference == null)
+            {
+                CBORObject legacyTransactionCBOR = CBORObject
+                .NewArray()
+                .Add(transactionOutput.Address)
+                .Add(transactionOutput.Value.GetCBOR());
+                return legacyTransactionCBOR;
+            }
+
             CBORObject cborTransactionOutput = CBORObject
                 .NewMap()
                 .Add(0, transactionOutput.Address)
