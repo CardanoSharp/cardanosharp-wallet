@@ -21,9 +21,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (transactionOutput.DatumOption == null && transactionOutput.ScriptReference == null)
             {
                 CBORObject legacyTransactionCBOR = CBORObject
-                .NewArray()
-                .Add(transactionOutput.Address)
-                .Add(transactionOutput.Value.GetCBOR());
+                    .NewArray()
+                    .Add(transactionOutput.Address)
+                    .Add(transactionOutput.Value.GetCBOR());
                 return legacyTransactionCBOR;
             }
 
@@ -222,7 +222,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             ulong coinsPerUtxOByte = 4310 // coinsPerUtxoByte in protocol params
         )
         {
-            if (output.Value.MultiAsset == null || output.Value.MultiAsset.Count <= 0)
+            if (
+                (output.Value.MultiAsset == null || output.Value.MultiAsset.Count <= 0)
+                && output.DatumOption != null
+                && output.ScriptReference != null
+            )
                 return adaOnlyMinUTxO;
 
             // Set a dummy coin value if coin is 0
