@@ -114,7 +114,6 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
 
         public CBORObject GetCBOR()
         {
-            // .WithTag(24)
             return CBORObject.FromObject(CBORObject.FromObject(Value).EncodeToBytes());
         }
 

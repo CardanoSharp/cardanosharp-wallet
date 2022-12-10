@@ -132,62 +132,17 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             // Datum Option, this does not support legacy V1 datum hash
             if (transactionOutputCbor.ContainsKey(2))
             {
-                // How do we support datum hash here as well for contracts with secret data?
                 var datumOptionCbor = transactionOutputCbor[2];
-
-                // Does this work?
-                IPlutusData plutusData = (IPlutusData)datumOptionCbor.DecodeValueByCborType();
-
-                DatumOption datumOption = new DatumOption { Data = plutusData };
-                transactionOutput.DatumOption = (DatumOption?)datumOption;
+                DatumOption datumOption = datumOptionCbor.GetDatumOption();
+                transactionOutput.DatumOption = datumOption;
             }
 
             // Script Reference
             if (transactionOutputCbor.ContainsKey(3))
             {
-                ScriptReference scriptReference = new ScriptReference();
-                var scriptReferenceCborWithTag = transactionOutputCbor[3];
-
-                if (scriptReferenceCborWithTag.HasMostOuterTag(24))
-                {
-                    var scriptReferenceCbor = scriptReferenceCborWithTag.Untag();
-
-                    // Must decode the object after removing the tag
-                    var decodedScriptReferenceCbor = CBORObject.DecodeFromBytes(
-                        ((string)scriptReferenceCbor.DecodeValueByCborType()).HexToByteArray()
-                    );
-                    var scriptKey = decodedScriptReferenceCbor[0].DecodeValueToUInt32();
-                    if (scriptKey == 0)
-                    {
-                        // Is this correct for native script?
-                        NativeScript nativeScript = (NativeScript)
-                            decodedScriptReferenceCbor[1].DecodeValueByCborType();
-                        scriptReference.NativeScript = nativeScript;
-                    }
-                    else if (scriptKey == 1)
-                    {
-                        byte[] plutusV1ScriptBytes = (
-                            (string)scriptReferenceCbor[1].DecodeValueByCborType()
-                        ).HexToByteArray();
-                        PlutusV1Script plutusV1Script = new PlutusV1Script
-                        {
-                            script = plutusV1ScriptBytes
-                        };
-                        scriptReference.PlutusV1Script = plutusV1Script;
-                    }
-                    else if (scriptKey == 2)
-                    {
-                        byte[] plutusV2ScriptBytes = (
-                            (string)decodedScriptReferenceCbor[1].DecodeValueByCborType()
-                        ).HexToByteArray();
-                        PlutusV2Script plutusV2Script = new PlutusV2Script
-                        {
-                            script = plutusV2ScriptBytes
-                        };
-                        scriptReference.PlutusV2Script = plutusV2Script;
-                    }
-                    transactionOutput.ScriptReference = scriptReference;
-                }
+                var scriptReferenceCborWithTag = transactionOutputCbor[3];                
+                ScriptReference scriptReference = scriptReferenceCborWithTag.GetScriptReference();
+                transactionOutput.ScriptReference = scriptReference;
             }
 
             //return
