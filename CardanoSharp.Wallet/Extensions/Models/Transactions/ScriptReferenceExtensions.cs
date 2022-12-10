@@ -5,7 +5,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {
     public static partial class ScriptReferenceExtensions
     {
-        public static CBORObject Serialize(this ScriptReference scriptReference)
+        public static CBORObject GetCBOR(this ScriptReference scriptReference)
         {
             CBORObject cborScriptReference = CBORObject.NewArray();
 
