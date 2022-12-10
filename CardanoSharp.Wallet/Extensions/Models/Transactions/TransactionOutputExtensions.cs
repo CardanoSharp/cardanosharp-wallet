@@ -34,25 +34,12 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 
             if (transactionOutput.DatumOption is not null)
             {
-                var cborDatumOption = CBORObject.NewArray();
-                if (transactionOutput.DatumOption.Hash is not null)
-                {
-                    cborDatumOption.Add(0);
-                    cborDatumOption.Add(transactionOutput.DatumOption.Hash);
-                }
-                else if (transactionOutput.DatumOption.Data is not null)
-                {
-                    cborDatumOption.Add(1);
-                    cborDatumOption.Add(transactionOutput.DatumOption.GetCBOR());
-                }
-
-                cborTransactionOutput.Add(2, cborDatumOption);
+                cborTransactionOutput.Add(2, transactionOutput.DatumOption.GetCBOR());
             }
 
             if (transactionOutput.ScriptReference is not null)
             {
-                var cborScriptReference = transactionOutput.ScriptReference.Serialize();
-                cborTransactionOutput.Add(3, cborScriptReference);
+                cborTransactionOutput.Add(3, transactionOutput.ScriptReference.GetCBOR());
             }
 
             return cborTransactionOutput;

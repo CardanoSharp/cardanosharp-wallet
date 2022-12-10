@@ -9,13 +9,19 @@ namespace CardanoSharp.Wallet.Extensions.Models
     {
         public static CBORObject GetCBOR(this DatumOption datumOption)
         {
-            if (datumOption.Hash != null)
-                return CBORObject.DecodeFromBytes(datumOption.Hash);
+            var cborDatum = CBORObject.NewArray();
 
-            if (datumOption.Data != null)
-                return CBORObject.FromObject(datumOption.Data.GetCBOR().EncodeToBytes()).WithTag(24);
+            //datum_option = [ 0, $hash32 // 1, data ]
+            if (datumOption.Hash is not null) {
+                cborDatum.Add(0);
+                cborDatum.Add(CBORObject.DecodeFromBytes(datumOption.Hash));
+            }
+            else if (datumOption.Data is not null) {
+                cborDatum.Add(1);
+                cborDatum.Add(CBORObject.FromObject(datumOption.Data.GetCBOR().EncodeToBytes()).WithTag(24));                
+            }
             
-            return null;
+            return cborDatum;
         }
 
         public static byte[] Serialize(this Redeemer redeemer)

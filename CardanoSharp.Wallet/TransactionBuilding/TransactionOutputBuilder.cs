@@ -1,4 +1,5 @@
-﻿using CardanoSharp.Wallet.Models.Transactions;
+﻿using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
@@ -10,6 +11,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionOutputBuilder SetTransactionOutputValue(TransactionOutputValue value);
         ITransactionOutputBuilder SetDatumOption(DatumOption datumOption);
         ITransactionOutputBuilder SetScriptReference(ScriptReference scriptReference);
+        ITransactionOutputBuilder SetOutputPurpose(OutputPurpose outputPurpose);
     }
 
     public class TransactionOutputBuilder: ABuilder<TransactionOutput>, ITransactionOutputBuilder
@@ -59,6 +61,12 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         public ITransactionOutputBuilder SetScriptReference(ScriptReference scriptReference)
         {
             _model.ScriptReference = scriptReference;
+           return this;
+        }
+
+        public ITransactionOutputBuilder SetOutputPurpose(OutputPurpose outputPurpose)
+        {
+            _model.OutputPurpose = outputPurpose;
            return this;
         }
     }
