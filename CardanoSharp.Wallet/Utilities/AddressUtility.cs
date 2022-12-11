@@ -226,7 +226,8 @@ namespace CardanoSharp.Wallet.Utilities
             NetworkType networkType
         )
         {
-            return GetBaseScriptAddress<T>(paymentPolicy, stake.Key, networkType);
+            var stakeEncoded = HashUtility.Blake2b224(stake.Key);
+            return GetBaseScriptAddress<T>(paymentPolicy, stakeEncoded, networkType);
         }
 
         public static Address GetBaseScriptAddress<T>(

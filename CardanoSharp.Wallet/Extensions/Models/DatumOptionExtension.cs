@@ -20,9 +20,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             else if (datumOption.Data is not null)
             {
                 cborDatum.Add(1);
-                cborDatum.Add(
-                    CBORObject.FromObject(datumOption.Data.GetCBOR().EncodeToBytes()).WithTag(24)
-                );
+                cborDatum.Add(datumOption.Data.GetCBOR().WithTag(24));
             }
 
             return cborDatum;
