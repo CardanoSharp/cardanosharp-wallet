@@ -29,7 +29,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
 
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromObject(Value);
+            return CBORObject.FromObject(CBORObject.FromObject(Value).EncodeToBytes());
         }
 
         public byte[] Serialize()
@@ -45,7 +45,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
 
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromObject(CBORObject.FromObject(Value).EncodeToBytes());
+            return CBORObject.FromObject(Value);
         }
 
         public byte[] Serialize()
@@ -61,7 +61,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
 
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromObject(CBORObject.FromObject(Value).EncodeToBytes());
+            return CBORObject.FromObject(Value);
         }
 
         public byte[] Serialize()
@@ -82,7 +82,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
 
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromObject(CBORObject.FromObject(Value).EncodeToBytes());
+            return CBORObject.FromObject(Value);
         }
 
         public byte[] Serialize()
