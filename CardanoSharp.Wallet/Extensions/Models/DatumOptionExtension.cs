@@ -61,9 +61,17 @@ namespace CardanoSharp.Wallet.Extensions.Models
             return datumOption;
         }
 
-        public static byte[] Serialize(this Redeemer redeemer)
+        public static string? Datum(this DatumOption datumOption)
         {
-            return redeemer.GetCBOR().EncodeToBytes();
+            if (datumOption.Data == null)
+                return null;
+
+            return (string)datumOption.Data.GetCBOR().DecodeValueByCborType();
+        }
+
+        public static byte[] Serialize(this DatumOption datumOption)
+        {
+            return datumOption.GetCBOR().EncodeToBytes();
         }
 
         public static DatumOption Deserialize(this byte[] bytes)
