@@ -209,11 +209,12 @@ namespace CardanoSharp.Wallet.Test
         [InlineData("stake_test1uqhtd5fclk3ljpa6hfxnuyxacr833epg0jzgwkvyryyu7qg0vxxhc", "2eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01")]
         [InlineData("stake_test1upkd63mghdftntlqfwhxkc4shn5auy72nn6wyrpdp7ksx4qg72kne", "6cdd4768bb52b9afe04bae6b62b0bce9de13ca9cf4e20c2d0fad0354")]
         [InlineData("stake_test1ur22cmnvu55kypy049jjc8uzyhqdj6lswvp3svgvlpusvcsx2nctx", "d4ac6e6ce52962048fa9652c1f8225c0d96bf0730318310cf8790662")]
-        [InlineData("stake_test1uqyt95qs2qyhr0xc0gg4vmzt24yyw27kta682a4duhd3eaql492l0", "08b2d010500971bcd87a11566c4b5548472bd65f747576ade5db1cf4")]
         [InlineData("addr_test1qzxla3xpk8hmuw5jmspjanq2rmglhn3zxf9f0kpmrjn4jfewkmgn3ldrlyrm4wjd8cgdmsx0rrjzslyysavcgxgfeuqsj6e03d", "008dfec4c1b1efbe3a92dc032ecc0a1ed1fbce22324a97d83b1ca759272eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01")]
         [InlineData("addr_test1qrvtessdca4qhgkg8tc06ahq04u9qd3xgh8lwus4h64978tvm4rk3w6jhxh7qjawdd3tp08fmcfu4885ugxz6radqd2qveyl8e", "00d8bcc20dc76a0ba2c83af0fd76e07d7850362645cff77215beaa5f1d6cdd4768bb52b9afe04bae6b62b0bce9de13ca9cf4e20c2d0fad0354")]
         [InlineData("addr_test1qqlckcsaynvmt5aqyx6fwng472atyq8wjyykskxafypk3nw543hxeeffvgzgl2t99s0cyfwqm94lqucrrqcse7reqe3q57q70d", "003f8b621d24d9b5d3a021b4974d15f2bab200ee91096858dd490368cdd4ac6e6ce52962048fa9652c1f8225c0d96bf0730318310cf8790662")]
         [InlineData("addr_test1qpknz5uj64vmh4863ek7j3vkqj9wpusmyel06uxd2h95rlqgktgpq5qfwx7ds7s32ekyk42ggu4avhm5w4m2mewmrn6qq6wgan", "006d315392d559bbd4fa8e6de94596048ae0f21b267efd70cd55cb41fc08b2d010500971bcd87a11566c4b5548472bd65f747576ade5db1cf4")]
+        [InlineData("stake_test1uqyt95qs2qyhr0xc0gg4vmzt24yyw27kta682a4duhd3eaql492l0", "08b2d010500971bcd87a11566c4b5548472bd65f747576ade5db1cf4")]
+        [InlineData("stake1u83kxh3rhrr0uk0nwgn7wx4w67wc0dvj6dzplhd5udgcx9c5g8hpw", "e3635e23b8c6fe59f37227e71aaed79d87b592d3441fddb4e3518317")]
         public void MatchAddressBytesToKnownHexValuesTest(string addr, string knownHexValue)
         {
             var address = addr.ToAddress();
