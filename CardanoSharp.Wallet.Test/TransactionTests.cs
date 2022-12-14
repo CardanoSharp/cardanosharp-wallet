@@ -1,19 +1,19 @@
 ﻿using CardanoSharp.Wallet.Enums;
-using CardanoSharp.Wallet.Models.Transactions;
-using System.Collections.Generic;
-using Xunit;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
-using CardanoSharp.Wallet.Models.Keys;
-using CardanoSharp.Wallet.Utilities;
-using System.IO;
-using System.Text.Json;
-using System;
-using CardanoSharp.Wallet.TransactionBuilding;
-using PeterO.Cbor2;
-using System.Linq;
 using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
+using CardanoSharp.Wallet.Models.Keys;
+using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.TransactionBuilding;
+using CardanoSharp.Wallet.Utilities;
+using PeterO.Cbor2;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using Xunit;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -45,7 +45,7 @@ namespace CardanoSharp.Wallet.Test
             var prvKey = new PrivateKey("c660e50315d76a53d80732efda7630cae8885dfb85c46378684b3c6103e1284a".HexToByteArray(), null);
             var pubKeyHash = HashUtility.Blake2b224(pubKey.Key);
             var witnesses = TransactionWitnessSetBuilder.Create
-                .AddVKeyWitness(pubKey ,prvKey)
+                .AddVKeyWitness(pubKey, prvKey)
                 .SetNativeScript(ScriptAllBuilder.Create
                     .SetScript(NativeScriptBuilder.Create.SetKeyHash(pubKeyHash))
                     .SetScript(NativeScriptBuilder.Create.SetInvalidAfter(90000000U)));
@@ -168,7 +168,6 @@ namespace CardanoSharp.Wallet.Test
                 .SetAuxData(auxData)
                 .Build();
 
-            
             var txBytes = expected.Serialize();
             var actualDeserialisedTx = txBytes.DeserializeTransaction();
 
@@ -246,7 +245,7 @@ namespace CardanoSharp.Wallet.Test
             Assert.Equal(1, actualDeserialisedTx.TransactionWitnessSet.NativeScripts.Count);
             var expectedScriptNofK = expected.TransactionWitnessSet.NativeScripts.First().ScriptNofK;
             var actualScriptNofK = actualDeserialisedTx.TransactionWitnessSet.NativeScripts.First().ScriptNofK;
-            Assert.Equal(expectedScriptNofK.N, actualScriptNofK.N); 
+            Assert.Equal(expectedScriptNofK.N, actualScriptNofK.N);
             foreach (var actualNativeScript in actualScriptNofK.NativeScripts)
             {
                 Assert.Equal(pubKeyHash.ToStringHex(), actualNativeScript.ScriptPubKey.KeyHash.ToStringHex());
@@ -543,7 +542,6 @@ namespace CardanoSharp.Wallet.Test
             return Path.Combine(__dat.FullName, vectorId, fn);
         }
 
-
         //Replicate Test from Emurgo's Rust Serialization library
         [Fact]
         public void BuildTxWithChange()
@@ -689,6 +687,63 @@ namespace CardanoSharp.Wallet.Test
                 serialized.ToStringHex());
         }
 
+        [Theory]
+        [InlineData("2eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", true)]
+        [InlineData("e02eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", false)]
+        [InlineData("b6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", false)]
+        public void CertificateBuilder_SetStakeRegistration_Tests(string stakeAddressHex, bool expectedSuccess)
+        {
+            var bytes = stakeAddressHex.HexToByteArray();
+            var actualSuccess = false;
+            try
+            {
+                CertificateBuilder.Create.SetStakeRegistration(bytes);
+                actualSuccess = true;
+            }
+            catch
+            { }
+            Assert.Equal(expectedSuccess, actualSuccess);
+        }
+
+        [Theory]
+        [InlineData("2eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", true)]
+        [InlineData("e02eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", false)]
+        [InlineData("b6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", false)]
+        public void CertificateBuilder_SetStakeDeregistration_Tests(string stakeAddressHex, bool expectedSuccess)
+        {
+            var bytes = stakeAddressHex.HexToByteArray();
+            var actualSuccess = false;
+            try
+            {
+                CertificateBuilder.Create.SetStakeDeregistration(bytes);
+                actualSuccess = true;
+            }
+            catch
+            { }
+            Assert.Equal(expectedSuccess, actualSuccess);
+        }
+
+        [Theory]
+        [InlineData("2eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", "ad4396a0f7c47e3d69ee8bd792c80ca0bffee61945cec5c42b4ae90f", true)]
+        [InlineData("e02eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", "ad4396a0f7c47e3d69ee8bd792c80ca0bffee61945cec5c42b4ae90f", false)]
+        [InlineData("2eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", "e0ad4396a0f7c47e3d69ee8bd792c80ca0bffee61945cec5c42b4ae90f", false)]
+        [InlineData("b6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", "ad4396a0f7c47e3d69ee8bd792c80ca0bffee61945cec5c42b4ae90f", false)]
+        [InlineData("2eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", "4396a0f7c47e3d69ee8bd792c80ca0bffee61945cec5c42b4ae90f", false)]
+        public void CertificateBuilder_SetStakeDelegation_Tests(string stakeAddressHex, string stakePoolIdHex, bool expectedSuccess)
+        {
+            var stakeBytes = stakeAddressHex.HexToByteArray();
+            var poolBytes = stakePoolIdHex.HexToByteArray();
+            var actualSuccess = false;
+            try
+            {
+                CertificateBuilder.Create.SetStakeDelegation(stakeBytes, poolBytes);
+                actualSuccess = true;
+            }
+            catch
+            { }
+            Assert.Equal(expectedSuccess, actualSuccess);
+        }
+
         [Fact]
         public void OneAssetForEachOutputTest()
         {
@@ -764,7 +819,6 @@ namespace CardanoSharp.Wallet.Test
             Assert.Equal(withNoTokenBundleHex, withEmptyTokenBundleHex);
         }
 
-
         [Fact]
         public void OnePolicyMultiAssetForOneOutputTest()
         {
@@ -785,7 +839,6 @@ namespace CardanoSharp.Wallet.Test
             var tokenBundle1 = TokenBundleBuilder.Create
                 .AddToken(getGenesisPolicyId(), "00010203".HexToByteArray(), 60)
                 .AddToken(getGenesisPolicyId(), "00010204".HexToByteArray(), 240);
-
 
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(getGenesisTransaction(), 0)
@@ -824,7 +877,6 @@ namespace CardanoSharp.Wallet.Test
                 .AddToken(getGenesisPolicyId(), "00010203".HexToByteArray(), 60)
                 .AddToken(getTest1PolicyId(), "00010204".HexToByteArray(), 240);
 
-
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(getGenesisTransaction(), 0)
                 .AddInput(getGenesisTransaction(), 0)
@@ -834,7 +886,6 @@ namespace CardanoSharp.Wallet.Test
 
             //act
             var serialized = transactionBody.Serialize(null);
-
 
             //assert
             var hex = serialized.ToStringHex();
@@ -936,13 +987,13 @@ namespace CardanoSharp.Wallet.Test
             Assert.Equal(expectedFee, (int)fee);
             Assert.NotNull(transaction.TransactionWitnessSet);
 
-            //the functionality that is here would automatically be done if you use 
+            //the functionality that is here would automatically be done if you use
             //  transaction.CalculateAndSetFee()
             //  but i wanted to test before and after this piece to ensure "RemoveMocks"
             //  did remove the IsMock VKeyWitnesses
             transaction.TransactionWitnessSet.RemoveMocks();
             Assert.Empty(transaction.TransactionWitnessSet.VKeyWitnesses);
-            
+
             //serialize/deserialize transaction to ensure object was built without mocks and has correct fee
             var serializedTx = transaction.Serialize();
             var deserializedTx = serializedTx.DeserializeTransaction();
@@ -975,24 +1026,24 @@ namespace CardanoSharp.Wallet.Test
                 .Build();
 
             //act
-            //the functionality that is here would automatically be done if you use 
+            //the functionality that is here would automatically be done if you use
             //  transaction.CalculateAndSetFee()
             //  but i wanted to test before and after this piece to ensure "CreateMocks"
             //  did correctly create the witnesses
             transaction.TransactionWitnessSet.VKeyWitnesses.CreateMocks(mocks);
-            
+
             var fee = transaction.CalculateFee();
             transaction.TransactionBody.Fee = fee;
             Assert.Equal(expectedFee, (int)fee);
             Assert.NotNull(transaction.TransactionWitnessSet);
 
-            //the functionality that is here would automatically be done if you use 
+            //the functionality that is here would automatically be done if you use
             //  transaction.CalculateAndSetFee()
             //  but i wanted to test before and after this piece to ensure "RemoveMocks"
             //  did remove the IsMock VKeyWitnesses
             transaction.TransactionWitnessSet.RemoveMocks();
             Assert.Empty(transaction.TransactionWitnessSet.VKeyWitnesses);
-            
+
             //serialize/deserialize transaction to ensure object was built without mocks and has correct fee
             var serializedTx = transaction.Serialize();
             var deserializedTx = serializedTx.DeserializeTransaction();
@@ -1036,7 +1087,7 @@ namespace CardanoSharp.Wallet.Test
 
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(txInAddr.HexToByteArray(), txInIndex)
-                .AddOutput(baseAddr, 1,  mintAsset, OutputPurpose.Mint)
+                .AddOutput(baseAddr, 1, mintAsset, OutputPurpose.Mint)
                 .SetMint(mintAsset)
                 .SetTtl(1000)
                 .SetFee(0);
@@ -1123,11 +1174,10 @@ namespace CardanoSharp.Wallet.Test
                 signedTxStr);
         }
 
-        
-
         [Fact]
-        public void ExplicitMetadataHashTest() {
-             var rootKey = getBase15WordWallet();
+        public void ExplicitMetadataHashTest()
+        {
+            var rootKey = getBase15WordWallet();
 
             //get payment keys
             (var paymentPrv, var paymentPub) = getKeyPairFromPath("m/1852'/1815'/0'/0/0", rootKey);
@@ -1157,7 +1207,7 @@ namespace CardanoSharp.Wallet.Test
 
             var mintAsset = TokenBundleBuilder.Create
                 .AddToken(policyId, mintAssetName.ToBytes(), assetAmount);
-                
+
             var auxData = AuxiliaryDataBuilder.Create
                 .AddMetadata(1337, new { message = "sharp minting test" });
 
