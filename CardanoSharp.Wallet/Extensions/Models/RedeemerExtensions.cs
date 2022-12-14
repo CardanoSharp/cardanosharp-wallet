@@ -13,8 +13,31 @@ namespace CardanoSharp.Wallet.Extensions.Models
             var cborRedeemer = CBORObject.NewArray();
             cborRedeemer.Add((uint)redeemer.Tag);
             cborRedeemer.Add(redeemer.Index);
-            //cborRedeemer.Add(redeemer.PlutusData.GetCBOR().WithTag(122)); <- need to change this
-            cborRedeemer.Add((CBORObject.NewArray()).WithTag(122));
+
+            /*
+             PlutusDataMap plutusDataMap = (PlutusDataMap)MetadataSystem.CreateDynamicNFTMetadata(nftProject, nft!);
+        IPlutusData[] metadataDatum = new IPlutusData[]
+        {
+            plutusDataMap,
+            new PlutusDataInt() { Value = 1 },
+        };
+        PlutusDataArray plutusDataArray = new PlutusDataArray() { Value = metadataDatum };
+        PlutusDataConstr constr = new PlutusDataConstr() { Value = plutusDataArray, Constructor = 0 };
+        DatumOption datum = new DatumOption() { Data = constr };
+            */
+            //var test = CBORObject.NewArray();
+            PlutusDataArray array = new PlutusDataArray(); // This passes with tag (121) (122) etc
+            PlutusDataMap map = new PlutusDataMap(); // passes with no tag
+            //PlutusDataConstr constr = new PlutusDataConstr() { Value = array, Constructor = 0 };
+
+            //.WithTag(122)
+            //test.Add(redeemer.PlutusData.GetCBOR().WithTag(121));
+            cborRedeemer.Add(map.GetCBOR());
+
+            // if redeemer is empty use 122?
+
+
+            //cborRedeemer.Add((CBORObject.NewArray()).WithTag(122));
             cborRedeemer.Add(redeemer.ExUnits.GetCBOR());
             return cborRedeemer;
         }
