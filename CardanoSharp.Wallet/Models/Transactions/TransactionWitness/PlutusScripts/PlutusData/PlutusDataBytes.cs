@@ -9,19 +9,19 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     {
         private byte[] Value { get; set; }
 
-        public PlutusDataBytes(CBORObject cbor)
+        public PlutusDataBytes(byte[] bytes)
         {
-            Value = cbor.EncodeToBytes();
+            Value = bytes;
         }
 
         public PlutusDataBytes(string value)
         {
-            Value = CBORObject.FromObject(value.ToBytes()).EncodeToBytes();
+            Value = value.ToBytes();
         }
 
         public CBORObject GetCBOR()
         {
-            return CBORObject.DecodeFromBytes(Value);
+            return CBORObject.FromObject(Value);
         }
 
         public byte[] Serialize()
@@ -44,7 +44,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
                 throw new ArgumentException("dataCbor is not expected type CBORType.ByteString");
             }
 
-            PlutusDataBytes plutusDataBytes = new PlutusDataBytes(dataCbor);
+            PlutusDataBytes plutusDataBytes = new PlutusDataBytes(dataCbor.GetByteString());
             return plutusDataBytes;
         }
     }
