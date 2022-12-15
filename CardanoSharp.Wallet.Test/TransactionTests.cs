@@ -864,7 +864,7 @@ namespace CardanoSharp.Wallet.Test
 
             //act
             var serialized = transaction.Serialize();
-            var fee = transaction.CalculateFee();
+            var fee = transaction.CalculateBaseFee();
             var isValid = transaction.IsValid;
 
             //assert
@@ -932,7 +932,7 @@ namespace CardanoSharp.Wallet.Test
                 .Build();
 
             //act
-            var fee = transaction.CalculateFee();
+            var fee = transaction.CalculateBaseFee();
             transaction.TransactionBody.Fee = fee;
             Assert.Equal(expectedFee, (int)fee);
             Assert.NotNull(transaction.TransactionWitnessSet);
@@ -982,7 +982,7 @@ namespace CardanoSharp.Wallet.Test
             //  did correctly create the witnesses
             transaction.TransactionWitnessSet.VKeyWitnesses.CreateMocks(mocks);
             
-            var fee = transaction.CalculateFee();
+            var fee = transaction.CalculateBaseFee();
             transaction.TransactionBody.Fee = fee;
             Assert.Equal(expectedFee, (int)fee);
             Assert.NotNull(transaction.TransactionWitnessSet);

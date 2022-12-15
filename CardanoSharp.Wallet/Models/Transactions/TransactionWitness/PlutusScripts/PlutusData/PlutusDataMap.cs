@@ -36,7 +36,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         }
     }
 
-    public static partial class PlutusDataExtensions 
+    public static partial class PlutusDataExtensions
     {
         public static PlutusDataMap GetPlutusDataMap(this CBORObject dataCbor)
         {
@@ -45,20 +45,21 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
                 throw new ArgumentNullException(nameof(dataCbor));
             }
 
-            if (dataCbor.Type != CBORType.Array)
+            if (dataCbor.Type != CBORType.Map)
             {
-                throw new ArgumentException("dataCbor is not expected type CBORType.Array");
+                throw new ArgumentException("dataCbor is not expected type CBORType.Map");
             }
 
             PlutusDataMap plutusDataMap = new PlutusDataMap();
-            Dictionary<IPlutusData, IPlutusData> plutusDatas = new Dictionary<IPlutusData, IPlutusData>();
+            Dictionary<IPlutusData, IPlutusData> plutusDatas =
+                new Dictionary<IPlutusData, IPlutusData>();
             foreach (var key in dataCbor.Keys)
             {
                 IPlutusData plutusDataKey = key.GetPlutusData();
                 IPlutusData plutusDataValue = dataCbor[key].GetPlutusData();
                 plutusDatas.Add(plutusDataKey, plutusDataValue);
             }
-            
+
             plutusDataMap.Value = plutusDatas;
             return plutusDataMap;
         }

@@ -111,10 +111,10 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             }
             else
             {
-                var untaggedDataCbor = dataCbor.Untag();
                 long tag = (long)dataCbor.MostOuterTag;
-
                 alternative = (long)PlutusDataConstr.compactCborTagToAlternative(tag)!;
+
+                var untaggedDataCbor = dataCbor.Untag();
                 plutusDataArray = untaggedDataCbor.GetPlutusDataArray();
             }
 

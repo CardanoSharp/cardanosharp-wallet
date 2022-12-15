@@ -55,7 +55,8 @@ namespace CardanoSharp.Wallet.Extensions.Models
             else if (datumType == 1)
             {
                 var dataCbor = datumOptionCbor[1].Untag();
-                datumOption.Data = dataCbor.GetPlutusData();
+                var datumCbor = CBORObject.DecodeFromBytes(dataCbor.GetByteString());
+                datumOption.Data = datumCbor.GetPlutusData();
             }
 
             return datumOption;

@@ -32,13 +32,15 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
             if (exUnitsCbor.Count != 2)
             {
-                throw new ArgumentException("exUnitsCbor has unexpected number of elements (expected 2)");
+                throw new ArgumentException(
+                    "exUnitsCbor has unexpected number of elements (expected 2)"
+                );
             }
-            
+
             var exUnits = new ExUnits();
-            exUnits.Mem = (uint)exUnitsCbor[0].DecodeValueToInt32();
-            exUnits.Steps = (uint)exUnitsCbor[1].DecodeValueToInt32();
-            return exUnits;          
+            exUnits.Mem = (ulong)exUnitsCbor[0].DecodeValueToUInt64();
+            exUnits.Steps = (ulong)exUnitsCbor[1].DecodeValueToUInt64();
+            return exUnits;
         }
     }
 }

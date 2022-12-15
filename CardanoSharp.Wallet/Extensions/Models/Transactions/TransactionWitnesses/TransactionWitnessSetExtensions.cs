@@ -10,7 +10,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
 {
     public static class TransactionWitnessSetExtensions
     {
-        public static CBORObject GetCBOR(this TransactionWitnessSet transactionWitnessSet, TransactionBody transactionBody, AuxiliaryData auxiliaryData)
+        public static CBORObject GetCBOR(
+            this TransactionWitnessSet transactionWitnessSet,
+            TransactionBody transactionBody,
+            AuxiliaryData auxiliaryData
+        )
         {
             var cborWitnessSet = CBORObject.NewMap();
 
@@ -39,7 +43,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             if (transactionWitnessSet.PlutusV1Scripts.Any())
             {
                 var cborPlutusV1Scripts = CBORObject.NewArray();
-                foreach (var plutusV1Script in transactionWitnessSet.PlutusV1Scripts) 
+                foreach (var plutusV1Script in transactionWitnessSet.PlutusV1Scripts)
                 {
                     cborPlutusV1Scripts.Add(plutusV1Script.GetCBOR());
                 }
@@ -49,7 +53,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             if (transactionWitnessSet.PlutusDatas.Any())
             {
                 var cborPlutusDatas = CBORObject.NewArray();
-                foreach (var plutusData in transactionWitnessSet.PlutusDatas) 
+                foreach (var plutusData in transactionWitnessSet.PlutusDatas)
                 {
                     cborPlutusDatas.Add(plutusData.GetCBOR());
                 }
@@ -59,17 +63,17 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             if (transactionWitnessSet.Redeemers.Any())
             {
                 var cborRedeemers = CBORObject.NewArray();
-                foreach (var redeemer in transactionWitnessSet.Redeemers) 
+                foreach (var redeemer in transactionWitnessSet.Redeemers)
                 {
                     cborRedeemers.Add(redeemer.GetCBOR());
                 }
                 cborWitnessSet.Add(5, cborRedeemers);
             }
-            
+
             if (transactionWitnessSet.PlutusV2Scripts.Any())
             {
                 var cborPlutusV1Scripts = CBORObject.NewArray();
-                foreach (var plutusV1Script in transactionWitnessSet.PlutusV1Scripts) 
+                foreach (var plutusV1Script in transactionWitnessSet.PlutusV1Scripts)
                 {
                     cborPlutusV1Scripts.Add(plutusV1Script.GetCBOR());
                 }
@@ -79,7 +83,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             return cborWitnessSet;
         }
 
-        public static TransactionWitnessSet GetTransactionWitnessSet(this CBORObject transactionWitnessSetCbor)
+        public static TransactionWitnessSet GetTransactionWitnessSet(
+            this CBORObject transactionWitnessSetCbor
+        )
         {
             //validation
             if (transactionWitnessSetCbor == null)
@@ -88,7 +94,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             }
             if (transactionWitnessSetCbor.Type != CBORType.Map)
             {
-                throw new ArgumentException("transactionWitnessSetCbor is not expected type CBORType.Map");
+                throw new ArgumentException(
+                    "transactionWitnessSetCbor is not expected type CBORType.Map"
+                );
             }
 
             //get data
@@ -98,7 +106,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
                 var vkeyWitnessesCbor = transactionWitnessSetCbor[0];
                 if (vkeyWitnessesCbor.Type != CBORType.Array)
                 {
-                    throw new ArgumentException("vkeyWitnessesCbor is not expected type CBORType.Array");
+                    throw new ArgumentException(
+                        "vkeyWitnessesCbor is not expected type CBORType.Array"
+                    );
                 }
                 var vKeyWitnesses = new HashSet<VKeyWitness>();
                 foreach (var vkeyWitnessCbor in vkeyWitnessesCbor.Values)
@@ -123,16 +133,20 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
                 var plutusV1ScriptsCbor = transactionWitnessSetCbor[3];
                 foreach (var plutusV1ScriptCbor in plutusV1ScriptsCbor.Values)
                 {
-                    transactionWitnessSet.PlutusV1Scripts.Add(plutusV1ScriptCbor.GetPlutusV1Script());
+                    transactionWitnessSet.PlutusV1Scripts.Add(
+                        plutusV1ScriptCbor.GetPlutusV1Script()
+                    );
                 }
             }
 
             if (transactionWitnessSetCbor.ContainsKey(4))
             {
                 var plutusDatasCbor = transactionWitnessSetCbor[4];
-                foreach (var plutusData in plutusDatasCbor.Values) 
+                foreach (var plutusData in plutusDatasCbor.Values)
                 {
-                    transactionWitnessSet.PlutusDatas.Add((IPlutusData)plutusData.DecodeValueByCborType());
+                    transactionWitnessSet.PlutusDatas.Add(
+                        (IPlutusData)plutusData.DecodeValueByCborType()
+                    );
                 }
             }
 
@@ -150,7 +164,9 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
                 var plutusV2ScriptsCbor = transactionWitnessSetCbor[6];
                 foreach (var plutusV2ScriptCbor in plutusV2ScriptsCbor.Values)
                 {
-                    transactionWitnessSet.PlutusV2Scripts.Add(plutusV2ScriptCbor.GetPlutusV2Script());
+                    transactionWitnessSet.PlutusV2Scripts.Add(
+                        plutusV2ScriptCbor.GetPlutusV2Script()
+                    );
                 }
             }
 
@@ -158,7 +174,11 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
             return transactionWitnessSet;
         }
 
-        public static byte[] Serialize(this TransactionWitnessSet transactionWitnessSet, TransactionBody transactionBody, AuxiliaryData auxiliaryData)
+        public static byte[] Serialize(
+            this TransactionWitnessSet transactionWitnessSet,
+            TransactionBody transactionBody,
+            AuxiliaryData auxiliaryData
+        )
         {
             return transactionWitnessSet.GetCBOR(transactionBody, auxiliaryData).EncodeToBytes();
         }

@@ -1,10 +1,10 @@
 ﻿using CardanoSharp.Wallet.Common;
 using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using CardanoSharp.Wallet.Models.Transactions;
 using PeterO.Cbor2;
 using System;
-using System.Linq;
-using CardanoSharp.Wallet.Enums;
+using System.Collections.Generic;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {
@@ -86,13 +86,43 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             return transaction;
         }
 
-        public static uint CalculateFee(this Transaction transaction, uint? a = null, uint? b = null)
+        public static uint CalculateFee(this Transaction transaction, uint? a = null, uint? b = null, double? priceMem = null, double? priceStep = null) {
+            uint baseFee = transaction.CalculateBaseFee(a, b);
+            uint scriptFee = transaction.CalculateScriptFee(priceMem, priceStep);
+            return baseFee + scriptFee;
+        }
+
+        public static uint CalculateBaseFee(this Transaction transaction, uint? a = null, uint? b = null)
         {
             if (!a.HasValue) a = FeeStructure.Coefficient;
             if (!b.HasValue) b = FeeStructure.Constant;
             // Required because zero value => smaller CBOR payload => fee lower than minimum
             transaction.TransactionBody.Fee = b.Value;
             return ((uint)transaction.Serialize().Length * a.Value) + b.Value;
+        }
+
+        public static uint CalculateScriptFee(this Transaction transaction, double? priceMem = null, double? priceStep = null) {
+            if (!priceMem.HasValue) priceMem = FeeStructure.PriceMem;
+            if (!priceStep.HasValue) priceStep = FeeStructure.PriceStep;
+
+            List<ExUnits> exUnits = new List<ExUnits>();
+            foreach (Redeemer redeemer in transaction.TransactionWitnessSet.Redeemers){
+                exUnits.Add(redeemer.ExUnits);
+            }
+
+            double scriptFee = 0;
+            if (exUnits != null) {
+                foreach (ExUnits exUnit in exUnits)
+                {
+                    scriptFee += exUnit.Mem * (double)priceMem;
+                    scriptFee += exUnit.Steps * (double)priceStep;
+                }
+            }
+
+            if (scriptFee <= 0)
+                return 0;
+
+            return (uint)Math.Ceiling(scriptFee);
         }
 
         /// <summary>
@@ -103,12 +133,12 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         /// <param name="b">This comes from the protocol parameters. Parameter MinFeeB</param>
         /// <param name="numberOfVKeyWitnessesToMock">To correctly calculate the fee, we need to have the signatures of all required private keys. You can mock if you cannot currently sign with all. This will ensure the fee is correctly calculated while you gather the signatures</param>
         /// <returns></returns>
-        public static uint CalculateAndSetFee(this Transaction transaction, uint? a = null, uint? b = null, int numberOfVKeyWitnessesToMock = 0)
+        public static uint CalculateAndSetFee(this Transaction transaction, uint? a = null, uint? b = null, int numberOfVKeyWitnessesToMock = 0, double? priceMem = null, double? priceStep = null)
         {
             if(numberOfVKeyWitnessesToMock > 0)
                 transaction.TransactionWitnessSet.VKeyWitnesses.CreateMocks(numberOfVKeyWitnessesToMock);
             
-            var fee = CalculateFee(transaction, a, b);
+            var fee = CalculateFee(transaction, a, b, priceMem, priceStep);
             transaction.TransactionBody.Fee = fee;
 
             if (transaction.TransactionWitnessSet is not null)
@@ -116,6 +146,8 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             
             return fee;
         }
+
+        
 
         public static byte[] Serialize(this Transaction transaction)
         {
