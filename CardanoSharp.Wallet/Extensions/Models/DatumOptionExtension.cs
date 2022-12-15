@@ -19,8 +19,9 @@ namespace CardanoSharp.Wallet.Extensions.Models
             }
             else if (datumOption.Data is not null)
             {
+                var inlineDatum = CBORObject.FromObject(datumOption.Data.Serialize());
                 cborDatum.Add(1);
-                cborDatum.Add(datumOption.Data.GetCBOR().WithTag(24));
+                cborDatum.Add(inlineDatum.WithTag(24));
             }
 
             return cborDatum;
@@ -58,14 +59,6 @@ namespace CardanoSharp.Wallet.Extensions.Models
             }
 
             return datumOption;
-        }
-
-        public static string? Datum(this DatumOption datumOption)
-        {
-            if (datumOption.Data == null)
-                return null;
-
-            return (string)datumOption.Data.GetCBOR().DecodeValueByCborType();
         }
 
         public static byte[] Serialize(this DatumOption datumOption)

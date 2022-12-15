@@ -1,8 +1,5 @@
-
 using System;
-using System.Collections.Generic;
 using CardanoSharp.Wallet.Extensions;
-using CardanoSharp.Wallet.Utilities;
 using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts
@@ -10,16 +7,21 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     // bounded_bytes
     public class PlutusDataBytes : IPlutusData
     {
-        public byte[] Value { get; set; }
+        private byte[] Value { get; set; }
 
-        public void SetValue(string value)
+        public PlutusDataBytes(CBORObject cbor)
         {
-            Value = value.ToBytes();
+            Value = cbor.EncodeToBytes();
+        }
+
+        public PlutusDataBytes(string value)
+        {
+            Value = CBORObject.FromObject(value.ToBytes()).EncodeToBytes();
         }
 
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromObject(Value);
+            return CBORObject.DecodeFromBytes(Value);
         }
 
         public byte[] Serialize()
@@ -28,7 +30,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         }
     }
 
-    public static partial class PlutusDataExtensions 
+    public static partial class PlutusDataExtensions
     {
         public static PlutusDataBytes GetPlutusDataBytes(this CBORObject dataCbor)
         {
@@ -42,7 +44,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
                 throw new ArgumentException("dataCbor is not expected type CBORType.ByteString");
             }
 
-            PlutusDataBytes plutusDataBytes = new PlutusDataBytes() { Value = dataCbor.EncodeToBytes() };
+            PlutusDataBytes plutusDataBytes = new PlutusDataBytes(dataCbor);
             return plutusDataBytes;
         }
     }

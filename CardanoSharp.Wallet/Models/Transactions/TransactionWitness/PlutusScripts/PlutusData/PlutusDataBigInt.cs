@@ -62,7 +62,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         }
     }
 
-    public static partial class PlutusDataExtensions 
+    public static partial class PlutusDataExtensions
     {
         public static IPlutusData GetPlutusDataBigInt(this CBORObject dataCbor)
         {
@@ -106,7 +106,9 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             var number = dataCbor.AsNumber();
             if (!number.CanFitInInt32())
             {
-                throw new ArgumentException("Attempting to deserialize dataCbor as int but number is larger than size int");
+                throw new ArgumentException(
+                    "Attempting to deserialize dataCbor as int but number is larger than size int"
+                );
             }
 
             int data = (int)dataCbor.DecodeValueToInt32();
@@ -129,10 +131,12 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             var number = dataCbor.AsNumber();
             if (!number.CanFitInInt64())
             {
-                throw new ArgumentException("Attempting to deserialize dataCbor as uint but number is larger than size uint");
+                throw new ArgumentException(
+                    "Attempting to deserialize dataCbor as uint but number is larger than size uint"
+                );
             }
 
-            uint data = (uint)dataCbor.DecodeValueToInt64();
+            long data = (uint)dataCbor.DecodeValueToInt64();
             byte[] byteArray = BitConverter.GetBytes(data);
             PlutusDataUInt plutusDataUInt = new PlutusDataUInt() { Value = byteArray };
             return plutusDataUInt;
@@ -153,10 +157,12 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             var number = dataCbor.AsNumber();
             if (!number.CanFitInUInt64())
             {
-                throw new ArgumentException("Attempting to deserialize dataCbor as nint but number is larger than size nint");
+                throw new ArgumentException(
+                    "Attempting to deserialize dataCbor as nint but number is larger than size nint"
+                );
             }
 
-            uint data = (uint)dataCbor.DecodeValueToUInt64();
+            ulong data = (uint)dataCbor.DecodeValueToUInt64();
             byte[] byteArray = BitConverter.GetBytes(data);
             PlutusDataNInt plutusDataNInt = new PlutusDataNInt() { Value = byteArray };
             return plutusDataNInt;
