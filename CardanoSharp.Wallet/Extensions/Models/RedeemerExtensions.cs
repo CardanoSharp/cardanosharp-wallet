@@ -1,5 +1,6 @@
 using System;
 using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using PeterO.Cbor2;
 
