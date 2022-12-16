@@ -1,10 +1,11 @@
-﻿using CardanoSharp.Wallet.Common;
-using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
-using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
-using CardanoSharp.Wallet.Models.Transactions;
-using PeterO.Cbor2;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using CardanoSharp.Wallet.Common;
+using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
+using CardanoSharp.Wallet.Models.Transactions;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
+using PeterO.Cbor2;
 
 namespace CardanoSharp.Wallet.Extensions.Models.Transactions
 {
@@ -137,17 +138,38 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
         {
             if(numberOfVKeyWitnessesToMock > 0)
                 transaction.TransactionWitnessSet.VKeyWitnesses.CreateMocks(numberOfVKeyWitnessesToMock);
-            
+
             var fee = CalculateFee(transaction, a, b, priceMem, priceStep);
             transaction.TransactionBody.Fee = fee;
 
             if (transaction.TransactionWitnessSet is not null)
                 transaction.TransactionWitnessSet.RemoveMocks();
-            
+
             return fee;
         }
 
-        
+        // This function sets ExUnits from the Ogmios / Blockfrost evaluation functions
+        public static void SetExUnits(this Transaction transaction, Dictionary<string, ExUnits> exUnits)
+        {
+            if (transaction.TransactionWitnessSet.Redeemers == null || exUnits == null) return;
+
+            foreach (Redeemer redeemer in transaction.TransactionWitnessSet.Redeemers)
+            {
+                string tag = redeemer.Tag.ToString().ToLower();
+                uint index = redeemer.Index;
+                string combined = $"{tag}:{index.ToString()}";
+
+                if (exUnits.TryGetValue(combined, out ExUnits exUnit))
+                {
+                    redeemer.ExUnits.Mem = (ulong)Math.Ceiling(exUnit.Mem * 1.1); // Increase Mem by 10% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
+                    redeemer.ExUnits.Steps = (ulong)Math.Ceiling(exUnit.Steps * 1.1); // Increase Steps by 10% buffer as per Ogmios suggestion. https://ogmios.dev/mini-protocols/local-tx-submission/
+                }
+                else {
+                    redeemer.ExUnits.Mem = FeeStructure.MaxTxExMem;
+                    redeemer.ExUnits.Steps = FeeStructure.MaxTxExSteps;
+                }
+            }
+        }
 
         public static byte[] Serialize(this Transaction transaction)
         {
