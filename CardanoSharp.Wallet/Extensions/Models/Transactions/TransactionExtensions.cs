@@ -180,6 +180,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             var fee = CalculateFee(transaction, a, b, priceMem, priceStep);
             transaction.TransactionBody.Fee = fee;
 
+            // Be careful when using this function if you have set mock witnesses earlier in the transaction building
             if (transaction.TransactionWitnessSet is not null)
                 transaction.TransactionWitnessSet.RemoveMocks();
 
