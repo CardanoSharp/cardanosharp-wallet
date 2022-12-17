@@ -2,9 +2,9 @@
 {
     public class ExUnits
     {
-        public uint Mem { get; set; }
-        public uint Steps { get; set; }
+        public ulong Mem { get; set; }
+        public ulong Steps { get; set; }
 
-        public ExUnits() {}
+        public ExUnits() { }
     }
 }

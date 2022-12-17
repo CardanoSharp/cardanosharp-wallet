@@ -9,10 +9,12 @@ namespace CardanoSharp.Wallet.Extensions.Models
 {
     public static class PlutusScriptV1Extension
     {
-        // IS THIS CORRECT??
         //https://cardano.stackexchange.com/questions/4573/how-to-generate-the-address-of-a-plutus-script-using-cardano-serialization-lib/8820#8820
         public static byte[] GetPolicyId(this PlutusV1Script plutusV1Script)
         {
+            // var unwrappedScript = CBORObject.DecodeFromBytes(plutusV1Script.script);
+            // var decodedScript = ((string)unwrappedScript.DecodeValueByCborType()).HexToByteArray();
+
             BigEndianBuffer buffer = new BigEndianBuffer();
             buffer.Write(new byte[] { 0x01 });
             buffer.Write(plutusV1Script.script);
@@ -33,14 +35,18 @@ namespace CardanoSharp.Wallet.Extensions.Models
                 throw new ArgumentNullException(nameof(plutusV1ScriptCbor));
             }
 
-            if (plutusV1ScriptCbor.Type !=  CBORType.ByteString)
+            if (plutusV1ScriptCbor.Type != CBORType.ByteString)
             {
-                throw new ArgumentException("plutusV1ScriptCbor is not expected type CBORType.ByteString");
+                throw new ArgumentException(
+                    "plutusV1ScriptCbor is not expected type CBORType.ByteString"
+                );
             }
-            
+
             var plutusV1Script = new PlutusV1Script();
-            plutusV1Script.script = ((string)plutusV1ScriptCbor.DecodeValueByCborType()).HexToByteArray();
-            return plutusV1Script;          
+            plutusV1Script.script = (
+                (string)plutusV1ScriptCbor.DecodeValueByCborType()
+            ).HexToByteArray();
+            return plutusV1Script;
         }
 
         public static byte[] Serialize(this PlutusV1Script plutusScriptV1)

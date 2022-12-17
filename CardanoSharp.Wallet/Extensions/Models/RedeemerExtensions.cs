@@ -1,5 +1,6 @@
 using System;
 using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using PeterO.Cbor2;
 
@@ -32,15 +33,17 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
             if (redeemerCbor.Count != 4)
             {
-                throw new ArgumentException("redeemerCbor has unexpected number of elements (expected 4)");
+                throw new ArgumentException(
+                    "redeemerCbor has unexpected number of elements (expected 4)"
+                );
             }
-            
+
             Redeemer redeemer = new Redeemer();
             redeemer.Tag = (RedeemerTag)redeemerCbor[0].DecodeValueToInt32();
             redeemer.Index = (uint)redeemerCbor[1].DecodeValueToInt32();
-            redeemer.PlutusData = (IPlutusData)redeemerCbor[2].DecodeValueByCborType();
+            redeemer.PlutusData = redeemerCbor[2].GetPlutusData();
             redeemer.ExUnits = (ExUnits)redeemerCbor[3].GetExUnits();
-            return redeemer;          
+            return redeemer;
         }
 
         public static byte[] Serialize(this Redeemer redeemer)
