@@ -751,7 +751,7 @@ namespace CardanoSharp.Wallet.Test
             //This should do the same
             var withEmptyTokenBundle = TransactionBodyBuilder.Create
                 .AddInput(getGenesisTransaction(), 0)
-                .AddOutput(baseAddr, 1, TokenBundleBuilder.Create, outputPurpose: OutputPurpose.Spend)
+                .AddOutput(baseAddr, 1, TokenBundleBuilder.Create)
                 .Build();
 
             //act
@@ -791,7 +791,7 @@ namespace CardanoSharp.Wallet.Test
             var transactionBody = TransactionBodyBuilder.Create
                 .AddInput(getGenesisTransaction(), 0)
                 .AddInput(getGenesisTransaction(), 0)
-                .AddOutput(baseAddr, 1, tokenBundle1, outputPurpose: OutputPurpose.Spend)
+                .AddOutput(baseAddr, 1, tokenBundle1)
                 .SetFee(1)
                 .Build();
 
