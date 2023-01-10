@@ -40,7 +40,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
 
             Redeemer redeemer = new Redeemer();
             redeemer.Tag = (RedeemerTag)redeemerCbor[0].DecodeValueToInt32();
-            redeemer.Index = (uint)redeemerCbor[1].DecodeValueToInt32();
+            redeemer.Index = (uint)redeemerCbor[1].DecodeValueToUInt32();
             redeemer.PlutusData = redeemerCbor[2].GetPlutusData();
             redeemer.ExUnits = (ExUnits)redeemerCbor[3].GetExUnits();
             return redeemer;
