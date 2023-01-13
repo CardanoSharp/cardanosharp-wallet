@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-    <PackageId>Orion.CardanoSharp.Wallet</PackageId>
+    <PackageId>CardanoSharp.Wallet</PackageId>
     <LangVersion>9.0</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Version>5.0.2</Version>
