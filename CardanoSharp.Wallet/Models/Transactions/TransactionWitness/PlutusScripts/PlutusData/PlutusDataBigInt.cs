@@ -35,6 +35,10 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     {
         public byte[] Value { get; set; }
 
+        public PlutusDataUInt(long number) {
+            Value = BitConverter.GetBytes(number);
+        }
+
         public CBORObject GetCBOR()
         {
             return CBORObject.FromObject(Value);
@@ -50,6 +54,10 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     public class PlutusDataNInt : IPlutusData
     {
         public byte[] Value { get; set; }
+
+        public PlutusDataNInt(int number) {
+            Value = BitConverter.GetBytes(number);
+        }
 
         public CBORObject GetCBOR()
         {
@@ -137,8 +145,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             }
 
             long data = (uint)dataCbor.DecodeValueToInt64();
-            byte[] byteArray = BitConverter.GetBytes(data);
-            PlutusDataUInt plutusDataUInt = new PlutusDataUInt() { Value = byteArray };
+            PlutusDataUInt plutusDataUInt = new PlutusDataUInt(data);
             return plutusDataUInt;
         }
 
@@ -155,16 +162,16 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             }
 
             var number = dataCbor.AsNumber();
-            if (!number.CanFitInUInt64())
+            if (!number.IsNegative())
             {
                 throw new ArgumentException(
-                    "Attempting to deserialize dataCbor as nint but number is larger than size nint"
+                    "Attempting to deserialize dataCbor as nint but number is not negative"
                 );
             }
 
-            ulong data = (uint)dataCbor.DecodeValueToUInt64();
-            byte[] byteArray = BitConverter.GetBytes(data);
-            PlutusDataNInt plutusDataNInt = new PlutusDataNInt() { Value = byteArray };
+            // TODO: Check for negative? 1/13/2023
+            int data = (int)dataCbor.DecodeValueToInt32();
+            PlutusDataNInt plutusDataNInt = new PlutusDataNInt(data);
             return plutusDataNInt;
         }
     }

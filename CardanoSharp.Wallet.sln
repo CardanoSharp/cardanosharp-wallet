@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CardanoSharp.Wallet", "CardanoSharp.Wallet\CardanoSharp.Wallet.csproj", "{473ACFFE-B526-4085-BA31-63178AD6E354}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orion.CardanoSharp.Wallet", "CardanoSharp.Wallet\CardanoSharp.Wallet.csproj", "{473ACFFE-B526-4085-BA31-63178AD6E354}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CardanoSharp.Wallet.Test", "CardanoSharp.Wallet.Test\CardanoSharp.Wallet.Test.csproj", "{79243311-E3E2-4731-BB89-663B720C5576}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orion.CardanoSharp.Wallet.Test", "CardanoSharp.Wallet.Test\CardanoSharp.Wallet.Test.csproj", "{79243311-E3E2-4731-BB89-663B720C5576}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F4010CE2-B269-4DC7-816A-5BA4CD18D414}"
 	ProjectSection(SolutionItems) = preProject
