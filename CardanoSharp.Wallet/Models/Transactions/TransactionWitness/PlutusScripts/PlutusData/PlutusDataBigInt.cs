@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
+using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Models.Addresses;
 using CardanoSharp.Wallet.Models.Transactions;
@@ -33,15 +35,16 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     // big_uint = #6.2(bounded_bytes)
     public class PlutusDataUInt : IPlutusData
     {
-        public byte[] Value { get; set; }
+        public BigInteger Value { get; set; }
 
-        public PlutusDataUInt(long number) {
-            Value = BitConverter.GetBytes(number);
+        public PlutusDataUInt(long number)
+        {
+            Value = new BigInteger(number);
         }
 
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromObject(Value);
+            return CBORObject.FromObject((long)Value);
         }
 
         public byte[] Serialize()
@@ -53,15 +56,16 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     // big_nint = #6.3(bounded_bytes)
     public class PlutusDataNInt : IPlutusData
     {
-        public byte[] Value { get; set; }
+        public BigInteger Value { get; set; }
 
-        public PlutusDataNInt(int number) {
-            Value = BitConverter.GetBytes(number);
+        public PlutusDataNInt(long number)
+        {
+            Value = new BigInteger(number);
         }
 
         public CBORObject GetCBOR()
         {
-            return CBORObject.FromObject(Value);
+            return CBORObject.FromObject((long)Value);
         }
 
         public byte[] Serialize()
@@ -86,17 +90,12 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
 
             var number = dataCbor.AsNumber();
             if (number.CanFitInInt32())
-            {
                 return dataCbor.GetPlutusDataInt();
-            }
-            else if (number.CanFitInInt64())
-            {
-                return dataCbor.GetPlutusDataUInt();
-            }
-            else
-            {
+
+            if (number.IsNegative())
                 return dataCbor.GetPlutusDataNInt();
-            }
+
+            return dataCbor.GetPlutusDataUInt();
         }
 
         public static PlutusDataInt GetPlutusDataInt(this CBORObject dataCbor)
@@ -144,7 +143,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
                 );
             }
 
-            long data = (uint)dataCbor.DecodeValueToInt64();
+            long data = (long)dataCbor.DecodeValueToInt64();
             PlutusDataUInt plutusDataUInt = new PlutusDataUInt(data);
             return plutusDataUInt;
         }
@@ -162,15 +161,14 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
             }
 
             var number = dataCbor.AsNumber();
-            if (!number.IsNegative())
+            if (!number.IsNegative() || !number.CanFitInInt64())
             {
                 throw new ArgumentException(
                     "Attempting to deserialize dataCbor as nint but number is not negative"
                 );
             }
 
-            // TODO: Check for negative? 1/13/2023
-            int data = (int)dataCbor.DecodeValueToInt32();
+            long data = (long)dataCbor.DecodeValueToInt64();
             PlutusDataNInt plutusDataNInt = new PlutusDataNInt(data);
             return plutusDataNInt;
         }
