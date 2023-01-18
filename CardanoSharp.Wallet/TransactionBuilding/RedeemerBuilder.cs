@@ -57,7 +57,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             //https://github.com/bloxbean/cardano-client-lib/blob/7322b16030d8fa3ac5417d5dc58c92df401855ad/function/src/main/java/com/bloxbean/cardano/client/function/helper/RedeemerUtil.java
             //https://cardano.stackexchange.com/questions/7969/meaning-of-index-of-redeemer-in-serialization-lib-10-4
             // Sort transaction inputs to determine redeemer index
-            transactionInputs.Sort((a, b) => $"{a.TransactionId.ToStringHex()}#{a.TransactionIndex}".CompareTo($"{b.TransactionId.ToStringHex()}#{b.TransactionIndex}"));
+            transactionInputs.Sort(new TransactionInputComparer());
 
             uint index = (uint)transactionInputs.IndexOf(scriptTransactionInput);
             _model.Index = index;
@@ -72,7 +72,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             //https://github.com/bloxbean/cardano-client-lib/blob/7322b16030d8fa3ac5417d5dc58c92df401855ad/function/src/main/java/com/bloxbean/cardano/client/function/helper/RedeemerUtil.java
             //https://cardano.stackexchange.com/questions/7969/meaning-of-index-of-redeemer-in-serialization-lib-10-4
             // Sort transaction inputs to determine redeemer index
-            transactionInputs.Sort((a, b) => $"{a.TransactionId.ToStringHex()}#{a.TransactionIndex}".CompareTo($"{b.TransactionId.ToStringHex()}#{b.TransactionIndex}"));
+            transactionInputs.Sort(new TransactionInputComparer());
 
             uint index = (uint)transactionInputs.FindIndex(t => t.TransactionId.ToStringHex() == utxo.TxHash && t.TransactionIndex == utxo.TxIndex);
             _model.Index = index;
