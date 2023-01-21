@@ -12,8 +12,11 @@ namespace CardanoSharp.Wallet.Test
             Assert.Equal(AssetLabelUtility.GetAssetLabelHex(1), "00001070");
             Assert.Equal(AssetLabelUtility.GetAssetLabelHex(23), "00017650");
             Assert.Equal(AssetLabelUtility.GetAssetLabelHex(99), "000632e0");
+            Assert.Equal(AssetLabelUtility.GetAssetLabelHex(100), "000643b0");
             Assert.Equal(AssetLabelUtility.GetAssetLabelHex(222), "000de140");
             Assert.Equal(AssetLabelUtility.GetAssetLabelHex(333), "0014df10");
+            Assert.Equal(AssetLabelUtility.GetAssetLabelHex(500), "001f4d70");
+            Assert.Equal(AssetLabelUtility.GetAssetLabelHex(600), "00258a50");
             Assert.Equal(AssetLabelUtility.GetAssetLabelHex(533), "00215410");
             Assert.Equal(AssetLabelUtility.GetAssetLabelHex(2000), "007d0550");
             Assert.Equal(AssetLabelUtility.GetAssetLabelHex(4567), "011d7690");
@@ -29,8 +32,11 @@ namespace CardanoSharp.Wallet.Test
             Assert.Equal(AssetLabelUtility.GetAssetLabelInt("00001070"), 1);
             Assert.Equal(AssetLabelUtility.GetAssetLabelInt("00017650"), 23);
             Assert.Equal(AssetLabelUtility.GetAssetLabelInt("000632e0"), 99);
+            Assert.Equal(AssetLabelUtility.GetAssetLabelInt("000643b0"), 100);
             Assert.Equal(AssetLabelUtility.GetAssetLabelInt("000de140"), 222);
             Assert.Equal(AssetLabelUtility.GetAssetLabelInt("0014df10"), 333);
+            Assert.Equal(AssetLabelUtility.GetAssetLabelInt("001f4d70"), 500);
+            Assert.Equal(AssetLabelUtility.GetAssetLabelInt("00258a50"), 600);
             Assert.Equal(AssetLabelUtility.GetAssetLabelInt("00215410"), 533);
             Assert.Equal(AssetLabelUtility.GetAssetLabelInt("007d0550"), 2000);
             Assert.Equal(AssetLabelUtility.GetAssetLabelInt("011d7690"), 4567);
