@@ -9,9 +9,21 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     {
         private byte[] Value { get; set; }
 
+        public PlutusDataBytes() { }
+
         public PlutusDataBytes(byte[] bytes)
         {
             Value = bytes;
+        }
+
+        public void SetHex(string hexString)
+        {
+            Value = hexString.HexToByteArray();
+        }
+
+        public void SetString(string normalString)
+        {
+            Value = normalString.ToBytes();
         }
 
         public CBORObject GetCBOR()
