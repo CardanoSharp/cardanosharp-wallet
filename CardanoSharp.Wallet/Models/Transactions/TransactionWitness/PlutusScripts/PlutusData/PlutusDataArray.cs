@@ -33,8 +33,8 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         }
     }
 
-    public static partial class PlutusDataExtensions 
-    {   
+    public static partial class PlutusDataExtensions
+    {
         // TODO 64 character length check?
         //https://github.com/bloxbean/cardano-client-lib/blob/7322b16030d8fa3ac5417d5dc58c92df401855ad/core/src/main/java/com/bloxbean/cardano/client/transaction/spec/ListPlutusData.java
         public static PlutusDataArray GetPlutusDataArray(this CBORObject dataCbor)

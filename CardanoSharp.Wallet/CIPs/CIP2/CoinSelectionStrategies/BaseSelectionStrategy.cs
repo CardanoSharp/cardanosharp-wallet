@@ -31,7 +31,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                         && ma.Name.Equals(asset.Name))?.Quantity ?? 0));
             }
         }
-        
+
         protected List<Utxo> OrderUTxOsByDescending(List<Utxo> utxos, Asset asset = null)
         {
             var orderedUtxos = new List<Utxo>();
@@ -52,7 +52,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
 
             return orderedUtxos;
         }
-        
+
         protected List<Utxo> OrderUTxOsByAscending (List<Utxo> utxos, Asset asset = null)
         {
             var orderedUtxos = new List<Utxo>();
