@@ -291,7 +291,7 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions
             if (transactionBodyCbor.ContainsKey(14))
             {
                 transactionBody.RequiredSigners = new List<byte[]>();
-
+                
                 var requiredSignersCbor = transactionBodyCbor[14];
                 foreach (var requiredSignerCbor in requiredSignersCbor.Values)
                 {
