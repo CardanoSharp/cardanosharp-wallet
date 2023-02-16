@@ -353,14 +353,14 @@ namespace CardanoSharp.Wallet.Utilities
             32,
             38314,
             32,
-            20000000000,
-            20000000000,
-            9462713,
-            1021,
+            35892428,
             10,
-            20000000000,
-            0,
-            20000000000
+            57996947,
+            18975,
+            10,
+            38887044,
+            32947,
+            10
         };
 
         public static CostModel PlutusV1CostModel = new CostModel { Language = Language.PlutusV1, Costs = plutusV1Costs };
