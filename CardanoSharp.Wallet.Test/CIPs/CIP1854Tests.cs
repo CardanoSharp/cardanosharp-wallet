@@ -183,7 +183,7 @@ public class CIP1854Tests
         Assert.Equal(controlStakeScriptBytes, statkePolicyId);
         
         //Generate Address
-        var actualAddress = AddressUtility.GetScriptAddress(paymentPolicyScript, stakePolicyScript, NetworkType.Testnet);
+        var actualAddress = AddressUtility.GetScriptWithScriptDelegationAddress(paymentPolicyScript, stakePolicyScript, NetworkType.Testnet);
         var expectedAddress = new Address(expectedBechAddress);
         Assert.Equal(actualAddress.ToString(), expectedAddress.ToString());
     }
@@ -259,7 +259,7 @@ public class CIP1854Tests
         
         //Generate Address
         Assert.ThrowsAsync<System.Exception>(() =>
-            Task.Run(() => AddressUtility.GetScriptAddress(paymentPolicyId, stakePolicyScript, NetworkType.Testnet)));
+            Task.Run(() => AddressUtility.GetScriptWithScriptDelegationAddress(paymentPolicyId, stakePolicyScript, NetworkType.Testnet)));
         Assert.ThrowsAsync<System.Exception>(() =>
             Task.Run(() => AddressUtility.GetScriptAddress(paymentPolicyScript, statkePolicyId, NetworkType.Testnet)));
     }
