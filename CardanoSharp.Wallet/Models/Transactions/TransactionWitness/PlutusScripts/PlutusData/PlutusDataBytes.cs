@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CardanoSharp.Wallet.Extensions;
 using PeterO.Cbor2;
 
@@ -7,7 +8,7 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
     // bounded_bytes
     public class PlutusDataBytes : IPlutusData
     {
-        private byte[] Value { get; set; }
+        public byte[] Value { get; set; }
 
         public PlutusDataBytes() { }
 
@@ -34,6 +35,29 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         public byte[] Serialize()
         {
             return GetCBOR().EncodeToBytes();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            PlutusDataBytes other = (PlutusDataBytes)obj;
+            return Value.SequenceEqual(other.Value);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                foreach (byte b in Value)
+                {
+                    hash = hash * 31 + b;
+                }
+                return hash;
+            }
         }
     }
 

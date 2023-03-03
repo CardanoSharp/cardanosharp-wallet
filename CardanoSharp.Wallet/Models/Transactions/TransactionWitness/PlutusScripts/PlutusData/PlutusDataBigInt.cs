@@ -30,6 +30,26 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         {
             return GetCBOR().EncodeToBytes();
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            PlutusDataInt other = (PlutusDataInt)obj;
+            return Value.Equals(other.Value);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 31 + Value.GetHashCode();
+                return hash;
+            }
+        }
     }
 
     // big_uint = #6.2(bounded_bytes)
@@ -51,6 +71,26 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         {
             return GetCBOR().EncodeToBytes();
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            PlutusDataUInt other = (PlutusDataUInt)obj;
+            return Value.Equals(other.Value);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 31 + Value.GetHashCode();
+                return hash;
+            }
+        }
     }
 
     // big_nint = #6.3(bounded_bytes)
@@ -71,6 +111,28 @@ namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScrip
         public byte[] Serialize()
         {
             return GetCBOR().EncodeToBytes();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is PlutusDataNInt))
+            {
+                return false;
+            }
+
+            PlutusDataNInt other = (PlutusDataNInt)obj;
+
+            return this.Value.Equals(other.Value);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 31 + Value.GetHashCode();
+                return hash;
+            }
         }
     }
 
