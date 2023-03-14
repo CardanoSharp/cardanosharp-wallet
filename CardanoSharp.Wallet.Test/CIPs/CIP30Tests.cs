@@ -125,7 +125,7 @@ public class CIP30Tests
 		Assert.NotNull(utxo.Balance.Assets);
 		Assert.Equal(1, utxo.Balance.Assets.Count);
 		Assert.Equal("635da8872ab583e67993c69e67f50f12cc34ef8e1e1d93da9a9fe0cd", utxo.Balance.Assets.First().PolicyId);
-		Assert.Equal("TMON", utxo.Balance.Assets.First().Name);
+		Assert.Equal("544d4f4e", utxo.Balance.Assets.First().Name);
 		Assert.Equal((long)6000, utxo.Balance.Assets.First().Quantity);
 	}
 
