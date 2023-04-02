@@ -1,5 +1,5 @@
 using System;
-using CardanoSharp.Wallet.Enums;
+using CardanoSharp.Wallet.Utilities;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.PlutusScripts;
 using PeterO.Cbor2;
 
@@ -15,7 +15,7 @@ namespace CardanoSharp.Wallet.Extensions.Models
             if (datumOption.Hash is not null)
             {
                 cborDatum.Add(0);
-                cborDatum.Add(CBORObject.DecodeFromBytes(datumOption.Hash));
+                cborDatum.Add(CBORObject.FromObject(datumOption.Hash));
             }
             else if (datumOption.Data is not null)
             {
@@ -60,6 +60,11 @@ namespace CardanoSharp.Wallet.Extensions.Models
             }
 
             return datumOption;
+        }
+
+        public static byte[] HashDatum(this DatumOption datumOption)
+        {
+            return HashUtility.Blake2b256(datumOption.Data!.Serialize());
         }
 
         public static byte[] Serialize(this DatumOption datumOption)
