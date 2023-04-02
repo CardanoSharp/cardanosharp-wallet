@@ -50,7 +50,9 @@ namespace CardanoSharp.Wallet.Extensions.Models
             var datumType = datumOptionCbor[0].DecodeValueToInt32();
             if (datumType == 0)
             {
-                datumOption.Hash = (byte[])datumOptionCbor[1].DecodeValueByCborType();
+                datumOption.Hash = (
+                    (string)datumOptionCbor[1].DecodeValueByCborType()
+                ).HexToByteArray();
             }
             else if (datumType == 1)
             {
