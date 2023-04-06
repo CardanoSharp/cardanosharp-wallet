@@ -16,5 +16,12 @@ namespace CardanoSharp.Wallet.CIPs.CIP2.Models
         public List<Utxo> SelectedUtxos { get; set; }
         public List<TransactionInput> Inputs { get; set; }
         public List<TransactionOutput> ChangeOutputs { get; set; }
+
+        public void Clear()
+        {
+            SelectedUtxos.Clear();
+            Inputs.Clear();
+            ChangeOutputs.Clear();
+        }
     }
 }
