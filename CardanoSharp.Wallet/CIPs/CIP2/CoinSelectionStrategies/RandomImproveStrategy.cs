@@ -33,7 +33,18 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
             {
                 // make sure we havent added too many utxos
                 // we minus 1 here because we will improve which will add an additional utxo
-                if (currentSelectedUtxo.Count() == limit-1) break;
+                if (currentSelectedUtxo.Count() + coinSelection.SelectedUtxos.Count() >= limit - 1)
+                {
+                    // If it is not enough amount, clear the current and existing selections
+                    if (currentAmount < amount)
+                    {
+                        currentSelectedUtxo.Clear();
+                        coinSelection.Clear();
+                        currentAmount = 0;
+                    }
+                    else
+                        break;
+                }
             
                 var availableLength = descendingAvailableUtxos.Count();
                 var randomIndex = rand.Next(availableLength - 1);
