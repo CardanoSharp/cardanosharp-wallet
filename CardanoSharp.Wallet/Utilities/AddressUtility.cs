@@ -56,6 +56,7 @@ namespace CardanoSharp.Wallet.Utilities
                 AddressType.Enterprise => "addr",
                 AddressType.EnterpriseScript => "addr",
                 AddressType.Stake => "stake",
+                AddressType.ScriptWithScriptDelegation => "addr",
                 _ => throw new Exception("Unknown address type")
             };
 
