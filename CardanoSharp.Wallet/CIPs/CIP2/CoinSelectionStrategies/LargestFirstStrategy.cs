@@ -33,7 +33,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP2
                 if (currentAmount > amount) break;
                 
                 // make sure we havent added too many utxos
-                if (coinSelection.SelectedUtxos.Count() == limit) break;
+                if (coinSelection.SelectedUtxos.Count() >= limit) break;
 
                 // add current item to selected UTxOs
                 coinSelection.SelectedUtxos.Add(ou);

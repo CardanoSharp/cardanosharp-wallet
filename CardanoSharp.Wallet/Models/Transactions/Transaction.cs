@@ -1,4 +1,6 @@
-﻿namespace CardanoSharp.Wallet.Models.Transactions
+﻿using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
+
+namespace CardanoSharp.Wallet.Models.Transactions
 {
     /// <summary>
     /// Parent class to create transactions. If a child class does not have

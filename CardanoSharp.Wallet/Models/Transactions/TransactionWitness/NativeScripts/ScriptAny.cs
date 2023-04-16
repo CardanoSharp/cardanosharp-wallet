@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CardanoSharp.Wallet.Models.Transactions.Scripts
+namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts
 {
     // script_any = (2, [ * native_script ])
     public class ScriptAny

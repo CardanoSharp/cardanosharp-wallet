@@ -7,15 +7,18 @@ using CardanoSharp.Wallet.Utilities;
 
 namespace CardanoSharp.Wallet.Models.Addresses
 {
-    public class Address : IEqualityComparer<Address>, IEquatable<Address>, IEquatable<string>, IEquatable<byte[]>
+    public class Address
+        : IEqualityComparer<Address>,
+            IEquatable<Address>,
+            IEquatable<string>,
+            IEquatable<byte[]>
     {
         private byte[] _bytes;
         private string _address;
         public AddressType AddressType { get; }
         public NetworkType NetworkType { get; }
-        public Address()
-        {
-        }
+
+        public Address() { }
 
         public Address(byte[] address)
         {
@@ -30,7 +33,7 @@ namespace CardanoSharp.Wallet.Models.Addresses
         {
             _bytes = address;
             _address = Bech32.Encode(address, prefix);
-            
+
             Prefix = prefix;
             AddressType = GetAddressType();
             NetworkType = GetNetworkType();
@@ -38,14 +41,8 @@ namespace CardanoSharp.Wallet.Models.Addresses
 
         public Address(string address)
         {
-            if (string.IsNullOrWhiteSpace(address)) 
+            if (string.IsNullOrWhiteSpace(address))
                 throw new ArgumentNullException(nameof(address));
-
-            
-            //if (!bech32.HasValidChars(address))
-            //{
-            //    throw new ArgumentException("Invalid characters", nameof(address));
-            //}
 
             _address = address;
             try
@@ -75,12 +72,17 @@ namespace CardanoSharp.Wallet.Models.Addresses
         {
             return (_bytes[0] >> 4) switch
             {
-                0x00 or 0x01 or 0x02 or 0x03 => AddressType.Base,
-                0x04 or 0x05 => AddressType.Ptr, 
+                0x00 => AddressType.Base,
+                0x01 => AddressType.Script,
+                0x02 => AddressType.BaseWithScriptDelegation,
+                0x03 => AddressType.ScriptWithScriptDelegation,
+                0x04 => AddressType.BaseWithPtrDelegation,
+                0x05 => AddressType.BaseWithPtrDelegation,
                 0x06 => AddressType.Enterprise,
-                //0x07 => AddressType.Script,
-                0x0e or 0x0f => AddressType.Reward,
-                _ => AddressType.Base, //@TODO: derive all AddressTypes
+                0x07 => AddressType.EnterpriseScript,
+                0x0e => AddressType.Stake,
+                0x0f => AddressType.ScriptStake,
+                _ => AddressType.Base
             };
         }
 
@@ -101,7 +103,7 @@ namespace CardanoSharp.Wallet.Models.Addresses
                 _ => NetworkType.Unknown,
             };
         }
-        
+
         public string Prefix { get; set; }
         public byte WitnessVersion { get; set; }
 
@@ -117,7 +119,8 @@ namespace CardanoSharp.Wallet.Models.Addresses
 
         public bool Equals(Address other)
         {
-            if (other == null) return false;
+            if (other == null)
+                return false;
             return Equals(other.GetBytes());
         }
 

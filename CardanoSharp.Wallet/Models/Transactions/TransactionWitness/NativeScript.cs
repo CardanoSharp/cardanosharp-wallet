@@ -1,7 +1,6 @@
-﻿using CardanoSharp.Wallet.Models.Transactions.Scripts;
-using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.Scripts;
+﻿using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
 
-namespace CardanoSharp.Wallet.Models.Transactions
+namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness
 {
     //  native_script =
     //     [script_pubkey
