@@ -5,12 +5,12 @@
     <PackageId>CardanoSharp.Wallet</PackageId>
     <LangVersion>9.0</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>5.0.14</Version>
-    <PackageProjectUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Orion-Crypto/cardanosharp-wallet</RepositoryUrl>
+    <Version>5.0.0</Version>
+    <PackageProjectUrl>https://github.com/CardanoSharp/cardanosharp-wallet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/CardanoSharp/cardanosharp-wallet</RepositoryUrl>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="6.0.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
