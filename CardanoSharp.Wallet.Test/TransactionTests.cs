@@ -340,7 +340,7 @@ namespace CardanoSharp.Wallet.Test
                         null
                     ),
                     Signature =
-                        "64a9521bf471ce48502725dd07c8a7bfe31f60a0e8ae73566be7b81229ba2b7b34e23276363d1fce56d0b8c39a0d7fc2dd5ebb983c486815c664ed8028c67304".HexToByteArray()
+                        "1f64eb3258b2df07f9c31d026643790b094df75857e56055675732e1e80b2e06d4a304c2d40fb3ecc51d5983ba49bf18a5c32237038559668c6f60655b376507".HexToByteArray()
                 }
             };
             Assert.Equal(
