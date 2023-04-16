@@ -120,20 +120,19 @@ public class CIP30Tests
     [Fact]
     public void Utxo_Deserialization_Test()
     {
-        // TEST NEEDS TO BE REDONE ENTIRELY CBOR IS IN PREALONZO FORMAT
-        // var utxoCbor = "828258207b2eb1b7126b5a94a5fb8dafee73c54210a3fe220a6d3b0effc7278471be185d00825839005a99cb175eb944462d6bfd29d06e0a69defc091d8e5ecab740afac6f1922fcdeeb6df8592d78b20c6e22fdb73fa9446aad05626d78000b7f821a0014851ea1581c635da8872ab583e67993c69e67f50f12cc34ef8e1e1d93da9a9fe0cda144544d4f4e191770";
-        // var utxo = utxoCbor.HexToByteArray().DeserializeUtxo();
-        // Assert.Equal("7b2eb1b7126b5a94a5fb8dafee73c54210a3fe220a6d3b0effc7278471be185d",
-        // 	utxo.TxHash);
-        // Assert.Equal((uint)0, utxo.TxIndex);
-        // Assert.Equal("addr_test1qpdfnjcht6u5g33dd07jn5rwpf5aalqfrk89aj4hgzh6cmceyt7da6mdlpvj679jp3hz9ldh8755g64dq43x67qqpdls6uzr2z",
-        // 	utxo.OutputAddress);
-        // Assert.Equal((ulong)1344798, utxo.Balance.Lovelaces);
-        // Assert.NotNull(utxo.Balance.Assets);
-        // Assert.Equal(1, utxo.Balance.Assets.Count);
-        // Assert.Equal("635da8872ab583e67993c69e67f50f12cc34ef8e1e1d93da9a9fe0cd", utxo.Balance.Assets.First().PolicyId);
-        // Assert.Equal("TMON", utxo.Balance.Assets.First().Name);
-        // Assert.Equal((long)6000, utxo.Balance.Assets.First().Quantity);
+      var utxoCbor = "828258207b2eb1b7126b5a94a5fb8dafee73c54210a3fe220a6d3b0effc7278471be185d00825839005a99cb175eb944462d6bfd29d06e0a69defc091d8e5ecab740afac6f1922fcdeeb6df8592d78b20c6e22fdb73fa9446aad05626d78000b7f821a0014851ea1581c635da8872ab583e67993c69e67f50f12cc34ef8e1e1d93da9a9fe0cda144544d4f4e191770";
+      var utxo = utxoCbor.HexToByteArray().DeserializeUtxo();
+      Assert.Equal("7b2eb1b7126b5a94a5fb8dafee73c54210a3fe220a6d3b0effc7278471be185d",
+        utxo.TxHash);
+      Assert.Equal((uint)0, utxo.TxIndex);
+      Assert.Equal("addr_test1qpdfnjcht6u5g33dd07jn5rwpf5aalqfrk89aj4hgzh6cmceyt7da6mdlpvj679jp3hz9ldh8755g64dq43x67qqpdls6uzr2z",
+        utxo.OutputAddress);
+      Assert.Equal((ulong)1344798, utxo.Balance.Lovelaces);
+      Assert.NotNull(utxo.Balance.Assets);
+      Assert.Equal(1, utxo.Balance.Assets.Count);
+      Assert.Equal("635da8872ab583e67993c69e67f50f12cc34ef8e1e1d93da9a9fe0cd", utxo.Balance.Assets.First().PolicyId);
+      Assert.Equal("544d4f4e", utxo.Balance.Assets.First().Name);
+      Assert.Equal((long)6000, utxo.Balance.Assets.First().Quantity);
     }
 
     [Fact]
