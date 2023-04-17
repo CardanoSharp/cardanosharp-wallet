@@ -1,20 +1,21 @@
 ﻿using CardanoSharp.Wallet.Enums;
-using CardanoSharp.Wallet.Models.Transactions;
-using System.Collections.Generic;
-using Xunit;
 using CardanoSharp.Wallet.Extensions;
 using CardanoSharp.Wallet.Extensions.Models;
 using CardanoSharp.Wallet.Extensions.Models.Transactions;
+using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
 using CardanoSharp.Wallet.Models.Keys;
-using CardanoSharp.Wallet.Utilities;
-using System.IO;
-using System.Text.Json;
-using System;
+using CardanoSharp.Wallet.Models.Transactions;
 using CardanoSharp.Wallet.TransactionBuilding;
+using CardanoSharp.Wallet.Utilities;
 using PeterO.Cbor2;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesses;
 using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
+using System.Text.Json;
+using Xunit;
 
 namespace CardanoSharp.Wallet.Test
 {
@@ -972,6 +973,63 @@ namespace CardanoSharp.Wallet.Test
                 "a50081825820000000000000000000000000000000000000000000000000000000000000000000018182583900c05e80bdcf267e7fe7bf4a867afe54a65a3605b32aae830ed07f8e1ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d941a0039c702021a000341fe031903e8048282008200581ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d9483028200581ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94581ccc339a35f9e0fe039cf510c761d4dd29040c48e9657fdac7e9c01d94",
                 serialized.ToStringHex()
             );
+        }
+
+        [Theory]
+        [InlineData("2eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", true)]
+        [InlineData("e02eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", false)]
+        [InlineData("b6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", false)]
+        public void CertificateBuilder_SetStakeRegistration_Tests(string stakeAddressHex, bool expectedSuccess)
+        {
+            var bytes = stakeAddressHex.HexToByteArray();
+            var actualSuccess = false;
+            try
+            {
+                CertificateBuilder.Create.SetStakeRegistration(bytes);
+                actualSuccess = true;
+            }
+            catch
+            { }
+            Assert.Equal(expectedSuccess, actualSuccess);
+        }
+
+        [Theory]
+        [InlineData("2eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", true)]
+        [InlineData("e02eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", false)]
+        [InlineData("b6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", false)]
+        public void CertificateBuilder_SetStakeDeregistration_Tests(string stakeAddressHex, bool expectedSuccess)
+        {
+            var bytes = stakeAddressHex.HexToByteArray();
+            var actualSuccess = false;
+            try
+            {
+                CertificateBuilder.Create.SetStakeDeregistration(bytes);
+                actualSuccess = true;
+            }
+            catch
+            { }
+            Assert.Equal(expectedSuccess, actualSuccess);
+        }
+
+        [Theory]
+        [InlineData("2eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", "ad4396a0f7c47e3d69ee8bd792c80ca0bffee61945cec5c42b4ae90f", true)]
+        [InlineData("e02eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", "ad4396a0f7c47e3d69ee8bd792c80ca0bffee61945cec5c42b4ae90f", false)]
+        [InlineData("2eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", "e0ad4396a0f7c47e3d69ee8bd792c80ca0bffee61945cec5c42b4ae90f", false)]
+        [InlineData("b6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", "ad4396a0f7c47e3d69ee8bd792c80ca0bffee61945cec5c42b4ae90f", false)]
+        [InlineData("2eb6d138fda3f907baba4d3e10ddc0cf18e4287c848759841909cf01", "4396a0f7c47e3d69ee8bd792c80ca0bffee61945cec5c42b4ae90f", false)]
+        public void CertificateBuilder_SetStakeDelegation_Tests(string stakeAddressHex, string stakePoolIdHex, bool expectedSuccess)
+        {
+            var stakeBytes = stakeAddressHex.HexToByteArray();
+            var poolBytes = stakePoolIdHex.HexToByteArray();
+            var actualSuccess = false;
+            try
+            {
+                CertificateBuilder.Create.SetStakeDelegation(stakeBytes, poolBytes);
+                actualSuccess = true;
+            }
+            catch
+            { }
+            Assert.Equal(expectedSuccess, actualSuccess);
         }
 
         [Fact]
