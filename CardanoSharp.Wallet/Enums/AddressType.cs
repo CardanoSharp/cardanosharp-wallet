@@ -3,10 +3,14 @@
     public enum AddressType
     {
         Base,
-        BaseScript,
-        Ptr,
+        Script,
+        BaseWithScriptDelegation,
+        ScriptWithScriptDelegation,
+        BaseWithPtrDelegation,
+        ScriptWithPtrDelegation,
         Enterprise,
         EnterpriseScript,
-        Reward
+        Stake,
+        ScriptStake
     }
 }

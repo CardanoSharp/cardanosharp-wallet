@@ -1,4 +1,4 @@
-﻿using CardanoSharp.Wallet.Models.Transactions.Scripts;
+﻿using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {

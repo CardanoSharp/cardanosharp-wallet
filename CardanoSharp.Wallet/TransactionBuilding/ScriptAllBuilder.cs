@@ -1,5 +1,5 @@
-﻿using CardanoSharp.Wallet.Models.Transactions;
-using CardanoSharp.Wallet.Models.Transactions.Scripts;
+﻿using CardanoSharp.Wallet.Models.Transactions.TransactionWitness;
+using CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts;
 using System.Collections.Generic;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
