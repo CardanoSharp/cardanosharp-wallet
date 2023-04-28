@@ -1,0 +1,6 @@
+# Ignore everything
+./target/debug/*
+
+# Allow cardanosharp_uplc.dll and .pdb files
+!./target/debug/cardanosharp_uplc.dll
+!./target/debug/cardanosharp_uplc.pdb
