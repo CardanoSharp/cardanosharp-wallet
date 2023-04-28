@@ -9,9 +9,9 @@ using System.Runtime.InteropServices;
 
 namespace CsBindgen
 {
-    public static unsafe partial class NativeMethods
+    public static unsafe partial class UPLCNativeMethods
     {
-        const string __DllName = "./UPLC/target/debug/cardanosharp_wallet_uplc.dll";
+        const string __DllName = "./UPLC/target/debug/cardanosharp_uplc.dll";
 
         [DllImport(__DllName, EntryPoint = "apply_params_to_plutus_script", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         public static extern PlutusScriptResult apply_params_to_plutus_script(byte* @params, byte* plutus_script, nuint params_length, nuint plutus_script_length);

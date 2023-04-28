@@ -24,7 +24,8 @@ fn main() {
 
     csbindgen::Builder::default()
         .input_extern_file("src/lib.rs")
-        .csharp_dll_name("./UPLC/target/debug/cardanosharp_wallet_uplc.dll")
+        .csharp_dll_name("./UPLC/target/debug/cardanosharp_uplc.dll")
+        .csharp_class_name("UPLCNativeMethods")
         .csharp_class_accessibility("public")
         //.csharp_use_function_pointer (false) // Uncomment this for Unity callback function support when running "cargo build" to get the dll
         .generate_csharp_file("./dotnet/UPLCNativeMethods.g.cs")        
