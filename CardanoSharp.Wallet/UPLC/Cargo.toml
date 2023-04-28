@@ -1,0 +1,16 @@
+[package]
+name = "cardanosharp_uplc"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+hex = "0.4.3"
+uplc = { version = "1.0.2-alpha", features = ["native-secp256k1"] }
+
+[build-dependencies]
+csbindgen = "1.7.2"
