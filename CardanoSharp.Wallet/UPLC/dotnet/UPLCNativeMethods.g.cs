@@ -9,17 +9,6 @@ using System.Runtime.InteropServices;
 
 namespace CsBindgen
 {
-    public static class UPLCMethods 
-    {
-        public static string ApplyParamsToPlutusScript() {
-            return "apply_params_to_plutus_script";
-        }
-
-        public static string GetExUnits() {
-            return "get_ex_units";
-        }
-    } 
-
     public static unsafe partial class UPLCNativeMethods
     {
         const string __DllName = "./UPLC/target/debug/cardanosharp_uplc.dll";
@@ -28,7 +17,9 @@ namespace CsBindgen
         public static extern PlutusScriptResult apply_params_to_plutus_script(byte* @params, byte* plutus_script, nuint params_length, nuint plutus_script_length);
 
         [DllImport(__DllName, EntryPoint = "get_ex_units", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-        public static extern ExUnitsResult get_ex_units(byte* tx, byte** utxos_one, byte** utxos_two, byte* cost_mdls, ulong initial_budget_mem, ulong initial_budget_step, ulong slot_config_zero_time, ulong slot_config_zero_slot, uint slot_config_slot_length, nuint tx_length, nuint utxos_length, nuint* utxos_one_length, nuint* utxos_two_length, nuint cost_mdls_length);
+        public static extern ExUnitsResult get_ex_units(byte* tx, byte** inputs, byte** outputs, byte* cost_mdls, ulong initial_budget_mem, ulong initial_budget_step, ulong slot_config_zero_time, ulong slot_config_zero_slot, uint slot_config_slot_length, nuint tx_length, nuint inputs_outputs_length, nuint* inputs_length, nuint* outputs_length, nuint cost_mdls_length);
+
+
     }
 
     [StructLayout(LayoutKind.Sequential)]
