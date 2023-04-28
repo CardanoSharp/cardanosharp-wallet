@@ -29,6 +29,8 @@ namespace CsBindgen
                 fixed (byte* plutusScriptPtr = &plutusScriptBytes[0])
                 
                 result = UPLCNativeMethods.apply_params_to_plutus_script(paramsPtr, plutusScriptPtr, paramsLength, plutusScriptLength);
+                if (!result.success)
+                    return null!;
                 
                 byte[] byteArray = new byte[result.length];
                 Marshal.Copy((IntPtr)result.value, byteArray, 0, (int)result.length);
@@ -38,6 +40,8 @@ namespace CsBindgen
             return scriptHex;
         }
 
+        // This function's Rust code needs to be debugged before it can be used
+        /*
         public static List<Redeemer> GetExUnits(Transaction transaction, NetworkType networkType) 
         {
             byte[] txBytes = transaction.Serialize();
@@ -90,6 +94,8 @@ namespace CsBindgen
                 fixed (nuint* outputsLengthPtr = &outputsLength[0])
 
                 result = UPLCNativeMethods.get_ex_units(txPtr, inputsPtr, outputsPtr, costMdlsPtr, initialBudgetMem, initialBudgetStep, slotConfigZeroTime, slotConfigZeroSlot, slotConfigSlotLength, txLength, length, inputsLengthPtr, outputsLengthPtr, costMdlsLength);
+                if (!result.success)
+                    return null!;
                 redeemersByteArray = ConvertByteArrayPointerToByteArray(result.value, result.length, result.length_value);
             };
 
@@ -102,6 +108,7 @@ namespace CsBindgen
 
             return redeemers;
         }
+        */
 
         public unsafe static byte** ConvertByteArrayToByteArrayPointer(byte[][] bytes)
         {

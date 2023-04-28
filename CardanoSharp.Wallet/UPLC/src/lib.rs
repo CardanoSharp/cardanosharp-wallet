@@ -70,9 +70,9 @@ pub extern "C" fn get_ex_units(
         let slot_config_tuple = (slot_config_zero_time, slot_config_zero_slot, slot_config_slot_length);
 
         let result = uplc::tx::eval_phase_two_raw(
-            &tx_bytes,
-            &converted_inputs_outputs_slice,
-            &cost_mdls_bytes,
+            tx_bytes,
+            converted_inputs_outputs_slice,
+            cost_mdls_bytes,
             initial_budget_tuple,
             slot_config_tuple,
             false,
