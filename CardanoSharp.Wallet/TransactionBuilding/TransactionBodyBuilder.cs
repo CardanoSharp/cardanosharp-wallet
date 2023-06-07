@@ -115,7 +115,7 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             DatumOption? datumOption = null, 
             ScriptReference? scriptReference = null, OutputPurpose outputPurpose = OutputPurpose.Spend)
         {
-            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, datumOption, scriptReference);
+            return AddOutput(address.GetBytes(), coin, tokenBundleBuilder, datumOption, scriptReference, outputPurpose);
         }
 
         public ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, 
