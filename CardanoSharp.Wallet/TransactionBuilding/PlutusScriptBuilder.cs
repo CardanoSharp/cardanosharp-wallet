@@ -5,13 +5,13 @@ using CardanoSharp.Wallet.Extensions.Models;
 
 namespace CardanoSharp.Wallet.TransactionBuilding
 {
-    public interface IPlutusScriptBuilder
+    public interface IPlutusV1ScriptBuilder : IABuilder<PlutusV1Script>
     {
-        IPlutusScriptBuilder SetScript(byte[] script);
-        IPlutusScriptBuilder SetScript(string scriptCBOR);
+        IPlutusV1ScriptBuilder SetScript(byte[] script);
+        IPlutusV1ScriptBuilder SetScript(string scriptCBOR);
     }
 
-    public class PlutusV1ScriptBuilder : ABuilder<PlutusV1Script>, IPlutusScriptBuilder
+    public class PlutusV1ScriptBuilder : ABuilder<PlutusV1Script>, IPlutusV1ScriptBuilder
     {
         private PlutusV1ScriptBuilder()
         {
@@ -28,20 +28,26 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             get => new PlutusV1ScriptBuilder();
         }
 
-        public IPlutusScriptBuilder SetScript(byte[] script) 
+        public IPlutusV1ScriptBuilder SetScript(byte[] script) 
         {
             _model.script = script;
             return this;
         }
 
-        public IPlutusScriptBuilder SetScript(string scriptCBOR)
+        public IPlutusV1ScriptBuilder SetScript(string scriptCBOR)
         {
             _model.script = ((string)CBORObject.DecodeFromBytes(scriptCBOR.HexToByteArray()).DecodeValueByCborType()).HexToByteArray();
             return this;
         }
     }
 
-    public class PlutusV2ScriptBuilder : ABuilder<PlutusV2Script>, IPlutusScriptBuilder
+    public interface IPlutusV2ScriptBuilder : IABuilder<PlutusV2Script>
+    {
+        IPlutusV2ScriptBuilder SetScript(byte[] script);
+        IPlutusV2ScriptBuilder SetScript(string scriptCBOR);
+    }
+
+    public class PlutusV2ScriptBuilder : ABuilder<PlutusV2Script>, IPlutusV2ScriptBuilder
     {
          private PlutusV2ScriptBuilder()
         {
@@ -58,14 +64,14 @@ namespace CardanoSharp.Wallet.TransactionBuilding
             get => new PlutusV2ScriptBuilder();
         }
 
-        public IPlutusScriptBuilder SetScript(byte[] script) 
+        public IPlutusV2ScriptBuilder SetScript(byte[] script) 
         {
             // This must be the decoded CBOR byte array
             _model.script = script;
             return this;
         }
 
-        public IPlutusScriptBuilder SetScript(string scriptCBOR)
+        public IPlutusV2ScriptBuilder SetScript(string scriptCBOR)
         {
             _model.script = ((string)CBORObject.DecodeFromBytes(scriptCBOR.HexToByteArray()).DecodeValueByCborType()).HexToByteArray();
             return this;
