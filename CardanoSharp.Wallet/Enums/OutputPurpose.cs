@@ -5,5 +5,6 @@
         Spend,
         Change,
         Mint,
+        Collateral
     }
 }

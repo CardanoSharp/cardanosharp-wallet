@@ -1,4 +1,4 @@
-﻿namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.Scripts
+﻿namespace CardanoSharp.Wallet.Models.Transactions.TransactionWitness.NativeScripts
 {
     public class ScriptInvalidAfter
     {
