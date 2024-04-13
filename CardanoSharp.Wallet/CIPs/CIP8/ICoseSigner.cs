@@ -6,7 +6,7 @@ namespace CardanoSharp.Wallet.CIPs.CIP8
     public interface ICoseSigner
     {
         CoseSign1 BuildCoseSign1(
-            byte[] payload, PrivateKey signingKey, byte[] externalAad = null, byte[] address = null);
+            byte[] payload, PrivateKey signingKey, byte[] externalAad = null, byte[] address = null, bool hashed = false);
 
         bool VerifyCoseSign1(
             CoseSign1 coseSign1, PublicKey verificationKey, byte[] externalAad = null, byte[] address = null);
