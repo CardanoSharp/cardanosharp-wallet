@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <PackageId>CardanoSharp.Wallet</PackageId>
     <LangVersion>9.0</LangVersion>
-    <Version>5.0.3</Version>
+    <Version>5.1.0</Version>
     <PackageProjectUrl>https://github.com/CardanoSharp/cardanosharp-wallet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/CardanoSharp/cardanosharp-wallet</RepositoryUrl>
     <Nullable>enable</Nullable>
