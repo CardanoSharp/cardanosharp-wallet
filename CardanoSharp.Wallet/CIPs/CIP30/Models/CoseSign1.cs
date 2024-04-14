@@ -10,12 +10,8 @@
 
 		public bool Hashed { get; set; } = false;
 
-		public byte[]? PayloadHash { get; set; }
-
 		public byte[] GetPayload()
 		{
-			if (Hashed && PayloadHash != null)
-				return PayloadHash;
 			return Payload;
 		}
 	}

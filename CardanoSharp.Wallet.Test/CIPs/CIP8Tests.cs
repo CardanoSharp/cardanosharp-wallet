@@ -84,24 +84,45 @@ namespace CardanoSharp.Wallet.Test.CIPs
             Assert.False(verified2);
         }
 
-        [Fact]
-        public void CompatibleWithCIP30Verification()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void CompatibleWithCIP30Verification(bool hash)
         {
             var mnemonic = new MnemonicService().Generate(24);
 
             var rootKey = mnemonic.GetRootKey();
 
+            var (_, sPub) = rootKey.GetKeyPairFromPath("m/1852'/1815'/0'/2/0");
+            var (aPriv, _) = rootKey.GetKeyPairFromPath("m/1852'/1815'/0'/0/0");
+
+
             var payload = "02708db4-fcd4-48d5-b228-52dd67a0dfd8";
 
-            var data = SignDataUtility.SignData(new EdDsaCoseSigner(), rootKey, payload, 0);
+            // CIP8 EdDsaCose signer instance
+            var signer = new EdDsaCoseSigner();
 
+            var data = SignDataUtility.SignData(signer, payload, sPub, aPriv, hash: hash);
+
+            // use CIP30 extension to get key
             var coseKey = data.GetCoseKey();
-            var coseSign1 = data.GetCoseSign1();
+
+            // use CIP8 coseSign1
+            var CIP8_coseSign1 = new CoseSign1(CBORObject.DecodeFromBytes(data.Signature.HexToByteArray()));
+
 
             var pubKey = new PublicKey(coseKey.Key, null);
-            var verified = pubKey.Verify(coseSign1.GetSigStructure(), coseSign1.Signature);
-            Assert.True(verified);
-            Assert.True(data.Verify());
+
+            // verify using CIP8 signer
+            var verified_CIP8 = signer.VerifyCoseSign1(CIP8_coseSign1, pubKey);
+
+            // verify using CIP30 
+            var verified_CIP30 = data.Verify();
+
+
+            Assert.True(verified_CIP8);
+            Assert.True(verified_CIP30);
+
         }
 
         [Theory]
@@ -123,7 +144,7 @@ namespace CardanoSharp.Wallet.Test.CIPs
 
             var rootKey = mnemonic.GetRootKey();
 
-            var data = SignDataUtility.SignData(new EdDsaCoseSigner(), rootKey, payload, 0);
+            var data = SignDataUtility.SignData(new EdDsaCoseSigner(), payload, rootKey);
 
             Assert.Equal(key, data.Key);
             Assert.Equal(signature, data.Signature);
