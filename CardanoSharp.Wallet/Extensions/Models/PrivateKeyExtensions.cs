@@ -39,8 +39,8 @@ namespace CardanoSharp.Wallet.Extensions.Models
         public static PrivateKey Decrypt(this PrivateKey privateKey, string password)
         {
             return new PrivateKey(privateKey.Key.Decrypt(password), privateKey.Chaincode.Decrypt(password));
-        }       
-        
+        }
+
         public static PublicKey GetPublicKey(this PrivateKey privateKey, bool withZeroByte = true)
         {
             var sk = new byte[privateKey.Key.Length];
@@ -102,6 +102,12 @@ namespace CardanoSharp.Wallet.Extensions.Models
             {
                 return Ed25519.SignCrypto(message, skey);
             }
+        }
+
+        public static (PrivateKey, PublicKey) GetKeyPairFromPath(this PrivateKey privateKey, string path, bool withZeroByte = true)
+        {
+            var priv = privateKey.Derive(path);
+            return (priv, priv.GetPublicKey(withZeroByte));
         }
     }
 }
