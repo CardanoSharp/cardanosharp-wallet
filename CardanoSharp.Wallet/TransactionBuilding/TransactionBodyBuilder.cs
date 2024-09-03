@@ -18,11 +18,11 @@ namespace CardanoSharp.Wallet.TransactionBuilding
         ITransactionBodyBuilder AddInput(string transactionId, uint transactionIndex);
         ITransactionBodyBuilder AddInput(byte[] transactionId, uint transactionIndex);
         ITransactionBodyBuilder AddOutput(TransactionOutput transactionOutput);
-        ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null, 
+        ITransactionBodyBuilder AddOutput(Address address, ulong coin, ITokenBundleBuilder? tokenBundleBuilder = null, 
                 DatumOption? datumOption = null, 
                 ScriptReference? scriptReference = null, 
                 OutputPurpose outputPurpose = OutputPurpose.Spend);
-        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder tokenBundleBuilder = null,
+        ITransactionBodyBuilder AddOutput(byte[] address, ulong coin, ITokenBundleBuilder? tokenBundleBuilder = null,
             DatumOption? datumOption = null, 
             ScriptReference? scriptReference = null, 
             OutputPurpose outputPurpose = OutputPurpose.Spend);

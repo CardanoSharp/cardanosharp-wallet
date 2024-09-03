@@ -144,9 +144,24 @@ namespace CardanoSharp.Wallet.Extensions.Models.Transactions.TransactionWitnesse
                 var plutusDatasCbor = transactionWitnessSetCbor[4];
                 foreach (var plutusData in plutusDatasCbor.Values)
                 {
-                    transactionWitnessSet.PlutusDatas.Add(
-                        (IPlutusData)plutusData.DecodeValueByCborType()
-                    );
+                    var result = plutusData.DecodeValueByCborType();
+
+                    if(plutusData.Type == CBORType.Array)
+                    {
+                        var plutusDataArray = result as PlutusDataArray;
+                        if (plutusDataArray != null)
+                        {
+                            foreach (var plutusDataItem in plutusDataArray.Value)
+                            {
+                                transactionWitnessSet.PlutusDatas.Add(plutusDataItem);
+                            }
+                        }
+                    }else
+                    {
+                        transactionWitnessSet.PlutusDatas.Add(
+                            (IPlutusData)result
+                        );
+                    }
                 }
             }
 
